@@ -1,0 +1,33 @@
+{
+  "name": "itboardgateway",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node dist/bin/www.js",
+    "dev": "tsc && NODE_ENV=development node dist/bin/www.js",
+    "test": "tsc && node ./node_modules/mocha/bin/mocha --recursive ./**/*.spec.js --timeout 8000"
+  },
+  "dependencies": {
+    "@types/validator": "^13.1.3",
+    "chai": "^4.2.0",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "express-jwt": "^6.0.0",
+    "mariadb": "^2.5.2",
+    "mocha": "^8.2.1",
+    "morgan": "~1.9.1",
+    "sequelize": "^6.5.0",
+    "supertest": "^6.0.1",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "^4.1.3",
+    "validator": "^13.5.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/express": "^4.17.9",
+    "@types/mocha": "^8.2.0",
+    "@types/supertest": "^2.0.10"
+  }
+}
