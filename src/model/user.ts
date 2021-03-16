@@ -5,13 +5,16 @@ import {
 } from "sequelize";
 
 
-class User extends Model {
+export class User extends Model {
     id: number = 0;
-    email: string = "";
+    email_name: string = "";
+    email_host: string = "";
     password: string = "";
     name: string = "";
     last_name: string = "";
     gender: number = 0;
+    createdAt: Date = new Date();
+    updatedAt: Date = new Date();
 }
 User.init({
     id: {
@@ -20,7 +23,11 @@ User.init({
         autoIncrement: true,
         primaryKey: true
     },
-    email: {
+    email_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    email_host: {
         type: DataTypes.STRING,
         allowNull: false,
     },
