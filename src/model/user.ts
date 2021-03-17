@@ -9,9 +9,9 @@ export class User extends Model {
     id: number = 0;
     email_name: string = "";
     email_host: string = "";
-    password: string = "";
-    name: string = "";
-    last_name: string = "";
+    password?: string = "";
+    name?: string;
+    last_name?: string;
     gender: number = 0;
     createdAt: Date = new Date();
     updatedAt: Date = new Date();
@@ -39,4 +39,8 @@ User.init({
     last_name: DataTypes.STRING,
     gender: DataTypes.TINYINT,
 
-}, { sequelize, modelName: 'user' });
+},{
+    sequelize,
+    modelName: 'user',
+    tableName: 'user',
+});
