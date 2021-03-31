@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('itboardgateway:server');
 var http = require('http');
+var webSocket = require('ws');
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +21,17 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+/**
+ * Create WebSocket server.
+ */
+
+
+const wsServer = new webSocket.Server({ server });
+wsServer.on('connection', (socket: any) => {
+  socket.on('message', (message: string) => console.log(message));
+});
+
 
 /**
  * Listen on provided port, on all network interfaces.
