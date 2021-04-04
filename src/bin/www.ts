@@ -29,9 +29,19 @@ var server = http.createServer(app);
 
 const wsServer = new webSocket.Server({ server });
 wsServer.on('connection', (socket: any) => {
-  socket.on('message', (message: string) => console.log(message));
+  socket.on('message', (message: string) => {
+    console.log(message);
+    //socket.send(testvariable);
+    wsServer.broadcast(characterLocation);
+    characterLocation = message;
+  });
 });
 
+wsServer.broadcast = function broadcast(message: any) {
+  wsServer.clients.forEach(function each(client: any) {
+    client.send(message);
+  });
+};
 
 /**
  * Listen on provided port, on all network interfaces.
