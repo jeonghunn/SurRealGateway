@@ -32,8 +32,7 @@ wsServer.on('connection', (socket: any) => {
   socket.on('message', (message: string) => {
     console.log(message);
     //socket.send(testvariable);
-    wsServer.broadcast(characterLocation);
-    characterLocation = message;
+    wsServer.broadcast(message);
   });
 });
 
