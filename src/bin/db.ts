@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize } from "sequelize-typescript";
 const config = require('../config/db_config');
 
 export const sequelize = new Sequelize(

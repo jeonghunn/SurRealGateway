@@ -1,7 +1,7 @@
-import { User } from '../model/user';
+import {User} from '../model/user';
 import jsonwebtoken from "jsonwebtoken";
 import bcrypt from 'bcrypt';
-import { Gender } from "../model/type";
+import {Gender} from "../model/type";
 
 const config = require('../config/config');
 
@@ -10,10 +10,6 @@ export class UserController {
     public getPasswordHash(password: string): string {
         let saltRounds: number = 10;
         return bcrypt.hashSync(password, saltRounds);
-    }
-
-    public simpleCreate(): Promise<any> {
-        return User.create({});
     }
 
     public getById(id: number): Promise<User | null> {
@@ -27,8 +23,8 @@ export class UserController {
     public getByEmail(name: string, host: string): Promise<User | null> {
         return User.findOne( {
             where: {
-                'email_name': name,
-                'email_host': host,
+                email_name: name,
+                email_host: host,
             }
         })
     }
@@ -36,9 +32,9 @@ export class UserController {
     public signUp(
         email: string,
         password: string,
-        name: string | null = null,
-        lastName: string | null = null,
-        gender: Gender | null = null,
+        name: string = '',
+        lastName: string = '',
+        gender: Gender = Gender.NON_SEXUAL,
 
     ): Promise<User> {
 

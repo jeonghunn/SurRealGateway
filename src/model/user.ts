@@ -1,46 +1,47 @@
-import { sequelize } from "../bin/db";
 import {
-    DataTypes,
+    AutoIncrement,
+    Column,
+    CreatedAt,
+    DataType,
     Model,
-} from "sequelize";
+    PrimaryKey,
+    Table,
+    UpdatedAt,
+} from "sequelize-typescript";
+import {Gender} from "./type";
+import { sequelize } from "../bin/db";
 
-
+@Table
 export class User extends Model {
+    @AutoIncrement
+    @PrimaryKey
+    @Column(DataType.BIGINT)
     id: number = 0;
-    email_name: string = "";
-    email_host: string = "";
-    password?: string = "";
-    name?: string;
-    last_name?: string;
-    gender: number = 0;
-    createdAt: Date = new Date();
-    updatedAt: Date = new Date();
-}
-User.init({
-    id: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    email_name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    email_host: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    name: DataTypes.STRING,
-    last_name: DataTypes.STRING,
-    gender: DataTypes.TINYINT,
 
-},{
-    sequelize,
-    modelName: 'user',
-    tableName: 'user',
-});
+    @Column(DataType.TEXT)
+    email_name!: string;
+
+    @Column(DataType.TEXT)
+    email_host!: string;
+
+    @Column(DataType.TEXT)
+    password!: string;
+
+    @Column(DataType.TEXT)
+    name!: string;
+
+    @Column(DataType.TEXT)
+    last_name!: string;
+
+    @Column(DataType.TINYINT)
+    gender!: Gender;
+
+    @CreatedAt
+    createdAt!: Date;
+
+    @UpdatedAt
+    updatedAt!: Date;
+
+}
+
+sequelize.addModels([ User ]);
