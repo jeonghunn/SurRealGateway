@@ -22,9 +22,10 @@ app.use('/user', usersRouter);
 app.use(function(err: any, req: any , res:any , next: any) {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
-    
+
+    console.log(err);
     res.status(err.status || 500);
-    res.json({message: err.message});
+    res.json({message: 'Something went wrong. Sorry for the inconvenience.'});
 });
 
 
