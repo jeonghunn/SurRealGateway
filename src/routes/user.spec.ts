@@ -51,8 +51,26 @@ describe('User', () => {
 
                 done();
             });
+    });
 
+    it('Sign In', (done) => {
+        request(app)
+            .post('/user/signin')
+            .send({
+                email: `${text}@${text}.com`,
+                password: '123456',
+            })
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    console.log(err, res);
+                    return;
+                }
 
+                console.log(res);
+                expect(res.body.token).not.to.be.null;
+                done();
+            });
     });
 
 

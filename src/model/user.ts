@@ -42,6 +42,10 @@ export class User extends Model {
     @UpdatedAt
     updatedAt!: Date;
 
+    public get email(): string {
+        return `${this.email_name}@${this.email_host}`;
+    }
+
 }
 
 sequelize.addModels([ User ]);

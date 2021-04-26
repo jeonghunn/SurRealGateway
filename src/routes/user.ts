@@ -49,4 +49,25 @@ router.post(
 
 });
 
+router.post(
+    '/signin',
+    body('email').isEmail(),
+    body('password').isLength({ min: 5 }),
+    (request: any, response: Response, next: NextFunction) => {
+        const userController: UserController = new UserController();
+        userController.signIn(request.body.email, request.body.password).then((user: User | null) => {
+            if (!user) {
+                return response.status(403).json({ message: 'Wrong email or password.' });
+            }
+
+            const token: string = userController.createToken(user.id, null, user.email, user.name);
+
+            return response.json({
+                user_id: user.id,
+                token: token,
+            });
+        });
+
+    });
+
 module.exports = router;

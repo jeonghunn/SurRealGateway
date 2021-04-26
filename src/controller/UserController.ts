@@ -7,9 +7,21 @@ const config = require('../config/config');
 
 export class UserController {
 
+    public get defaultExpiredAtTimeStamp(): number {
+        return new Date().getTime() + 86400;
+    }
+
     public getPasswordHash(password: string): string {
         let saltRounds: number = 10;
         return bcrypt.hashSync(password, saltRounds);
+    }
+
+    public isPasswordCorrect(password: string, hash?: string): Promise<boolean> {
+        if (!hash) {
+            return new Promise<boolean>(() => false);
+        }
+        
+        return bcrypt.compare(password, hash);
     }
 
     public getById(id: number): Promise<User | null> {
@@ -27,6 +39,17 @@ export class UserController {
                 email_host: host,
             }
         })
+    }
+
+    public signIn(email: string, password: string): Promise<User | null> {
+
+        const emailArray: string[] = email?.split('@', 2);
+
+        return this.getByEmail(emailArray[0], emailArray[1]).then((user: User | null) => {
+            return this.isPasswordCorrect(password, user?.password).then((isCorrect: boolean) => {
+                return isCorrect ? user : null;
+            });
+        });
     }
 
     public signUp(
@@ -66,7 +89,7 @@ export class UserController {
     ): string {
         const payload: any = {
             iss: config.serverDomain,
-            exp: expiredAt ? (expiredAt.getTime() / 1000) : 0,
+            exp: expiredAt ? (expiredAt.getTime() / 1000) : this.defaultExpiredAtTimeStamp,
             permission: 'user',
             id: userId,
             email: email,
