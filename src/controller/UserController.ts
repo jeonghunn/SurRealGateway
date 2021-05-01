@@ -46,6 +46,10 @@ export class UserController {
         const emailArray: string[] = email?.split('@', 2);
 
         return this.getByEmail(emailArray[0], emailArray[1]).then((user: User | null) => {
+            if (!user) {
+                return null;
+            }
+
             return this.isPasswordCorrect(password, user?.password).then((isCorrect: boolean) => {
                 return isCorrect ? user : null;
             });
