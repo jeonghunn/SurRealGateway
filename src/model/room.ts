@@ -3,6 +3,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    ForeignKey,
     Length,
     Model,
     PrimaryKey,
@@ -26,6 +27,7 @@ export class Room extends Model {
     @Column(DataType.TEXT)
     description!: string;
 
+    @ForeignKey(() => User)
     @Column(DataType.BIGINT)
     user!: User;
 
