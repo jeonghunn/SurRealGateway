@@ -3,3 +3,9 @@ export enum Gender {
     MALE,
     FEMALE,
 }
+
+export enum RoomStatus {
+    NORMAL,
+    REMOVED,
+    BLOCKED,
+}
