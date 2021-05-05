@@ -21,9 +21,11 @@ export class Room extends Model {
     @Column(DataType.INTEGER)
     id: number = 0;
 
+    @Length({ max: 30 })
     @Column(DataType.TEXT)
     name!: string;
 
+    @Length({ max: 30 })
     @Column(DataType.TEXT)
     description!: string;
 
@@ -36,7 +38,7 @@ export class Room extends Model {
     ip_address!: string;
 
     @Column(DataType.INTEGER)
-    participate_count!: number;
+    online_count!: number;
 
     @Column(DataType.INTEGER)
     limit!: number;
