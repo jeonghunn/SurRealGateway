@@ -17,7 +17,7 @@ export class UserController {
     }
 
     public isPasswordCorrect(password: string, hash?: string): Promise<boolean> {
-        if (!hash) {
+        if (!password || !hash) {
             return new Promise<boolean>(() => false);
         }
         

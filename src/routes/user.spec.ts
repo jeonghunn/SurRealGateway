@@ -7,6 +7,26 @@ let app = require('../app');
 describe('User', () => {
     const text: string = new Date().getTime().toString();
 
+    it('Sign Up - Valistaion Test', (done) => {
+        request(app)
+            .post('/user')
+            .send({
+                email: `com`,
+                password: '123456',
+                name: 'Hihi',
+            })
+            .expect(400)
+            .end((err, res) => {
+                if (err) {
+                    console.log(err, res);
+                    return;
+                }
+                done();
+            });
+
+
+    });
+
     it('Sign Up', (done) => {
         request(app)
             .post('/user')

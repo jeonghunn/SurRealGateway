@@ -18,6 +18,11 @@ router.post(
     body('password').isLength({ min: 5 }),
     (req: any, res: Response, next: NextFunction) => {
     const userController: UserController = new UserController();
+    const errors: any = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     userController.isEmailDuplicate(req.body.email).then(isEmailDuplicated => {
         if (isEmailDuplicated) {
             res.status(409);
@@ -59,6 +64,11 @@ router.post(
     body('password').isLength({ min: 5 }),
     (request: any, response: Response, next: NextFunction) => {
         const userController: UserController = new UserController();
+        const errors: any = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({errors: errors.array()});
+        }
+
         userController.signIn(request.body.email, request.body.password).then((user: User | null) => {
             if (!user) {
                 return response.status(403).json({ message: 'Wrong email or password.' });
