@@ -7,7 +7,7 @@ let app = require('../app');
 describe('User', () => {
     const text: string = new Date().getTime().toString();
 
-    it('Sign Up - Valistaion Test', (done) => {
+    it('Sign Up - Validation Test', (done) => {
         request(app)
             .post('/user')
             .send({
