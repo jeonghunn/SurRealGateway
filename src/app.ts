@@ -22,12 +22,17 @@ app.use('/room', roomRouter)
 
 // error handler
 app.use(function(err: any, req: any , res:any , next: any) {
+    let message: string = 'Something went wrong. Sorry for the inconvenience.';
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
+    if (err.status < 500) {
+        message = err.message;
+    }
+
     console.log(err);
     res.status(err.status || 500);
-    res.json({message: 'Something went wrong. Sorry for the inconvenience.'});
+    res.json({ message });
 });
 
 
