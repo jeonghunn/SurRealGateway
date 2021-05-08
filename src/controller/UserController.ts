@@ -11,6 +11,13 @@ export class UserController {
         return new Date().getTime() + 86400;
     }
 
+    public get authCookieOptions(): any {
+        return {
+            maxAge: 900000,
+            encode: (v: any) => v,
+        };
+    }
+
     public getPasswordHash(password: string): string {
         let saltRounds: number = 10;
         return bcrypt.hashSync(password, saltRounds);

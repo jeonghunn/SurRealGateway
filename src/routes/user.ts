@@ -46,9 +46,7 @@ router.post(
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            res.cookie('Authorization', `Bearer ${token}`, {
-                maxAge: 900000,
-            });
+            res.cookie('Authorization', 'Bearer' + ' ' + token, userController.authCookieOptions);
 
             res.json({
                 user_id: user.id,
@@ -78,9 +76,7 @@ router.post(
 
             const token: string = userController.createToken(user.id, null, user.email, user.name);
 
-            response.cookie('Authorization', `Bearer ${token}`, {
-                maxAge: 900000,
-            });
+            response.cookie('Authorization', `Bearer ${token}`, userController.authCookieOptions);
 
             return response.json({
                 user_id: user.id,
