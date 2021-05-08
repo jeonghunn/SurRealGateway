@@ -103,6 +103,7 @@ router.get('/verify',
         }
         response.json({
             user: {
+                id: user.id,
                 name: user.name,
                 last_name: user.last_name,
                 email_host: user.email_host,
