@@ -98,7 +98,7 @@ router.get('/verify',
 
     userController.getById(request.user.id).then((user: User | null) => {
         if (!user) {
-            response.status(404);
+            response.status(401);
             return;
         }
         response.json({
