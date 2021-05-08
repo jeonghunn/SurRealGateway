@@ -8,7 +8,9 @@ import {
     validationResult,
 } from "express-validator";
 import {User} from "../model/user";
+import jwt from "express-jwt";
 
+const config = require('../config/config');
 const express = require('express');
 const router = express.Router();
 
@@ -87,5 +89,30 @@ router.post(
         });
 
     });
+
+
+router.get('/verify',
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    (request: any, response: Response, next: NextFunction) => {
+    const userController: UserController = new UserController();
+
+    userController.getById(request.user.id).then((user: User | null) => {
+        if (!user) {
+            response.status(404);
+            return;
+        }
+        response.json({
+            user: {
+                name: user.name,
+                last_name: user.last_name,
+                email_host: user.email_host,
+                email_name: user.email_name,
+                createdAt: user.createdAt,
+            }
+        });
+    });
+
+
+});
 
 module.exports = router;

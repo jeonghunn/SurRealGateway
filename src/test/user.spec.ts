@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import request from 'supertest';
 import {UserController} from "../controller/UserController";
 import {User} from "../model/user";
+import {TestUtil} from "./TestUtil";
 let app = require('../app');
 
 describe('User', () => {
@@ -91,6 +92,29 @@ describe('User', () => {
                 expect(res.body.token).not.to.be.null;
                 done();
             });
+    });
+
+    it('User Verify', (done) => {
+        const testUtil: TestUtil = new TestUtil();
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .get('/user/verify')
+                .set('Authorization', `Bearer ${res.body.token}`)
+                .send({
+                })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        console.log(err, res);
+                        return;
+                    }
+
+                    expect(res.body.user.email_name).equals('test');
+                    done();
+                });
+        });
+
+
     });
 
 
