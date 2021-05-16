@@ -13,7 +13,7 @@ export class UserController {
 
     public get authCookieOptions(): any {
         return {
-            maxAge: 900000,
+            maxAge: 86400 * 1000,
             encode: (v: any) => v,
         };
     }
