@@ -9,3 +9,14 @@ export enum RoomStatus {
     REMOVED,
     BLOCKED,
 }
+
+export enum Status {
+    NORMAL,
+    REMOVED,
+}
+
+export enum RelationCategory {
+    FRIEND_REQUEST,
+    FRIEND,
+    BLOCKED,
+}
