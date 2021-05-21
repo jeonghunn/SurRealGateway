@@ -8,7 +8,10 @@ import {
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
-import {Gender, RelationCategory, RoomStatus, Status} from "./type";
+import {
+    RelationCategory,
+    Status,
+} from "./type";
 import { sequelize } from "../bin/db";
 import {User} from "./user";
 
