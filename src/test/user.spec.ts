@@ -142,8 +142,10 @@ describe('User', () => {
             request(app)
                 .get('/user/1')
                 .send({})
-                .expect(401);
-            done();
+                .expect(401)
+                .end((err, res) => {
+                    done();
+                });
         });
     });
 
