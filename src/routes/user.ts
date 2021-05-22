@@ -5,19 +5,24 @@ import {
 import { UserController } from "../controller/UserController";
 import {
     body,
+    param,
     validationResult,
 } from "express-validator";
 import {User} from "../model/user";
 import jwt from "express-jwt";
+import { Util } from "../core/util";
 
 const config = require('../config/config');
 const express = require('express');
 const router = express.Router();
+const util: Util = new Util();
 
 router.post(
     '/',
-    body('email').isEmail(),
-    body('password').isLength({ min: 5 }),
+    util.validate([
+        body('email').isEmail(),
+        body('password').isLength({ min: 5 }),
+    ]),
     (req: any, res: Response, next: NextFunction) => {
     const userController: UserController = new UserController();
     const errors: any = validationResult(req);
@@ -60,8 +65,10 @@ router.post(
 
 router.post(
     '/signin',
-    body('email').isEmail(),
-    body('password').isLength({ min: 5 }),
+    util.validate([
+        body('email').isEmail(),
+        body('password').isLength({ min: 5 }),
+    ]),
     (request: any, response: Response, next: NextFunction) => {
         const userController: UserController = new UserController();
         const errors: any = validationResult(request);
@@ -113,6 +120,9 @@ router.get('/verify',
 });
 
 router.get('/:userId',
+    util.validate([
+        param('userId').isInt(),
+    ]),
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const userController: UserController = new UserController();

@@ -1,4 +1,5 @@
 import express from "express";
+import { Util } from "./core/util";
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -7,6 +8,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/user');
 var roomRouter = require('./routes/room');
+const util: Util = new Util();
 
 var app = express();
 
