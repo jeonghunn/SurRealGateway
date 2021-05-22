@@ -112,4 +112,27 @@ router.get('/verify',
 
 });
 
+router.get('/:userId',
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    (request: any, response: Response, next: NextFunction) => {
+        const userController: UserController = new UserController();
+
+        userController.getById(request.params.userId).then((user: User | null) => {
+            if (!user) {
+                response.status(401);
+                return;
+            }
+            response.json({
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    last_name: user.last_name,
+                    createdAt: user.createdAt,
+                }
+            });
+        });
+
+
+    });
+
 module.exports = router;

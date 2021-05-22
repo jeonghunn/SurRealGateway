@@ -114,9 +114,37 @@ describe('User', () => {
                 });
         });
 
-
     });
 
+    it('User - Get Info', (done) => {
+        const testUtil: TestUtil = new TestUtil();
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .get('/user/1')
+                .set('Authorization', `Bearer ${res.body.token}`)
+                .send({})
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        console.log(err, res);
+                        return;
+                    }
 
+                    expect(res.body.user.name).exist;
+                    done();
+                });
+        });
+    });
+
+    it('User - Get Info Without Signing In', (done) => {
+        const testUtil: TestUtil = new TestUtil();
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .get('/user/1')
+                .send({})
+                .expect(401);
+            done();
+        });
+    });
 
 });
