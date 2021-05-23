@@ -129,7 +129,7 @@ router.get('/:userId',
 
         userController.getById(request.params.userId).then((user: User | null) => {
             if (!user) {
-                response.status(401);
+                response.status(404).json({});
                 return;
             }
             response.json({
