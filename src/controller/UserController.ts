@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import {
     Gender,
     UserPermission,
+    UserStatus,
 } from "../model/type";
 
 const config = require('../config/config');

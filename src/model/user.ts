@@ -11,6 +11,7 @@ import {
 import {
     Gender,
     UserPermission,
+    UserStatus,
 } from "./type";
 import { sequelize } from "../bin/db";
 
@@ -38,6 +39,9 @@ export class User extends Model {
 
     @Column(DataType.TINYINT)
     gender!: Gender;
+
+    @Column(DataType.TINYINT)
+    status!: UserStatus;
 
     @Column(DataType.TINYINT)
     permission!: UserPermission;

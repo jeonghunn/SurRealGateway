@@ -15,6 +15,12 @@ export enum Status {
     REMOVED,
 }
 
+export enum UserStatus {
+    NORMAL,
+    REMOVED,
+    DEACTIVATED,
+}
+
 export enum UserPermission {
     USER,
     ADMIN,
