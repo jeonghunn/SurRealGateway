@@ -15,6 +15,11 @@ export enum Status {
     REMOVED,
 }
 
+export enum UserPermission {
+    USER,
+    ADMIN,
+}
+
 export enum RelationCategory {
     FRIEND_REQUEST,
     FRIEND,

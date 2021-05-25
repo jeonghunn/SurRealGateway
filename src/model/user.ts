@@ -8,7 +8,10 @@ import {
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
-import {Gender} from "./type";
+import {
+    Gender,
+    UserPermission,
+} from "./type";
 import { sequelize } from "../bin/db";
 
 @Table
@@ -35,6 +38,9 @@ export class User extends Model {
 
     @Column(DataType.TINYINT)
     gender!: Gender;
+
+    @Column(DataType.TINYINT)
+    permission!: UserPermission;
 
     @CreatedAt
     createdAt!: Date;

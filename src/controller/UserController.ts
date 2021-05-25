@@ -1,7 +1,10 @@
 import {User} from '../model/user';
 import jsonwebtoken from "jsonwebtoken";
 import bcrypt from 'bcrypt';
-import {Gender} from "../model/type";
+import {
+    Gender,
+    UserPermission,
+} from "../model/type";
 
 const config = require('../config/config');
 
@@ -81,6 +84,8 @@ export class UserController {
             password: passwordHash,
             name,
             last_name: lastName,
+            status: UserStatus.NORMAL,
+            permission: UserPermission.ADMIN,
             gender,
         });
     }
