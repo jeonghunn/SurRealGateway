@@ -6,6 +6,7 @@ import {
     UserPermission,
     UserStatus,
 } from "../model/type";
+import {Op} from "sequelize";
 
 const config = require('../config/config');
 
@@ -39,6 +40,7 @@ export class UserController {
         return User.findOne( {
             where: {
                 'id': id,
+                [Op.eq]: UserStatus.NORMAL,
             }
         })
     }
@@ -48,6 +50,7 @@ export class UserController {
             where: {
                 email_name: name,
                 email_host: host,
+                [Op.eq]: UserStatus.NORMAL,
             }
         })
     }
