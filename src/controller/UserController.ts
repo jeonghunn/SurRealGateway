@@ -39,8 +39,7 @@ export class UserController {
     public getById(id: number): Promise<User | null> {
         return User.findOne( {
             where: {
-                'id': id,
-                [Op.eq]: UserStatus.NORMAL,
+                id: id,
             }
         })
     }
@@ -50,9 +49,8 @@ export class UserController {
             where: {
                 email_name: name,
                 email_host: host,
-                [Op.eq]: UserStatus.NORMAL,
             }
-        })
+        });
     }
 
     public signIn(email: string, password: string): Promise<User | null> {
