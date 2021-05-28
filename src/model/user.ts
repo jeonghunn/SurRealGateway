@@ -3,6 +3,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    Index,
     Model,
     PrimaryKey,
     Table,
@@ -19,7 +20,11 @@ import { sequelize } from "../bin/db";
 export class User extends Model {
     @AutoIncrement
     @PrimaryKey
-    @Column(DataType.BIGINT)
+    @Index
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
     id: number = 0;
 
     @Column(DataType.TEXT)
