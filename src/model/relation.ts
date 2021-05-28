@@ -3,6 +3,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    Index,
     Model,
     PrimaryKey,
     Table,
@@ -10,7 +11,7 @@ import {
 } from "sequelize-typescript";
 import {
     RelationCategory,
-    Status,
+    RelationStatus,
 } from "./type";
 import { sequelize } from "../bin/db";
 import {User} from "./user";
@@ -19,20 +20,29 @@ import {User} from "./user";
 export class Relation extends Model {
     @AutoIncrement
     @PrimaryKey
+    @Index('relation_user_target')
     @Column(DataType.INTEGER)
     id: number = 0;
 
-    @Column(DataType.INTEGER)
+    @Column(DataType.TINYINT)
     category!: RelationCategory;
 
-    @Column(DataType.INTEGER)
+    @Index('relation_user_target')
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
     user!: User;
 
-    @Column(DataType.INTEGER)
+    @Index('relation_user_target')
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
     target!: User;
 
-    @Column(DataType.INTEGER)
-    status!: Status;
+    @Column(DataType.TINYINT)
+    status!: RelationStatus;
 
     @CreatedAt
     createdAt!: Date;
