@@ -4,6 +4,7 @@ import {
     CreatedAt,
     DataType,
     ForeignKey,
+    Index,
     Length,
     Model,
     PrimaryKey,
@@ -29,8 +30,12 @@ export class Room extends Model {
     @Column(DataType.TEXT)
     description!: string;
 
+    @Index
     @ForeignKey(() => User)
-    @Column(DataType.BIGINT)
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
     user!: User;
 
     @Length({min: 0, max: 250})
