@@ -15,6 +15,12 @@ export enum Status {
     REMOVED,
 }
 
+export enum RelationStatus {
+    NORMAL,
+    REMOVED,
+    PENDING,
+}
+
 export enum UserStatus {
     NORMAL,
     REMOVED,
