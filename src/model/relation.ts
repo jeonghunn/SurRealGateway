@@ -3,6 +3,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    ForeignKey,
     Index,
     Model,
     PrimaryKey,
@@ -32,14 +33,16 @@ export class Relation extends Model {
         type: DataType.BIGINT.UNSIGNED,
         allowNull: false,
     })
-    user!: User;
+    @ForeignKey(() => User)
+    user_id!: number;
 
     @Index('relation_user_target')
     @Column({
         type: DataType.BIGINT.UNSIGNED,
         allowNull: false,
     })
-    target!: User;
+    @ForeignKey(() => User)
+    target_id!: number;
 
     @Column(DataType.TINYINT)
     status!: RelationStatus;

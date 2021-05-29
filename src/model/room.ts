@@ -36,7 +36,7 @@ export class Room extends Model {
         type: DataType.BIGINT.UNSIGNED,
         allowNull: false,
     })
-    user!: User;
+    user_id!: number;
 
     @Length({min: 0, max: 250})
     @Column(DataType.TEXT)
