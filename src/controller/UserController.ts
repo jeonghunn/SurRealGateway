@@ -41,7 +41,10 @@ export class UserController {
             where: {
                 id: id,
             }
-        })
+        }).catch((e) => {
+            console.log(e);
+            return null;
+        });
     }
 
     public getByEmail(name: string, host: string): Promise<User | null> {
@@ -50,7 +53,10 @@ export class UserController {
                 email_name: name,
                 email_host: host,
             }
-        });
+        }).catch((e) => {
+            console.log(e);
+            return null;
+        });;
     }
 
     public signIn(email: string, password: string): Promise<User | null> {
