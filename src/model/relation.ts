@@ -23,7 +23,7 @@ export class Relation extends Model {
     @PrimaryKey
     @Index('relation_user_target')
     @Column(DataType.INTEGER)
-    id: number = 0;
+    id!: number;
 
     @Column(DataType.TINYINT)
     category!: RelationCategory;

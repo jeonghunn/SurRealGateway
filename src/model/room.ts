@@ -20,7 +20,7 @@ export class Room extends Model {
     @AutoIncrement
     @PrimaryKey
     @Column(DataType.INTEGER)
-    id: number = 0;
+    id!: number;
 
     @Length({ max: 30 })
     @Column(DataType.TEXT)

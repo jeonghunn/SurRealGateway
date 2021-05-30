@@ -25,7 +25,7 @@ export class User extends Model {
         type: DataType.BIGINT.UNSIGNED,
         allowNull: false,
     })
-    id: number = 0;
+    id!: number;
 
     @Column(DataType.TEXT)
     email_name!: string;
