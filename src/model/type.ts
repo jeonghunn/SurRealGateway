@@ -33,7 +33,6 @@ export enum UserPermission {
 }
 
 export enum RelationCategory {
-    FRIEND_REQUEST,
     FRIEND,
     BLOCKED,
 }
