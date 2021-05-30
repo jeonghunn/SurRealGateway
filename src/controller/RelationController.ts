@@ -107,7 +107,6 @@ export class RelationController {
                             targetId,
                             userId,
                         ).then((() => {
-                            console.log("ACCEPTTis succc")
                             return this.create(userId, targetId, RelationCategory.FRIEND, RelationStatus.NORMAL);
                         }));
                     case RelationStatus.REMOVED:
