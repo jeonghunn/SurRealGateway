@@ -4,12 +4,15 @@ import {UserController} from "../controller/UserController";
 import {User} from "../model/user";
 import {TestUtil} from "./TestUtil";
 import {RelationCategory} from "../model/type";
+import {Relation} from "../model/relation";
+import {RelationController} from "../controller/RelationController";
 let app = require('../app');
 
 describe('User', () => {
     const text: string = new Date().getTime().toString();
     const testUtil: TestUtil = new TestUtil();
     let newUserToken: string;
+    let newUserId: number;
 
     it('Sign Up - Validation Test', (done) => {
         request(app)
@@ -47,6 +50,7 @@ describe('User', () => {
                 }
 
                 newUserToken = res.body.token;
+                newUserId = res.body.id;
 
                 const userController: UserController = new UserController();
                 userController.getByEmail(`${text}`, `${text}.com`).then((result) =>{
@@ -73,6 +77,28 @@ describe('User', () => {
                     }
                     expect(res.body.relation.category).equals(RelationCategory.FRIEND);
                     done();
+                });
+        });
+    });
+
+    it('UnFriend Request', (done) => {
+        const relationController: RelationController = new RelationController();
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .delete('/user/22/friend')
+                .set('Authorization', `Bearer ${newUserToken}`)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        console.log(err, res);
+                        return;
+                    }
+
+                    relationController.getList(newUserId, 22).then((result) => {
+                        expect(result?.length).equals(0);
+                        done();
+                    });
+
                 });
         });
     });

@@ -27,6 +27,43 @@ export class RelationController {
         });
     }
 
+    public delete(
+        userId: number,
+        targetId: number,
+        category: RelationCategory,
+    ): Promise<[number, Relation[]] | null> {
+
+        return Relation.update(
+            {
+                status: RelationStatus.REMOVED,
+            },
+        {
+            where: {
+                user_id: {
+                    [Op.or]: {
+                        [Op.eq]: userId,
+                            [Op.eq]: targetId,
+                    },
+                },
+                target_id: {
+                    [Op.or]: {
+                        [Op.eq]: userId,
+                            [Op.eq]: targetId,
+                    },
+                },
+                category,
+                status: {
+                    [Op.ne]: RelationStatus.REMOVED,
+                },
+            },
+        },
+    ).catch((e) => {
+            console.log(e);
+            return null;
+        });
+    }
+
+
     public getList(
         userId: number,
         targetId: number,
@@ -115,6 +152,14 @@ export class RelationController {
 
                 return null;
             })
+        });
+    }
+
+    public unfriend(userId: number, targetId: number): Promise<[number, Relation[]] | null> {
+        const userController: UserController = new UserController();
+
+        return userController.getById(targetId).then((user: User | null) => {
+            return this.delete(userId, targetId, RelationCategory.FRIEND);
         });
     }
 

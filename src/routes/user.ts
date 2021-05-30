@@ -182,4 +182,31 @@ router.post('/:userId/friend',
         });
     });
 
+router.delete('/:userId/friend',
+    util.validate([
+        param('userId').isInt(),
+    ]),
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    (request: any, response: Response, next: NextFunction) => {
+        const relationController: RelationController = new RelationController();
+        const userId: number = parseInt(request.user.id);
+        const targetUserId: number = parseInt(request.params.userId);
+
+        if (userId === targetUserId) {
+            response.status(400).json({
+                message: 'You can not request to yourself.',
+            });
+            return;
+        }
+
+        relationController.unfriend(userId, targetUserId).then((relation) => {
+            if (!relation) {
+                response.status(403).json({});
+                return;
+            }
+
+            response.json({}).status(200);
+        });
+    });
+
 module.exports = router;
