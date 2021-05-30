@@ -3,10 +3,13 @@ import request from 'supertest';
 import {UserController} from "../controller/UserController";
 import {User} from "../model/user";
 import {TestUtil} from "./TestUtil";
+import {RelationCategory} from "../model/type";
 let app = require('../app');
 
 describe('User', () => {
     const text: string = new Date().getTime().toString();
+    const testUtil: TestUtil = new TestUtil();
+    let newUserToken: string;
 
     it('Sign Up - Validation Test', (done) => {
         request(app)
@@ -43,6 +46,8 @@ describe('User', () => {
                     return;
                 }
 
+                newUserToken = res.body.token;
+
                 const userController: UserController = new UserController();
                 userController.getByEmail(`${text}`, `${text}.com`).then((result) =>{
 
@@ -53,6 +58,23 @@ describe('User', () => {
             });
 
 
+    });
+
+    it('Friend Request', (done) => {
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .post('/user/22/friend')
+                .set('Authorization', `Bearer ${newUserToken}`)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        console.log(err, res);
+                        return;
+                    }
+                    expect(res.body.relation.category).equals(RelationCategory.FRIEND);
+                    done();
+                });
+        });
     });
 
     it('Duplicated Account Test', (done) => {
@@ -88,7 +110,6 @@ describe('User', () => {
                     return;
                 }
 
-                console.log(res);
                 expect(res.body.token).not.to.be.null;
                 done();
             });
@@ -129,7 +150,6 @@ describe('User', () => {
                         console.log(err, res);
                         return;
                     }
-
                     expect(res.body.user.name).exist;
                     done();
                 });

@@ -11,6 +11,7 @@ import {
 import {User} from "../model/user";
 import jwt from "express-jwt";
 import { Util } from "../core/util";
+import {RelationController} from "../controller/RelationController";
 
 const config = require('../config/config');
 const express = require('express');
@@ -143,6 +144,42 @@ router.get('/:userId',
         });
 
 
+    });
+
+
+router.post('/:userId/friend',
+    util.validate([
+        param('userId').isInt(),
+    ]),
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    (request: any, response: Response, next: NextFunction) => {
+        const relationController: RelationController = new RelationController();
+        const userId: number = parseInt(request.user.id);
+        const targetUserId: number = parseInt(request.params.userId);
+
+        if (userId === targetUserId) {
+            response.status(400).json({
+                message: 'You can not request to yourself.',
+            });
+            return;
+        }
+
+        relationController.sendFriendRequest(userId, targetUserId).then((relation) => {
+            if (!relation) {
+                response.status(403).json({});
+                return;
+            }
+
+            response.json({
+                relation: {
+                    id: relation.id,
+                    user_id: relation.user_id,
+                    target_id: relation.target_id,
+                    category: relation.category,
+                    status: relation.status,
+                }
+            });
+        });
     });
 
 module.exports = router;
