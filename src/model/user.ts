@@ -3,6 +3,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    HasOne,
     Index,
     Model,
     PrimaryKey,
@@ -15,6 +16,7 @@ import {
     UserStatus,
 } from "./type";
 import { sequelize } from "../bin/db";
+import { Relation } from "./relation";
 
 @Table
 export class User extends Model {
@@ -50,6 +52,9 @@ export class User extends Model {
 
     @Column(DataType.TINYINT)
     permission!: UserPermission;
+
+    @HasOne(() => Relation)
+    relation!: Relation;
 
     @CreatedAt
     createdAt!: Date;

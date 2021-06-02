@@ -3,10 +3,12 @@ import jsonwebtoken from "jsonwebtoken";
 import bcrypt from 'bcrypt';
 import {
     Gender,
+    RelationStatus,
     UserPermission,
     UserStatus,
 } from "../model/type";
 import {Op} from "sequelize";
+import { Relation } from "../model/relation";
 
 const config = require('../config/config');
 
@@ -32,15 +34,25 @@ export class UserController {
         if (!password || !hash) {
             return new Promise<boolean>(() => false);
         }
-        
+
         return bcrypt.compare(password, hash);
     }
 
-    public getById(id: number): Promise<User | null> {
+    public getById(id: number, user_id: number | null = null): Promise<User | null> {
         return User.findOne( {
             where: {
                 id: id,
-            }
+            },
+            include: {
+                model: Relation,
+                required: false,
+                where: {
+                    target_id: user_id,
+                    status: { [Op.ne]: RelationStatus.REMOVED },
+
+                },
+            },
+
         }).catch((e) => {
             console.log(e);
             return null;

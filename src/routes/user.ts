@@ -113,6 +113,7 @@ router.get('/verify',
                 email_host: user.email_host,
                 email_name: user.email_name,
                 createdAt: user.createdAt,
+                relation: user.relation,
             }
         });
     });
@@ -127,8 +128,9 @@ router.get('/:userId',
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const userController: UserController = new UserController();
+        const userId: number = parseInt(request.user.id);
 
-        userController.getById(request.params.userId).then((user: User | null) => {
+        userController.getById(request.params.userId, userId).then((user: User | null) => {
             if (!user) {
                 response.status(404).json({});
                 return;
@@ -139,6 +141,7 @@ router.get('/:userId',
                     name: user.name,
                     last_name: user.last_name,
                     createdAt: user.createdAt,
+                    relation: user.relation,
                 }
             });
         });
