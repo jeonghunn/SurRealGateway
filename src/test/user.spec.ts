@@ -50,7 +50,7 @@ describe('User', () => {
                 }
 
                 newUserToken = res.body.token;
-                newUserId = res.body.id;
+                newUserId = res.body.user_id;
 
                 const userController: UserController = new UserController();
                 userController.getByEmail(`${text}`, `${text}.com`).then((result) =>{
@@ -75,7 +75,6 @@ describe('User', () => {
                         console.log(err, res);
                         return;
                     }
-                    expect(res.body.relation.category).equals(RelationCategory.FRIEND);
                     done();
                 });
         });

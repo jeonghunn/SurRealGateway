@@ -63,6 +63,9 @@ export class RelationController {
             where: {
                 user_id: userId,
                 target_id: targetId,
+                status: {
+                    [Op.ne] : RelationStatus.REMOVED,
+                }
             },
             order: [
                 ['id', 'DESC'],
