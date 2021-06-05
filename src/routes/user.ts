@@ -167,21 +167,13 @@ router.post('/:userId/friend',
             return;
         }
 
-        relationController.sendFriendRequest(userId, targetUserId).then((relation) => {
-            if (!relation) {
+        relationController.sendFriendRequest(userId, targetUserId).then((isSuccess: boolean) => {
+            if (!isSuccess) {
                 response.status(403).json({});
                 return;
             }
 
-            response.json({
-                relation: {
-                    id: relation.id,
-                    user_id: relation.user_id,
-                    target_id: relation.target_id,
-                    category: relation.category,
-                    status: relation.status,
-                }
-            });
+            response.json({});
         });
     });
 
@@ -208,7 +200,7 @@ router.delete('/:userId/friend',
                 return;
             }
 
-            response.json({}).status(200);
+            response.json({ relation }).status(200);
         });
     });
 

@@ -39,18 +39,8 @@ export class RelationController {
             },
         {
             where: {
-                user_id: {
-                    [Op.or]: {
-                        [Op.eq]: userId,
-                            [Op.eq]: targetId,
-                    },
-                },
-                target_id: {
-                    [Op.or]: {
-                        [Op.eq]: userId,
-                            [Op.eq]: targetId,
-                    },
-                },
+                user_id: userId,
+                target_id: targetId,
                 category,
                 status: {
                     [Op.ne]: RelationStatus.REMOVED,
@@ -71,18 +61,8 @@ export class RelationController {
 
         return Relation.findAll({
             where: {
-                user_id: {
-                    [Op.or]: {
-                        [Op.eq]: userId,
-                        [Op.eq]: targetId,
-                    },
-                },
-                target_id: {
-                    [Op.or]: {
-                        [Op.eq]: userId,
-                        [Op.eq]: targetId,
-                    },
-                },
+                user_id: userId,
+                target_id: targetId,
             },
             order: [
                 ['id', 'DESC'],
@@ -94,7 +74,6 @@ export class RelationController {
     }
 
     public accept(category: RelationCategory, userId: number, targetId: number): Promise<[number, Relation[]]> {
-        console.log("ASDFASDF", category, userId, targetId);
         return Relation.update({
                 status: RelationStatus.NORMAL,
             },
@@ -102,7 +81,12 @@ export class RelationController {
                 where: {
                     user_id: userId,
                     target_id: targetId,
-                    status: RelationStatus.PENDING,
+                    status: {
+                        [Op.or]: [
+                            RelationStatus.PENDING,
+                            RelationStatus.REQUEST_RECEIVED,
+                        ],
+                    },
                     category,
                 }
             },
@@ -125,32 +109,45 @@ export class RelationController {
     public sendFriendRequest(
         userId: number,
         targetId: number,
-    ): Promise<Relation | null> {
+    ): Promise<boolean> {
         const userController: UserController = new UserController();
 
         return userController.getById(targetId).then((user: User | null) => {
             if (!user) {
-                return null;
+                return false;
             }
 
             return this.getLastFriendStatus(userId, targetId).then((lastStatus: RelationStatus) => {
 
                 switch (lastStatus) {
                     case RelationStatus.NORMAL:
-                        return null;
+                        return false;
                     case RelationStatus.PENDING:
+                        return false;
+                    case RelationStatus.REQUEST_RECEIVED:
                         return this.accept(
                             RelationCategory.FRIEND,
-                            targetId,
                             userId,
-                        ).then((() => {
-                            return this.create(userId, targetId, RelationCategory.FRIEND, RelationStatus.NORMAL);
+                            targetId,
+                        ).then(((relation) => {
+                            return this.accept(RelationCategory.FRIEND, targetId, userId).then(
+                                (result: [number, Relation[]]) => {
+                                    return relation[0] > 0;
+                            });
                         }));
                     case RelationStatus.REMOVED:
-                        return this.create(userId, targetId, RelationCategory.FRIEND, RelationStatus.PENDING);
+                        return this.create(
+                            userId,
+                            targetId,
+                            RelationCategory.FRIEND,
+                            RelationStatus.PENDING,
+                        ).then((relation) => {
+                            this.create(targetId, userId, RelationCategory.FRIEND, RelationStatus.REQUEST_RECEIVED);
+                            return relation !== null;
+                        });
                 }
 
-                return null;
+                return false;
             })
         });
     }
@@ -159,7 +156,11 @@ export class RelationController {
         const userController: UserController = new UserController();
 
         return userController.getById(targetId).then((user: User | null) => {
-            return this.delete(userId, targetId, RelationCategory.FRIEND);
+            return this.delete(userId, targetId, RelationCategory.FRIEND).then((relation) => {
+                this.delete(targetId, userId, RelationCategory.FRIEND);
+
+                return relation;
+            });
         });
     }
 

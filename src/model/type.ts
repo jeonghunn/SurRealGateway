@@ -19,6 +19,7 @@ export enum RelationStatus {
     NORMAL,
     REMOVED,
     PENDING,
+    REQUEST_RECEIVED,
 }
 
 export enum UserStatus {
