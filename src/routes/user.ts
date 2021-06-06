@@ -1,6 +1,6 @@
 import {
     NextFunction,
-    Response
+    Response,
 } from "express";
 import { UserController } from "../controller/UserController";
 import {
@@ -12,6 +12,8 @@ import {User} from "../model/user";
 import jwt from "express-jwt";
 import { Util } from "../core/util";
 import {RelationController} from "../controller/RelationController";
+import { Relation } from "../model/relation";
+import { RelationCategory } from "../model/type";
 
 const config = require('../config/config');
 const express = require('express');
@@ -120,6 +122,19 @@ router.get('/verify',
 
 
 });
+
+router.get('/friends',
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    (request: any, response: Response, next: NextFunction) => {
+        const relationController: RelationController = new RelationController();
+        const userId: number = parseInt(request.user.id);
+
+        relationController.getList(userId, null, RelationCategory.FRIEND).then((relations: Relation[] | null) => {
+            response.json({
+                relations,
+            });
+        });
+    });
 
 router.get('/:userId',
     util.validate([

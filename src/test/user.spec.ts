@@ -80,6 +80,25 @@ describe('User', () => {
         });
     });
 
+    it('Get Friend List', (done) => {
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .get('/user/friends')
+                .set('Authorization', `Bearer ${newUserToken}`)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        console.log(err, res);
+                        return;
+                    }
+
+                    expect(res.body.relations.length).equals(1)
+
+                    done();
+                });
+        });
+    });
+
     it('UnFriend Request', (done) => {
         const relationController: RelationController = new RelationController();
         testUtil.signIn().end((err, res) => {

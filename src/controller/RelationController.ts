@@ -56,17 +56,26 @@ export class RelationController {
 
     public getList(
         userId: number,
-        targetId: number,
+        targetId: number | null = null,
+        category: RelationCategory | null = null,
     ): Promise<Relation[] | null> {
-
-        return Relation.findAll({
-            where: {
+        const where: any = {
                 user_id: userId,
-                target_id: targetId,
                 status: {
                     [Op.ne] : RelationStatus.REMOVED,
                 }
-            },
+            };
+
+        if (targetId) {
+            where.target_id = targetId;
+        }
+
+        if (category) {
+            where.category = category;
+        }
+
+        return Relation.findAll({
+            where,
             order: [
                 ['id', 'DESC'],
             ],
