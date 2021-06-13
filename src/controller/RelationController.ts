@@ -70,20 +70,33 @@ export class RelationController {
                 }
             };
 
+        const include: any =  {
+                model: User,
+                required: false,
+                where: {
+                    id: targetId,
+                    status: {[Op.ne]: UserStatus.REMOVED},
+                }
+
+            };
+
+        const options: any = {
+            where,
+            order: [
+                ['id', 'DESC'],
+            ],
+        }
+
         if (targetId) {
             where.target_id = targetId;
+            options.include = include;
         }
 
         if (category) {
             where.category = category;
         }
 
-        return Relation.findAll({
-            where,
-            order: [
-                ['id', 'DESC'],
-            ],
-        }).catch((e) => {
+        return Relation.findAll(options).catch((e) => {
             console.log(e);
             return null;
         });
