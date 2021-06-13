@@ -1,8 +1,4 @@
-import {User} from '../model/user';
-import jsonwebtoken from "jsonwebtoken";
-import bcrypt from 'bcrypt';
-import {Gender} from "../model/type";
-import {Room} from "../model/room";
+import { Room } from "../model/Room";
 
 const config = require('../config/config');
 

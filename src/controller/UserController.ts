@@ -1,4 +1,4 @@
-import {User} from '../model/user';
+import { User } from '../model/User';
 import jsonwebtoken from "jsonwebtoken";
 import bcrypt from 'bcrypt';
 import {
@@ -6,9 +6,9 @@ import {
     RelationStatus,
     UserPermission,
     UserStatus,
-} from "../model/type";
+} from "../core/type";
 import {Op} from "sequelize";
-import { Relation } from "../model/relation";
+import { Relation } from "../model/Relation";
 
 const config = require('../config/config');
 

@@ -1,7 +1,11 @@
-import {Relation} from "../model/relation";
-import {RelationCategory, RelationStatus} from "../model/type";
+import { Relation } from "../model/Relation";
+import {
+    RelationCategory,
+    RelationStatus,
+    UserStatus,
+} from "../core/type";
 import {UserController} from "./UserController";
-import {User} from "../model/user";
+import { User } from "../model/User";
 import {Op} from "sequelize";
 
 const config = require('../config/config');

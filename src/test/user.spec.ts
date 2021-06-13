@@ -1,10 +1,8 @@
 import { expect } from 'chai';
 import request from 'supertest';
 import {UserController} from "../controller/UserController";
-import {User} from "../model/user";
+import {User} from "../model/User";
 import {TestUtil} from "./TestUtil";
-import {RelationCategory} from "../model/type";
-import {Relation} from "../model/relation";
 import {RelationController} from "../controller/RelationController";
 let app = require('../app');
 

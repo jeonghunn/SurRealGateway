@@ -8,12 +8,12 @@ import {
     param,
     validationResult,
 } from "express-validator";
-import {User} from "../model/user";
+import { User } from "../model/User";
 import jwt from "express-jwt";
 import { Util } from "../core/util";
 import {RelationController} from "../controller/RelationController";
-import { Relation } from "../model/relation";
-import { RelationCategory } from "../model/type";
+import { Relation } from "../model/Relation";
+import { RelationCategory } from "../core/type";
 
 const config = require('../config/config');
 const express = require('express');

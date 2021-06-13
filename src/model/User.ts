@@ -14,9 +14,8 @@ import {
     Gender,
     UserPermission,
     UserStatus,
-} from "./type";
-import { sequelize } from "../bin/db";
-import { Relation } from "./relation";
+} from "../core/type";
+import { Relation } from "./Relation";
 
 @Table
 export class User extends Model {
@@ -67,5 +66,3 @@ export class User extends Model {
     }
 
 }
-
-sequelize.addModels([ User ]);

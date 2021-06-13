@@ -11,9 +11,8 @@ import {
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
-import { RoomStatus } from "./type";
-import { sequelize } from "../bin/db";
-import { User } from "./user";
+import { RoomStatus } from "../core/type";
+import { User } from "./User";
 
 @Table
 export class Room extends Model {
@@ -62,4 +61,3 @@ export class Room extends Model {
 
 }
 
-sequelize.addModels([ Room ]);

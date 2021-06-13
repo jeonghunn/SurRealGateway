@@ -1,7 +1,5 @@
 import { expect } from 'chai';
 import request from 'supertest';
-import {UserController} from "../controller/UserController";
-import {User} from "../model/user";
 import {TestUtil} from "./TestUtil";
 import {Test} from "mocha";
 let app = require('../app');

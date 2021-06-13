@@ -1,5 +1,6 @@
 import {
     AutoIncrement,
+    BelongsTo,
     Column,
     CreatedAt,
     DataType,
@@ -13,9 +14,8 @@ import {
 import {
     RelationCategory,
     RelationStatus,
-} from "./type";
-import { sequelize } from "../bin/db";
-import {User} from "./user";
+} from "../core/type";
+import { User } from "./User";
 
 @Table
 export class Relation extends Model {
@@ -44,6 +44,9 @@ export class Relation extends Model {
     @ForeignKey(() => User)
     target_id!: number;
 
+    @BelongsTo(() => User)
+    target! : User;
+
     @Column(DataType.TINYINT)
     status!: RelationStatus;
 
@@ -56,4 +59,3 @@ export class Relation extends Model {
 
 }
 
-sequelize.addModels([ Relation ]);

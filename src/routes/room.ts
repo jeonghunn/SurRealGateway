@@ -5,7 +5,7 @@ import {
 import { RoomController } from "../controller/RoomController";
 import jwt from "express-jwt";
 import { Util } from "../core/util";
-import { Room } from "../model/room";
+import { Room } from "../model/Room";
 
 const config = require('../config/config');
 const express = require('express');

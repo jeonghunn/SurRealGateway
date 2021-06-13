@@ -1,9 +1,21 @@
 import express from "express";
 import { Util } from "./core/util";
+import { Sequelize } from "sequelize-typescript";
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const config = require('./config/db_config');
+export const sequelize = new Sequelize(
+    config.database,
+    config.user,
+    config.password,
+    {
+        host: config.host,
+        dialect: "mariadb",
+        models: [__dirname + '/model']
+    }
+);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/user');
