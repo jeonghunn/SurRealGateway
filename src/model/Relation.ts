@@ -44,7 +44,7 @@ export class Relation extends Model {
     @ForeignKey(() => User)
     target_id!: number;
 
-    @BelongsTo(() => User)
+    @BelongsTo(() => User,  'target_id')
     target! : User;
 
     @Column(DataType.TINYINT)

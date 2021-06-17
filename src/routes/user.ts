@@ -13,7 +13,10 @@ import jwt from "express-jwt";
 import { Util } from "../core/util";
 import {RelationController} from "../controller/RelationController";
 import { Relation } from "../model/Relation";
-import { RelationCategory } from "../core/type";
+import {
+    RelationCategory,
+    RelationStatus,
+} from "../core/type";
 
 const config = require('../config/config');
 const express = require('express');
@@ -129,7 +132,12 @@ router.get('/friends',
         const relationController: RelationController = new RelationController();
         const userId: number = parseInt(request.user.id);
 
-        relationController.getList(userId, null, RelationCategory.FRIEND).then((relations: Relation[] | null) => {
+        relationController.getList(
+            userId,
+            null,
+            RelationCategory.FRIEND,
+            RelationStatus.NORMAL,
+            ).then((relations: Relation[] | null) => {
             response.json({
                 relations,
             });

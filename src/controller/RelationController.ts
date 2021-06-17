@@ -62,19 +62,19 @@ export class RelationController {
         userId: number,
         targetId: number | null = null,
         category: RelationCategory | null = null,
+        status: RelationStatus | null = null,
     ): Promise<Relation[] | null> {
         const where: any = {
                 user_id: userId,
-                status: {
-                    [Op.ne] : RelationStatus.REMOVED,
-                }
+                status: status,
             };
 
         const include: any =  {
                 model: User,
+                as: 'target',
                 required: false,
+                attributes: ['name'],
                 where: {
-                    id: targetId,
                     status: {[Op.ne]: UserStatus.REMOVED},
                 }
 
@@ -85,15 +85,21 @@ export class RelationController {
             order: [
                 ['id', 'DESC'],
             ],
+            include,
         }
 
         if (targetId) {
             where.target_id = targetId;
-            options.include = include;
         }
 
         if (category) {
             where.category = category;
+        }
+
+        if (status === null) {
+            where.status = {
+                [Op.ne]: RelationStatus.REMOVED,
+            }
         }
 
         return Relation.findAll(options).catch((e) => {
