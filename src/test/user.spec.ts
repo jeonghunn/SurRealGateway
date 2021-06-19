@@ -63,10 +63,24 @@ describe('User', () => {
     });
 
     it('Friend Request', (done) => {
-        testUtil.signIn().end((err, res) => {
+        request(app)
+            .post('/user/22/friend')
+            .set('Authorization', `Bearer ${newUserToken}`)
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    console.log(err, res);
+                    return;
+                }
+                done();
+            });
+    });
+
+    it('Friend Accept', (done) => {
+        testUtil.signIn().end((err, response: any) => {
             request(app)
-                .post('/user/22/friend')
-                .set('Authorization', `Bearer ${newUserToken}`)
+                .post(`/user/${newUserId}/friend`)
+                .set('Authorization', `Bearer ${response.body.token}`)
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
