@@ -73,7 +73,7 @@ export class RelationController {
                 model: User,
                 as: 'target',
                 required: false,
-                attributes: ['name'],
+                attributes: ['id', 'name'],
                 where: {
                     status: {[Op.ne]: UserStatus.REMOVED},
                 }
