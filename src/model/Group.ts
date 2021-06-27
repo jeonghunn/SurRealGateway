@@ -39,6 +39,15 @@ export class Group extends Model {
     })
     user_id!: number;
 
+    @Index('group_user_target')
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
+    @AllowNull
+    @ForeignKey(() => User)
+    target_id!: number;
+
     @Length({min: 0, max: 250})
     @AllowNull
     @Column(DataType.TEXT)
