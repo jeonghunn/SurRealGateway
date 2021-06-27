@@ -253,8 +253,6 @@ router.post('/:userId/chat',
                 return;
             }
 
-            console.log("ASDFASDFASDF", group);
-
             response.status(200).json({
                 group: {
                     id: group.id,
