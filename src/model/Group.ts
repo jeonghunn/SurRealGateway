@@ -22,9 +22,9 @@ export class Group extends Model {
     @Column(DataType.INTEGER.UNSIGNED)
     id!: number;
 
+    @AllowNull
     @Length({ max: 30 })
     @Column(DataType.TEXT)
-    @AllowNull
     name!: string;
 
     @AllowNull
