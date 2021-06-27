@@ -17,6 +17,7 @@ import {
     RelationCategory,
     RelationStatus,
 } from "../core/type";
+import {GroupController} from "../controller/GroupController";
 
 const config = require('../config/config');
 const express = require('express');
@@ -225,6 +226,46 @@ router.delete('/:userId/friend',
 
             response.json({ relation }).status(200);
         });
+    });
+
+
+router.post('/:userId/chat',
+    util.validate([
+        param('userId').isInt(),
+    ]),
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    (request: any, response: Response, next: NextFunction) => {
+        const relationController: RelationController = new RelationController();
+        const groupController: GroupController = new GroupController();
+        const userId: number = parseInt(request.user.id);
+        const targetUserId: number = parseInt(request.params.userId);
+
+        if (userId === targetUserId) {
+            response.status(400).json({
+                message: 'You can not request to yourself.',
+            });
+            return;
+        }
+
+        groupController.createFriendGroup(userId, targetUserId).then((group) => {
+            if (!group) {
+                response.status(404).json({ name: "FAILED_GROUP_CREATION"});
+                return;
+            }
+
+            console.log("ASDFASDFASDF", group);
+
+            response.status(200).json({
+                group: {
+                    id: group.id,
+                    user_id : group.user_id,
+                    target_id: group.target_id,
+                },
+            });
+            return;
+
+        });
+
     });
 
 module.exports = router;

@@ -76,6 +76,22 @@ describe('User', () => {
             });
     });
 
+    it('Start Chat With Friend', (done) => {
+        request(app)
+            .post('/user/22/chat')
+            .set('Authorization', `Bearer ${newUserToken}`)
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    console.log(err, res);
+                    return;
+                }
+
+                expect(res.body.group.id).not.equals(undefined);
+                done();
+            });
+    });
+
     it('Friend Accept', (done) => {
         testUtil.signIn().end((err, response: any) => {
             request(app)
