@@ -24,6 +24,7 @@ export class Group extends Model {
 
     @Length({ max: 30 })
     @Column(DataType.TEXT)
+    @AllowNull
     name!: string;
 
     @AllowNull
