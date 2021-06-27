@@ -40,11 +40,11 @@ export class Group extends Model {
     user_id!: number;
 
     @Index('group_user_target')
+    @AllowNull
     @Column({
         type: DataType.BIGINT.UNSIGNED,
         allowNull: false,
     })
-    @AllowNull
     @ForeignKey(() => User)
     target_id!: number;
 
