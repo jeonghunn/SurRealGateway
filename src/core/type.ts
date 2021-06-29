@@ -37,3 +37,9 @@ export enum RelationCategory {
     FRIEND,
     BLOCKED,
 }
+
+export enum AttendeeType {
+    GROUP,
+    ROOM,
+
+}

@@ -1,9 +1,10 @@
-import { Room } from "../model/Room";
 import {Group} from "../model/Group";
-import {Status} from "../core/type";
+import {
+    AttendeeType,
+    Status,
+} from "../core/type";
 import {Op} from "sequelize";
-
-const config = require('../config/config');
+import { AttendeeController } from "./AttendeeController";
 
 export class GroupController {
 
@@ -36,21 +37,31 @@ export class GroupController {
         targetId: number,
         ipAddress: string | null = null,
     ): Promise<Group | null> {
-        const groupController: GroupController = new GroupController();
+        const attendeeController: AttendeeController = new AttendeeController();
 
-        return groupController.getFriendGroup(userId, targetId).then((result: Group | null) => {
+        return this.getFriendGroup(userId, targetId).then((result: Group | null) => {
             if (result) {
                 return result;
             }
 
-            return groupController.create(
+            return this.create(
                 {
                     user_id: userId,
                     target_id: targetId,
                     ip_address: ipAddress,
                     status: Status.NORMAL,
                 }
-            )
+            ).then((group: Group | null) => {
+
+                if(!group) {
+                    return null;
+                }
+
+                attendeeController.create(AttendeeType.GROUP, userId, group!!.id);
+                attendeeController.create(AttendeeType.GROUP, targetId, group!!.id);
+
+               return group;
+            });
         });
 
     }
