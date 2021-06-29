@@ -6,13 +6,13 @@ const config = require('../config/config');
 export class AttendeeController {
 
     public create(
-        category: AttendeeType,
+        type: AttendeeType,
         user_id: number,
         target_id: number,
     ): Promise<Attendee> {
 
         return Attendee.create({
-            category,
+            type,
             user_id,
             target_id,
             status: Status.NORMAL,

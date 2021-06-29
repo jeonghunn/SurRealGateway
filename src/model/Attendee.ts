@@ -1,18 +1,19 @@
 import {
-    AllowNull,
     AutoIncrement,
     Column,
     CreatedAt,
     DataType,
     ForeignKey,
     Index,
-    Length,
     Model,
     PrimaryKey,
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
-import {AttendeeType, RoomStatus, Status} from "../core/type";
+import {
+    AttendeeType,
+    Status,
+} from "../core/type";
 import { User } from "./User";
 
 @Table
@@ -41,7 +42,7 @@ export class Attendee extends Model {
     status!: Status;
 
     @Column(DataType.TINYINT)
-    type!: AttendeeType;
+    type!: number;
 
     @CreatedAt
     createdAt!: Date;
