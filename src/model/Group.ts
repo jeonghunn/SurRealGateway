@@ -1,6 +1,7 @@
 import {
     AllowNull,
     AutoIncrement,
+    BelongsTo,
     Column,
     CreatedAt,
     DataType,
@@ -48,6 +49,9 @@ export class Group extends Model {
     })
     @ForeignKey(() => User)
     target_id!: number;
+
+    @BelongsTo(() => User,  'target_id')
+    target! : User;
 
     @Length({min: 0, max: 250})
     @AllowNull

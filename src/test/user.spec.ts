@@ -92,6 +92,22 @@ describe('User', () => {
             });
     });
 
+    it('Group List', (done) => {
+        request(app)
+            .get('/group')
+            .set('Authorization', `Bearer ${newUserToken}`)
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    console.log(err, res);
+                    return;
+                }
+
+                expect(res.body.groups.length).greaterThan(0);
+                done();
+            });
+    });
+
     it('Friend Accept', (done) => {
         testUtil.signIn().end((err, response: any) => {
             request(app)

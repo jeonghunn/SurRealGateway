@@ -2,15 +2,39 @@ import {Group} from "../model/Group";
 import {
     AttendeeType,
     Status,
+    UserStatus,
 } from "../core/type";
 import {Op} from "sequelize";
 import { AttendeeController } from "./AttendeeController";
+import { User } from "../model/User";
 
 export class GroupController {
 
     public create(meta: any): Promise<Group> {
 
         return Group.create(meta);
+    }
+
+    public getListBtId(ids: number[], attributes: string[]): Promise<Group[]> {
+        return Group.findAll(
+            {
+                attributes,
+                where: {
+                    status: Status.NORMAL,
+                    id: ids,
+                },
+                include: {
+                    model: User,
+                    as: 'target',
+                    required: false,
+                    attributes: ['id', 'name'],
+                    where: {
+                        status: {[Op.ne]: UserStatus.REMOVED},
+                    }
+
+                },
+            }
+        )
     }
 
     public getFriendGroup(userId: number, targetId: number): Promise<Group | null> {
@@ -64,6 +88,13 @@ export class GroupController {
             });
         });
 
+    }
+
+    public getGroupList(userId: number, attributes: string[]): Promise<Group[]> {
+        const attendeeController: AttendeeController = new AttendeeController();
+        return attendeeController.getList(AttendeeType.GROUP, userId).then((attendeeIds: number[]) => {
+            return this.getListBtId(attendeeIds, attributes);
+        });
     }
 
 }

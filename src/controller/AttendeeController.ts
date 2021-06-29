@@ -19,6 +19,20 @@ export class AttendeeController {
         });
     }
 
+    public getList(type: AttendeeType, userId: number): Promise<number[]> {
+        return Attendee.findAll({
+            raw: true,
+            attributes: ['target_id'],
+            where: {
+                user_id: userId,
+                status: Status.NORMAL,
+                type,
+            }
+        }).then((attendees: Attendee[]) => {
+            return attendees.map((attendee) => attendee.target_id);
+        });
+    }
+
 
 
 }
