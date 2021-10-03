@@ -13,6 +13,7 @@ import {
 } from "sequelize-typescript";
 import { RoomStatus } from "../core/type";
 import { User } from "./User";
+import { Group } from "./Group";
 
 @Table
 export class Room extends Model {
@@ -36,6 +37,14 @@ export class Room extends Model {
         allowNull: false,
     })
     user_id!: number;
+
+    @Index
+    @ForeignKey(() => Group)
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
+    group_id!: number;
 
     @Length({min: 0, max: 250})
     @Column(DataType.TEXT)
