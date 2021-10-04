@@ -14,6 +14,7 @@ describe('Room', () => {
                 .post('/room')
                 .set('Authorization', `Bearer ${res.body.token}`)
                 .send({
+                    group_id: 1,
                 })
                 .expect(200)
                 .end((err, res) => {
@@ -21,7 +22,14 @@ describe('Room', () => {
                         console.log(err, res);
                         return;
                     }
-                    
+
+
+                    done();
+                });
+        });
+
+
+    });
                     done();
                 });
         });
