@@ -55,5 +55,40 @@ router.post(
 
 });
 
+router.get(
+    '/',
+    util.validate([
+        query('group_id').isInt(),
+        query('offset').isInt(),
+        query('limit').isInt(),
+    ]),
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    (request: any, response: Response, next: NextFunction) => {
+
+        const userId: number = parseInt(request.user.id);
+        const groupId: number = parseInt(request.query.group_id);
+        const offset: number = parseInt(request.query.offset);
+        const limit: number = parseInt(request.query.limit);
+
+        attendeeController.hasGroupPermission(userId, groupId).then((hasPermission: boolean) => {
+
+            if (!hasPermission) {
+                return response.status(403).json({
+                    name: 'PERMISSION_DENIED',
+                    message: 'Permission Denied.',
+                });
+            }
+
+            return roomController.getList(groupId, offset, limit).then((rooms: Room[]) => {
+                return response.json({
+                    rooms,
+                });
+            });
+        });
+
+
+
+    });
+
 
 module.exports = router;

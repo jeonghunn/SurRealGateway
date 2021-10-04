@@ -30,6 +30,27 @@ describe('Room', () => {
 
 
     });
+
+    it('Get Room List', (done) => {
+        const testUtil: TestUtil = new TestUtil();
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .get('/room')
+                .set('Authorization', `Bearer ${res.body.token}`)
+                .query({
+                    group_id: 1,
+                    offset: 0,
+                    limit: 15,
+                })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        console.log(err, res);
+                        return;
+                    }
+
+                    expect(res.body.rooms.length).greaterThan(0);
+
                     done();
                 });
         });

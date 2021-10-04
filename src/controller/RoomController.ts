@@ -26,4 +26,20 @@ export class RoomController {
         });
     }
 
+
+    public getList(group_id: number, offset: number = 0, limit: number = 15): Promise<Room[]> {
+        return Room.findAll(
+            {
+                where: {
+                    status: Status.NORMAL,
+                    group_id,
+                },
+                order: [
+                    ['id', 'DESC'],
+                ],
+                offset,
+                limit,
+            }
+        )
+    }
 }
