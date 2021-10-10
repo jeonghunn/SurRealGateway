@@ -9,6 +9,7 @@ import { Group } from "../model/Group";
 
 const config = require('../config/config');
 const express = require('express');
+const roomRouter = require('./room');
 const router = express.Router();
 const util: Util = new Util();
 
@@ -27,5 +28,7 @@ router.get(
 
 });
 
+
+router.use('/:group_id/room', roomRouter);
 
 module.exports = router;

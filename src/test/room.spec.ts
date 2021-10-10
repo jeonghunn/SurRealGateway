@@ -11,7 +11,7 @@ describe('Room', () => {
         const testUtil: TestUtil = new TestUtil();
         testUtil.signIn().end((err, res) => {
             request(app)
-                .post('/room')
+                .post('/group/1/room')
                 .set('Authorization', `Bearer ${res.body.token}`)
                 .send({
                     group_id: 1,
@@ -35,10 +35,9 @@ describe('Room', () => {
         const testUtil: TestUtil = new TestUtil();
         testUtil.signIn().end((err, res) => {
             request(app)
-                .get('/room')
+                .get('/group/1/room')
                 .set('Authorization', `Bearer ${res.body.token}`)
                 .query({
-                    group_id: 1,
                     offset: 0,
                     limit: 15,
                 })

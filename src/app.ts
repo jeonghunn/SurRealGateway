@@ -19,7 +19,6 @@ export const sequelize = new Sequelize(
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/user');
-var roomRouter = require('./routes/room');
 var groupRouter = require('./routes/group');
 const util: Util = new Util();
 
@@ -33,7 +32,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
-app.use('/room', roomRouter);
 app.use('/group', groupRouter);
 
 
