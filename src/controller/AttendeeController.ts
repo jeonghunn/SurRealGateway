@@ -1,22 +1,52 @@
 import {Attendee} from "../model/Attendee";
-import {AttendeeType, Status} from "../core/type";
-import { Error } from "sequelize";
+import {
+    AttendeePermission,
+    AttendeeType,
+    Status,
+} from "../core/type";
 
 const config = require('../config/config');
 
 export class AttendeeController {
 
+    public get(
+        type: AttendeeType,
+        user_id: number,
+        target_id: number,
+    ): Promise<Attendee | null> {
+
+        return Attendee.findOne({
+            where: {
+                type,
+                user_id,
+                target_id,
+            },
+        });
+    }
+
     public create(
         type: AttendeeType,
         user_id: number,
         target_id: number,
+        permission: AttendeePermission = AttendeePermission.MEMBER,
     ): Promise<Attendee> {
 
-        return Attendee.create({
+        return this.get(
             type,
             user_id,
             target_id,
-            status: Status.NORMAL,
+        ).then((attendee: Attendee | null) => {
+            if (attendee) {
+                return attendee;
+            }
+
+            return Attendee.create({
+                type,
+                user_id,
+                target_id,
+                status: Status.NORMAL,
+                permission,
+            });
         });
     }
 
