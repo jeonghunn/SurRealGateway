@@ -1,5 +1,10 @@
 import { Room } from "../model/Room";
-import { Status } from "../core/type";
+import {
+    AttendeePermission,
+    AttendeeType,
+    Status,
+} from "../core/type";
+import { AttendeeController } from "./AttendeeController";
 
 const config = require('../config/config');
 
@@ -14,6 +19,7 @@ export class RoomController {
         limit: number = 10,
 
     ): Promise<Room> {
+        const attendeeController: AttendeeController = new AttendeeController();
 
         return Room.create({
             user_id,
@@ -23,6 +29,16 @@ export class RoomController {
             ip_address,
             limit,
             status: Status.NORMAL,
+        }).then((room: Room) => {
+
+            attendeeController.create(
+                AttendeeType.ROOM,
+                user_id,
+                room.id,
+                AttendeePermission.ADMIN,
+            )
+
+            return room;
         });
     }
 
