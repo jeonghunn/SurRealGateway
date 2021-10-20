@@ -4,6 +4,7 @@ import {
     AttendeeType,
     Status,
 } from "../core/type";
+import { Op } from "sequelize";
 
 const config = require('../config/config');
 
@@ -50,7 +51,7 @@ export class AttendeeController {
         });
     }
 
-    public getList(type: AttendeeType, userId: number): Promise<number[]> {
+    public getList(type: AttendeeType, userId: number): Promise<number[] | null> {
         return Attendee.findAll({
             raw: true,
             attributes: ['target_id'],
@@ -58,27 +59,14 @@ export class AttendeeController {
                 user_id: userId,
                 status: Status.NORMAL,
                 type,
+                permission: { [Op.gt]: AttendeePermission.BLOCKED },
             }
-        }).then((attendees: Attendee[]) => {
+        }).then((attendees: any[]) => {
             return attendees.map((attendee) => attendee.target_id);
+        }).catch((e) => {
+            console.log(e);
+            return null;
         });
     }
-
-    public hasGroupPermission(user_id: number, group_id: number): Promise<boolean> {
-        return Attendee.findOne({
-            where: {
-                user_id,
-                target_id: group_id,
-                type: AttendeeType.GROUP,
-            }
-        }).then((attendee: Attendee | null) => {
-            return attendee !== null;
-        }).catch((error: Error) => {
-            console.log(error);
-            return false;
-        });
-    }
-
-
 
 }

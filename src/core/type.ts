@@ -41,5 +41,12 @@ export enum RelationCategory {
 export enum AttendeeType {
     GROUP,
     ROOM,
+}
 
+export enum AttendeePermission {
+    BLOCKED,
+    MEMBER,
+    MODERATOR,
+    MANAGER,
+    ADMIN,
 }

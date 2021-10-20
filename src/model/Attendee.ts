@@ -11,7 +11,7 @@ import {
     UpdatedAt,
 } from "sequelize-typescript";
 import {
-    AttendeeType,
+    AttendeeType, AttendeePermission,
     Status,
 } from "../core/type";
 import { User } from "./User";
@@ -42,7 +42,10 @@ export class Attendee extends Model {
     status!: Status;
 
     @Column(DataType.TINYINT)
-    type!: number;
+    type!: AttendeeType;
+
+    @Column(DataType.TINYINT)
+    permission!: AttendeePermission;
 
     @CreatedAt
     createdAt!: Date;

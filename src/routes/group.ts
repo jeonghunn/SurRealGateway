@@ -20,7 +20,14 @@ router.get(
         const groupController: GroupController = new GroupController();
 
         const userId: number = parseInt(request.user.id);
-        groupController.getGroupList(userId, [ 'id', 'name', 'target_id' ]).then((groups: Group[]) => {
+        groupController.getGroupList(userId, [ 'id', 'name', 'target_id' ]).then((groups: Group[] | null) => {
+            if (!groups) {
+                return response.status(500).json({
+                    name: 'UNKNOWN_ERROR',
+                    message: 'Sorry something went wrong. Please try again.',
+                });
+            }
+
             response.status(200).json({
                 groups,
             });
