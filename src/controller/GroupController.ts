@@ -90,9 +90,13 @@ export class GroupController {
 
     }
 
-    public getGroupList(userId: number, attributes: string[]): Promise<Group[]> {
+    public getGroupList(userId: number, attributes: string[]): Promise<Group[] | null> {
         const attendeeController: AttendeeController = new AttendeeController();
-        return attendeeController.getList(AttendeeType.GROUP, userId).then((attendeeIds: number[]) => {
+        return attendeeController.getList(AttendeeType.GROUP, userId).then((attendeeIds: number[] | null) => {
+            if (!attendeeIds) {
+                return null;
+            }
+
             return this.getListBtId(attendeeIds, attributes);
         });
     }
