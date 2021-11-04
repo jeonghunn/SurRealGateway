@@ -5,6 +5,7 @@ import {
     Status,
 } from "../core/type";
 import { AttendeeController } from "./AttendeeController";
+import {Op} from "sequelize";
 
 const config = require('../config/config');
 
@@ -43,12 +44,13 @@ export class RoomController {
     }
 
 
-    public getList(group_id: number, offset: number = 0, limit: number = 15): Promise<Room[]> {
+    public getList(group_id: number, before: Date, offset: number = 0, limit: number = 15): Promise<Room[]> {
         return Room.findAll(
             {
                 where: {
                     status: Status.NORMAL,
                     group_id,
+                    createdAt: {[Op.lte]: before},
                 },
                 order: [
                     ['id', 'DESC'],

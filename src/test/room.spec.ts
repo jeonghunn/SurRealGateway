@@ -40,6 +40,7 @@ describe('Room', () => {
                 .query({
                     offset: 0,
                     limit: 15,
+                    before: new Date().getTime() / 1000,
                 })
                 .expect(200)
                 .end((err, res) => {

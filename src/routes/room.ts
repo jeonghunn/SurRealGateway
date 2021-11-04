@@ -61,8 +61,14 @@ router.get(
         const groupId: number = parseInt(request.params.group_id);
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
+        const before: Date = request.query.before ? new Date(parseInt(request.query.before) * 1000) : new Date();
 
-        return roomController.getList(groupId, offset, limit).then((rooms: Room[]) => {
+        return roomController.getList(
+            groupId,
+            before,
+            offset,
+            limit,
+            ).then((rooms: Room[]) => {
             return response.json({
                 rooms,
             });
