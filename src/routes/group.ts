@@ -6,6 +6,10 @@ import jwt from "express-jwt";
 import { Util } from "../core/util";
 import { GroupController } from "../controller/GroupController";
 import { Group } from "../model/Group";
+import {
+    AttendeePermission,
+    AttendeeType,
+} from "../core/type";
 
 const config = require('../config/config');
 const express = require('express');
@@ -34,6 +38,23 @@ router.get(
         });
 
 });
+
+router.get(
+    '/:id',
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
+    (request: any, response: Response, next: NextFunction) => {
+        const groupController: GroupController = new GroupController();
+
+        const id: number = parseInt(request.params.id);
+
+        groupController.get(id).then((group: Group | null) => {
+            response.status(200).json({
+                group,
+            });
+        });
+
+    });
 
 
 router.use('/:group_id/room', roomRouter);

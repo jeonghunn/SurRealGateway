@@ -15,6 +15,16 @@ export class GroupController {
         return Group.create(meta);
     }
 
+    public get(id: number): Promise<Group | null> {
+        return Group.findOne({
+                where: {
+                    status: Status.NORMAL,
+                    id,
+                }
+        }
+        )
+    }
+
     public getListBtId(ids: number[], attributes: string[]): Promise<Group[]> {
         return Group.findAll(
             {
