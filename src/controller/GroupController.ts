@@ -20,7 +20,17 @@ export class GroupController {
                 where: {
                     status: Status.NORMAL,
                     id,
-                }
+                },
+                include: {
+                    model: User,
+                    as: 'target',
+                    required: false,
+                    attributes: ['id', 'name'],
+                    where: {
+                        status: {[Op.ne]: UserStatus.REMOVED},
+                    }
+
+                },
         }
         )
     }
