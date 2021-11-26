@@ -238,6 +238,7 @@ router.post('/:userId/chat',
         const relationController: RelationController = new RelationController();
         const groupController: GroupController = new GroupController();
         const userId: number = parseInt(request.user.id);
+        const userName: string = request.user.name;
         const targetUserId: number = parseInt(request.params.userId);
 
         if (userId === targetUserId) {
@@ -247,7 +248,7 @@ router.post('/:userId/chat',
             return;
         }
 
-        groupController.createFriendGroup(userId, targetUserId).then((group) => {
+        groupController.createFriendGroup(userId, targetUserId, userName).then((group) => {
             if (!group) {
                 response.status(404).json({ name: "FAILED_GROUP_CREATION"});
                 return;

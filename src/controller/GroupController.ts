@@ -79,6 +79,7 @@ export class GroupController {
     public createFriendGroup(
         userId: number,
         targetId: number,
+        groupName: string,
         ipAddress: string | null = null,
     ): Promise<Group | null> {
         const attendeeController: AttendeeController = new AttendeeController();
@@ -92,6 +93,7 @@ export class GroupController {
                 {
                     user_id: userId,
                     target_id: targetId,
+                    name: groupName,
                     ip_address: ipAddress,
                     status: Status.NORMAL,
                 }
