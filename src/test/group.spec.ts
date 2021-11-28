@@ -12,7 +12,7 @@ describe('Group', () => {
         const testUtil: TestUtil = new TestUtil();
         testUtil.signIn().end((err, res) => {
             request(app)
-                .get('/group/1')
+                .get('/group/2')
                 .set('Authorization', `Bearer ${res.body.token}`)
                 .query({})
                 .expect(200)
