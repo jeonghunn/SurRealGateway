@@ -4,6 +4,11 @@ export enum Gender {
     FEMALE,
 }
 
+export enum ChatCategory {
+    NORMAL,
+    NOTICE,
+}
+
 export enum RoomStatus {
     NORMAL,
     REMOVED,
