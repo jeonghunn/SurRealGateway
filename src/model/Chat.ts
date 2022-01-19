@@ -4,6 +4,7 @@ import {
     CreatedAt,
     DataType,
     ForeignKey,
+    HasMany,
     Index,
     Length,
     Model,
@@ -11,20 +12,24 @@ import {
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
-import { ChatCategory, RoomStatus, Status } from "../core/type";
+import {
+    ChatType,
+    Status,
+} from "../core/type";
 import { User } from "./User";
 import { Group } from "./Group";
 import { Room } from "./Room";
+import {File} from "./File";
 
 @Table
 export class Chat extends Model {
     @AutoIncrement
     @PrimaryKey
-    @Column(DataType.INTEGER)
+    @Column(DataType.BIGINT.UNSIGNED)
     id!: number;
 
     @Column(DataType.TINYINT)
-    category!: ChatCategory;
+    category!: ChatType;
 
     @Column(DataType.TEXT)
     content!: string;
@@ -55,10 +60,13 @@ export class Chat extends Model {
 
     @Length({min: 0, max: 250})
     @Column(DataType.TEXT)
-    ip_address!: string;
+    ip_address?: string;
 
     @Column(DataType.INTEGER)
     status!: Status;
+
+    @HasMany(() => File)
+    files?: File[];
 
     @CreatedAt
     createdAt!: Date;

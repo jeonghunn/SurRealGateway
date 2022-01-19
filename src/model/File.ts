@@ -5,24 +5,26 @@ import {
     CreatedAt,
     DataType,
     ForeignKey,
-    Index, Length,
+    Index,
+    Length,
     Model,
     PrimaryKey,
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
 import {
-    AttendeeType, AttendeePermission,
-    Status, ChatType,
+    Status,
+    FileType,
 } from "../core/type";
 import { User } from "./User";
-import {Room} from "./Room";
+import { Room } from "./Room";
+import { Chat } from './Chat';
 
 @Table
-export class Chat extends Model {
+export class File extends Model {
     @AutoIncrement
     @PrimaryKey
-    @Column(DataType.BIGINT.UNSIGNED)
+    @Column(DataType.INTEGER.UNSIGNED)
     id!: number;
 
     @Index
@@ -45,11 +47,17 @@ export class Chat extends Model {
     status!: Status;
 
     @Column(DataType.TINYINT)
-    type!: ChatType;
+    type!: FileType;
 
+    @ForeignKey(() => Chat)
+    @AllowNull
+    @Column(DataType.BIGINT.UNSIGNED)
+    chat_id?: number;
+
+    @Length({min: 0, max: 250})
     @AllowNull
     @Column(DataType.TEXT)
-    message!: string;
+    ip_address!: string;
 
     @CreatedAt
     createdAt!: Date;

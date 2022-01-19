@@ -55,3 +55,13 @@ export enum AttendeePermission {
     MANAGER,
     ADMIN,
 }
+
+export enum ChatType {
+    MESSAGE,
+    EVENT,
+}
+
+export enum FileType {
+    BINARY,
+    IMAGE,
+}
