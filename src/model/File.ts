@@ -43,11 +43,27 @@ export class File extends Model {
     })
     room_id!: number;
 
+    @Length({ max: 512 })
+    @Column(DataType.TEXT)
+    name!: string;
+
+    @Length({ max: 10 })
+    @Column(DataType.TEXT)
+    extension!: string;
+
+    @Length({ max: 40 })
+    @Column(DataType.TEXT)
+    binary_name!: string;
+
     @Column(DataType.TINYINT)
     status!: Status;
 
     @Column(DataType.TINYINT)
     type!: FileType;
+
+    @AllowNull
+    @Column(DataType.BIGINT.UNSIGNED)
+    size!: number;
 
     @ForeignKey(() => Chat)
     @AllowNull
@@ -58,6 +74,10 @@ export class File extends Model {
     @AllowNull
     @Column(DataType.TEXT)
     ip_address!: string;
+
+    @AllowNull
+    @Column(DataType.INTEGER)
+    count?: number;
 
     @CreatedAt
     createdAt!: Date;
