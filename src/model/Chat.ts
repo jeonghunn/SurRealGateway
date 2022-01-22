@@ -1,5 +1,6 @@
 import {
     AutoIncrement,
+    BelongsTo,
     Column,
     CreatedAt,
     DataType,
@@ -42,13 +43,8 @@ export class Chat extends Model {
     })
     user_id!: number;
 
-    @Index
-    @ForeignKey(() => Group)
-    @Column({
-        type: DataType.BIGINT.UNSIGNED,
-        allowNull: false,
-    })
-    group_id!: number;
+    @BelongsTo(() => User)
+    user! : User;
 
     @Index
     @ForeignKey(() => Room)
