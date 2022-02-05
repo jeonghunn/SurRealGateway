@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('itboardgateway:server');
+var debug = require('debug')('surrealgateway:server');
 var http = require('http');
 var webSocket = require('ws');
 
