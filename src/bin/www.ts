@@ -4,6 +4,8 @@
  * Module dependencies.
  */
 
+import { ChatMessage } from "../core/type";
+
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
 var http = require('http');
@@ -31,8 +33,9 @@ const wsServer = new webSocket.Server({ server });
 wsServer.on('connection', (socket: any) => {
   socket.on('message', (message: string) => {
     console.log(message);
-    //socket.send(testvariable);
-    wsServer.broadcast(message);
+    const chat: ChatMessage = JSON.parse(message);
+    chat.createdAt = new Date();
+    wsServer.broadcast(JSON.stringify(chat));
   });
 });
 
