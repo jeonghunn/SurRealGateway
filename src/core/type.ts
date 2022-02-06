@@ -1,3 +1,5 @@
+import { User } from "../model/User";
+
 export enum Gender {
     NON_SEXUAL,
     MALE,
@@ -65,3 +67,23 @@ export enum FileType {
     BINARY,
     IMAGE,
 }
+
+export enum CommunicationType {
+    CHAT,
+    LIVE
+  }
+
+export class Communication {
+  public T: CommunicationType | undefined;
+  public createdAt?: Date;
+}
+
+export class ChatMessage extends Communication {
+    public id?: number;
+    public content: string | undefined;
+    public user?: User;
+  }
+  
+  export class Live extends Communication {
+    public B: any;
+  }
