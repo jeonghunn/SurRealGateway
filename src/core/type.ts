@@ -74,8 +74,8 @@ export enum CommunicationType {
   }
 
 export class Communication {
-  public T: CommunicationType | undefined;
-  public createdAt?: Date;
+    public T: CommunicationType | undefined;
+    public createdAt?: Date;
 }
 
 export class ChatMessage extends Communication {
