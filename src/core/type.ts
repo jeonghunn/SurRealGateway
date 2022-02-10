@@ -69,9 +69,10 @@ export enum FileType {
 }
 
 export enum CommunicationType {
+    AUTH,
     CHAT,
-    LIVE
-  }
+    LIVE,
+}
 
 export class Communication {
     public T: CommunicationType | undefined;
@@ -82,8 +83,17 @@ export class ChatMessage extends Communication {
     public id?: number;
     public content: string | undefined;
     public user?: User;
-  }
-  
-  export class Live extends Communication {
+}
+
+export class AuthMessage extends Communication {
+    public token?: string;
+}
+
+export class Live extends Communication {
     public B: any;
-  }
+}
+
+export class SimpleUser {
+    public id!: number;
+    public name?: string;
+}

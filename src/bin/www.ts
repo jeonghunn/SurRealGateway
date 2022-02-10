@@ -4,7 +4,13 @@
  * Module dependencies.
  */
 
-import { ChatMessage } from "../core/type";
+import {
+  AuthMessage,
+  ChatMessage,
+  SimpleUser,
+} from "../core/type";
+import jwt from "jsonwebtoken";
+import {User} from "../model/User";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -31,10 +37,32 @@ var server = http.createServer(app);
 
 const wsServer = new webSocket.Server({ server });
 wsServer.on('connection', (socket: any) => {
+  let isAuthenticated: boolean = false;
+  let me: SimpleUser;
+
   socket.on('message', (message: string) => {
-    console.log(message);
+
+    if(!isAuthenticated) {
+      const auth: AuthMessage = JSON.parse(message);
+      const jwtInfo: any = jwt.verify(auth.token?.split(" ")[1]!, 'TEST_SERVER_SECRET');
+      me = {
+        id: jwtInfo.id,
+        name: jwtInfo.name,
+      };
+      isAuthenticated = true;
+      console.log(jwtInfo);
+      return;
+    }
+
     const chat: ChatMessage = JSON.parse(message);
     chat.createdAt = new Date();
+
+    const user: User = new User();
+    user.name = me.name!;
+    user.id = me.id!;
+
+    chat.user = user;
+
     wsServer.broadcast(JSON.stringify(chat));
   });
 });
