@@ -5,12 +5,10 @@
  */
 
 import {
-  AuthMessage,
   ChatMessage,
   SimpleUser,
 } from "../core/type";
-import jwt from "jsonwebtoken";
-import {User} from "../model/User";
+import { RoomController } from "../controller/RoomController";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -37,33 +35,19 @@ var server = http.createServer(app);
 
 const wsServer = new webSocket.Server({ server });
 wsServer.on('connection', (socket: any) => {
-  let isAuthenticated: boolean = false;
+
+  const roomController: RoomController = new RoomController();
   let me: SimpleUser;
 
   socket.on('message', (message: string) => {
 
-    if(!isAuthenticated) {
-      const auth: AuthMessage = JSON.parse(message);
-      const jwtInfo: any = jwt.verify(auth.token?.split(" ")[1]!, 'TEST_SERVER_SECRET');
-      me = {
-        id: jwtInfo.id,
-        name: jwtInfo.name,
-      };
-      isAuthenticated = true;
-      console.log(jwtInfo);
+    if(!me) {
+      me = roomController.getVerifiedUser(message);
       return;
     }
 
-    const chat: ChatMessage = JSON.parse(message);
-    chat.createdAt = new Date();
-
-    const user: User = new User();
-    user.name = me.name!;
-    user.id = me.id!;
-
-    chat.user = user;
-
-    wsServer.broadcast(JSON.stringify(chat));
+    const chatMessage: ChatMessage = roomController.parseChatMessage(message, me);
+    wsServer.broadcast(JSON.stringify(chatMessage));
   });
 });
 

@@ -2,10 +2,15 @@ import { Room } from "../model/Room";
 import {
     AttendeePermission,
     AttendeeType,
+    AuthMessage,
+    ChatMessage,
+    SimpleUser,
     Status,
 } from "../core/type";
 import { AttendeeController } from "./AttendeeController";
-import {Op} from "sequelize";
+import { Op } from "sequelize";
+import jwt from "jsonwebtoken";
+import { User } from "../model/User";
 
 const config = require('../config/config');
 
@@ -59,5 +64,29 @@ export class RoomController {
                 limit,
             }
         )
+    }
+
+    public getVerifiedUser(authMessage: string): SimpleUser {
+        const auth: AuthMessage = JSON.parse(authMessage);
+        const jwtInfo: any = jwt.verify(auth.token?.split(" ")[1]!, 'TEST_SERVER_SECRET');
+
+        return {
+            id: jwtInfo.id,
+            name: jwtInfo.name,
+        };
+    }
+
+    public parseChatMessage(content: string, me: SimpleUser): ChatMessage {
+        const chat: ChatMessage = JSON.parse(content);
+
+        chat.createdAt = new Date();
+
+        const user: User = new User();
+        user.name = me.name!;
+        user.id = me.id!;
+
+        chat.user = user;
+
+        return chat;
     }
 }
