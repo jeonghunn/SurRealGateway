@@ -66,14 +66,19 @@ export class RoomController {
         )
     }
 
-    public getVerifiedUser(authMessage: string): SimpleUser {
-        const auth: AuthMessage = JSON.parse(authMessage);
-        const jwtInfo: any = jwt.verify(auth.token?.split(" ")[1]!, 'TEST_SERVER_SECRET');
+    public getVerifiedUser(authMessage: string): SimpleUser | null {
+        try {
+            const auth: AuthMessage = JSON.parse(authMessage);
+            const jwtInfo: any = jwt.verify(auth.token?.split(" ")[1]!, 'TEST_SERVER_SECRET');
 
-        return {
-            id: jwtInfo.id,
-            name: jwtInfo.name,
-        };
+            return {
+                id: jwtInfo.id,
+                name: jwtInfo.name,
+            };
+        } catch (e: any) {
+            console.log('Error: getVerifiedUser from RoomController', e);
+            return null;
+        }
     }
 
     public parseChatMessage(content: string, me: SimpleUser): ChatMessage {

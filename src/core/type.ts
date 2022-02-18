@@ -79,6 +79,11 @@ export class Communication {
     public createdAt?: Date;
 }
 
+export class CommunicationResult extends Communication {
+    public result?: boolean;
+    public message?: string;
+}
+
 export class ChatMessage extends Communication {
     public id?: number;
     public content: string | undefined;

@@ -6,6 +6,8 @@
 
 import {
   ChatMessage,
+  CommunicationResult,
+  CommunicationType,
   SimpleUser,
 } from "../core/type";
 import { RoomController } from "../controller/RoomController";
@@ -37,12 +39,16 @@ const wsServer = new webSocket.Server({ server });
 wsServer.on('connection', (socket: any) => {
 
   const roomController: RoomController = new RoomController();
-  let me: SimpleUser;
+  let me: SimpleUser | null;
 
   socket.on('message', (message: string) => {
 
     if(!me) {
       me = roomController.getVerifiedUser(message);
+      const authResult: CommunicationResult = new CommunicationResult();
+      authResult.T = CommunicationType.AUTH;
+      authResult.result = me !== null;
+      socket.send(JSON.stringify(authResult));
       return;
     }
 
