@@ -5,12 +5,15 @@
  */
 
 import {
+  AttendeeType,
   ChatMessage,
   CommunicationResult,
   CommunicationType,
   SimpleUser,
 } from "../core/type";
 import { RoomController } from "../controller/RoomController";
+import { AttendeeController } from "../controller/AttendeeController";
+import { Attendee } from "../model/Attendee";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -36,10 +39,16 @@ var server = http.createServer(app);
 
 
 const wsServer = new webSocket.Server({ server });
-wsServer.on('connection', (socket: any) => {
+const rooms = new Map();
+
+wsServer.on('connection', (socket: any, request: any) => {
 
   const roomController: RoomController = new RoomController();
+  const attendeeController: AttendeeController = new AttendeeController();
+  const roomId: number = parseInt(request?.url?.split('/')[1],  10);
   let me: SimpleUser | null;
+
+  console.log("User tries to enter the room ", roomId);
 
   socket.on('message', (message: string) => {
 
@@ -48,7 +57,12 @@ wsServer.on('connection', (socket: any) => {
       const authResult: CommunicationResult = new CommunicationResult();
       authResult.T = CommunicationType.AUTH;
       authResult.result = me !== null;
-      socket.send(JSON.stringify(authResult));
+
+      attendeeController.get(AttendeeType.ROOM, me?.id!, roomId).then((attendee: Attendee | null) => {
+        authResult.result = authResult.result && attendee !== null;
+        socket.send(JSON.stringify(authResult));
+      });
+
       return;
     }
 
