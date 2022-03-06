@@ -22,6 +22,9 @@ export class AttendeeController {
                 user_id,
                 target_id,
             },
+        }).catch((e: any) =>  {
+            console.log('AttendeeController: get : ', e);
+            return null;
         });
     }
 
