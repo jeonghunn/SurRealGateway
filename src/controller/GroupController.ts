@@ -35,7 +35,7 @@ export class GroupController {
         )
     }
 
-    public getListBtId(ids: number[], attributes: string[]): Promise<Group[]> {
+    public getListById(ids: number[], attributes: string[]): Promise<Group[]> {
         return Group.findAll(
             {
                 attributes,
@@ -119,7 +119,7 @@ export class GroupController {
                 return null;
             }
 
-            return this.getListBtId(attendeeIds, attributes);
+            return this.getListById(attendeeIds, attributes);
         });
     }
 
