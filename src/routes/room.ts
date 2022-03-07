@@ -14,6 +14,7 @@ import {
     AttendeePermission,
     AttendeeType,
 } from "../core/type";
+import { AttendeeController } from "../controller/AttendeeController";
 
 const config = require('../config/config');
 const express = require('express');
@@ -43,6 +44,25 @@ router.post(
             request.body.limit,
         ).then((room: Room) => {
             response.json(room);
+        });
+
+    });
+
+
+router.get(
+    '/:id',
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    util.requirePermission(AttendeeType.ROOM, AttendeePermission.MEMBER),
+    (request: any, response: Response, next: NextFunction) => {
+        const roomController: RoomController = new RoomController();
+        const attendeeController: AttendeeController = new AttendeeController();
+
+        const id: number = parseInt(request.params.id);
+
+        roomController.get(id).then((room: Room | null) => {
+            response.status(200).json({
+                room,
+            });
         });
 
     });

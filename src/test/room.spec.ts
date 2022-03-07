@@ -6,6 +6,7 @@ let app = require('../app');
 
 describe('Room', () => {
     const text: string = new Date().getTime().toString();
+    let roomId: number = 0;
 
     it('Create Room', (done) => {
         const testUtil: TestUtil = new TestUtil();
@@ -23,12 +24,34 @@ describe('Room', () => {
                         return;
                     }
 
+                    roomId = res.body.id;
 
                     done();
                 });
         });
 
 
+    });
+
+    it('Get a Room', (done) => {
+        const testUtil: TestUtil = new TestUtil();
+        testUtil.signIn().end((err, res) => {
+            request(app)
+                .get(`/group/2/room/${roomId}`)
+                .set('Authorization', `Bearer ${res.body.token}`)
+                .query({})
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        console.log(err, res);
+                        return;
+                    }
+
+                    expect(res.body.room.id).exist;
+
+                    done();
+                });
+        });
     });
 
     it('Get Room List', (done) => {

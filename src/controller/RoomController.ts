@@ -16,6 +16,16 @@ const config = require('../config/config');
 
 export class RoomController {
 
+    public get(id: number): Promise<Room | null> {
+        return Room.findOne({
+                where: {
+                    status: Status.NORMAL,
+                    id,
+                },
+            }
+        )
+    }
+
     public create(
         user_id: number,
         group_id: number,
