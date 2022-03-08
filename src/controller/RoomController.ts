@@ -11,16 +11,18 @@ import { AttendeeController } from "./AttendeeController";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../model/User";
+import {getOptions} from "sequelize-typescript";
 
 const config = require('../config/config');
 
 export class RoomController {
 
-    public get(id: number): Promise<Room | null> {
+    public get(groupId: number, id: number): Promise<Room | null> {
         return Room.findOne({
                 where: {
                     status: Status.NORMAL,
                     id,
+                    group_id: groupId,
                 },
             }
         )

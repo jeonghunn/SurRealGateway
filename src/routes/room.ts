@@ -51,15 +51,19 @@ router.post(
 
 router.get(
     '/:id',
+    util.validate([
+        param('group_id').isInt(),
+    ]),
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
-    util.requirePermission(AttendeeType.ROOM, AttendeePermission.MEMBER),
+    util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
         const roomController: RoomController = new RoomController();
         const attendeeController: AttendeeController = new AttendeeController();
 
         const id: number = parseInt(request.params.id);
+        const groupId: number = parseInt(request.params.group_id)
 
-        roomController.get(id).then((room: Room | null) => {
+        roomController.get(groupId, id).then((room: Room | null) => {
             response.status(200).json({
                 room,
             });
