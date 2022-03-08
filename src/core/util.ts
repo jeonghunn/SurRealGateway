@@ -32,7 +32,7 @@ export class Util {
         return (request: any, response: Response, next: NextFunction) => {
             const attendeeController: AttendeeController = new AttendeeController();
             const userId: number = parseInt(request.user.id);
-            const targetId: number = parseInt(request.params.id || request.params.group_id);
+            const targetId: number = parseInt(request.params.group_id || request.params.id);
 
             //Allow Admin
             if (request.user.permission === UserPermission.ADMIN) {
