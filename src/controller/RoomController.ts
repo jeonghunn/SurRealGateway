@@ -25,7 +25,11 @@ export class RoomController {
                     group_id: groupId,
                 },
             }
-        )
+        ).catch((result) => {
+            console.log('Error: get from RoomController', result);
+            return null;
+        });
+
     }
 
     public create(
