@@ -4,6 +4,10 @@ import {UserController} from "../controller/UserController";
 import {User} from "../model/User";
 import {TestUtil} from "./TestUtil";
 import {RelationController} from "../controller/RelationController";
+import {RoomController} from "../controller/RoomController";
+import {Room} from "../model/Room";
+import {Status} from "../core/type";
+import {Op} from "sequelize";
 let app = require('../app');
 
 describe('User', () => {
@@ -77,6 +81,8 @@ describe('User', () => {
     });
 
     it('Start Chat With Friend', (done) => {
+        const roomController: RoomController = new RoomController();
+
         request(app)
             .post('/user/22/chat')
             .set('Authorization', `Bearer ${newUserToken}`)
@@ -87,8 +93,20 @@ describe('User', () => {
                     return;
                 }
 
-                expect(res.body.group.id).not.equals(undefined);
-                done();
+                Room.findAll(
+                    {
+                        where: {
+                            group_id: res.body.group.id,
+                        },
+                    }
+                ).then((result: Room[]) => {
+                    expect(result.length).not.equals(0);
+                    expect(res.body.group.id).not.equals(undefined);
+                    done();
+                });
+
+
+
             });
     });
 

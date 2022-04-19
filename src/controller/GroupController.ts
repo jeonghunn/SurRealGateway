@@ -7,12 +7,19 @@ import {
 import {Op} from "sequelize";
 import { AttendeeController } from "./AttendeeController";
 import { User } from "../model/User";
+import { RoomController } from "./RoomController";
+import { Room } from "../model/Room";
 
 export class GroupController {
 
     public create(meta: any): Promise<Group> {
+        const roomController: RoomController = new RoomController();
 
-        return Group.create(meta);
+        return Group.create(meta).then((group: Group) => {
+            return roomController.create(meta.user_id, group.id).then((room: Room) => {
+                return group;
+            });
+        });
     }
 
     public get(id: number): Promise<Group | null> {
