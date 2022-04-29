@@ -14,6 +14,7 @@ import {
 import { RoomController } from "../controller/RoomController";
 import { AttendeeController } from "../controller/AttendeeController";
 import { Attendee } from "../model/Attendee";
+import { LiveRoomController } from "../controller/LiveRoomController";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -40,11 +41,12 @@ var server = http.createServer(app);
 
 const wsServer = new webSocket.Server({ server });
 const rooms = new Map();
+const liveRoomController: LiveRoomController = new LiveRoomController();
+const roomController: RoomController = new RoomController();
+const attendeeController: AttendeeController = new AttendeeController();
 
 wsServer.on('connection', (socket: any, request: any) => {
 
-  const roomController: RoomController = new RoomController();
-  const attendeeController: AttendeeController = new AttendeeController();
   const roomId: number = parseInt(request?.url?.split('/')[1],  10);
   let me: SimpleUser | null;
 
@@ -61,13 +63,17 @@ wsServer.on('connection', (socket: any, request: any) => {
       attendeeController.get(AttendeeType.ROOM, me?.id!, roomId).then((attendee: Attendee | null) => {
         authResult.result = authResult.result && attendee !== null;
         socket.send(JSON.stringify(authResult));
+        liveRoomController.join(roomId, me?.id!!, socket);
       });
 
       return;
     }
 
     const chatMessage: ChatMessage = roomController.parseChatMessage(message, me);
-    wsServer.broadcast(JSON.stringify(chatMessage));
+
+    liveRoomController.send(roomId, chatMessage);
+  });
+
   });
 });
 
