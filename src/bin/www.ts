@@ -74,6 +74,8 @@ wsServer.on('connection', (socket: any, request: any) => {
     liveRoomController.send(roomId, chatMessage);
   });
 
+  socket.on('close', (responseCode: number, description: string) => {
+    liveRoomController.close(roomId, me?.id!!, socket);
   });
 });
 

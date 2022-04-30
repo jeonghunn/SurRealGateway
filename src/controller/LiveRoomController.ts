@@ -37,7 +37,11 @@ export class LiveRoomController {
     }
 
     public close(id: number, userId: number, socket: any): void {
+        console.log(`Live Left: ID: ${id}, User: ${userId}`);
 
+       this.rooms?.get(id)?.splice(this.rooms?.get(id).findIndex((liveUser: any) => {
+            return (liveUser.userId === userId && liveUser.socket === socket);
+        }), 1);
     }
 
 
