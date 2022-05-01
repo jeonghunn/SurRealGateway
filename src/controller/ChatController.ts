@@ -3,7 +3,7 @@ import {
     AttendeePermission,
     AttendeeType,
     AuthMessage,
-    LiveMessage,
+    ChatMessage,
     SimpleUser,
     Status,
 } from "../core/type";
@@ -12,6 +12,7 @@ import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../model/User";
 import {getOptions} from "sequelize-typescript";
+import {Chat} from "../model/Chat";
 
 const config = require('../config/config');
 
@@ -97,8 +98,8 @@ export class RoomController {
         }
     }
 
-    public parseChatMessage(content: string, me: SimpleUser): LiveMessage {
-        const chat: LiveMessage = JSON.parse(content);
+    public parseChatMessage(content: string, me: SimpleUser): ChatMessage {
+        const chat: ChatMessage = JSON.parse(content);
 
         chat.createdAt = new Date();
 
@@ -110,4 +111,5 @@ export class RoomController {
 
         return chat;
     }
+
 }

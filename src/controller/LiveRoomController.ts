@@ -1,12 +1,17 @@
 import {
-    ChatMessage,
+    CommunicationType,
+    LiveMessage,
+    Status,
 } from "../core/type";
+import { ChatController } from "./ChatController";
+import { Chat } from "../model/Chat";
 
 const config = require('../config/config');
 
 export class LiveRoomController {
 
     public rooms: any = new Map();
+    private chatController: ChatController = new ChatController();
 
     public join(id :number, userId: number, socket: any): void {
         let liveRoom: any = this.rooms.get(id);
@@ -30,10 +35,22 @@ export class LiveRoomController {
         return this.rooms.set(id, []).get(id);
     }
 
-    public send(id: number, chatMessage: ChatMessage): void {
+    public send(id: number, message: LiveMessage): void {
         this.rooms?.get(id).forEach((user: any) => {
-            user?.socket?.send(JSON.stringify(chatMessage));
+            user?.socket?.send(JSON.stringify(message));
         });
+
+        if (message.T === CommunicationType.CHAT) {
+            const chat: Chat = new Chat();
+
+            chat.user_id = message.user?.id!!;
+            chat.createdAt = message.createdAt!!;
+            chat.room_id = id;
+            chat.content = message.content!!;
+            chat.status = Status.NORMAL;
+
+            this.chatController.save(chat);
+        }
     }
 
     public close(id: number, userId: number, socket: any): void {

@@ -6,7 +6,7 @@
 
 import {
   AttendeeType,
-  ChatMessage,
+  LiveMessage,
   CommunicationResult,
   CommunicationType,
   SimpleUser,
@@ -69,7 +69,7 @@ wsServer.on('connection', (socket: any, request: any) => {
       return;
     }
 
-    const chatMessage: ChatMessage = roomController.parseChatMessage(message, me);
+    const chatMessage: LiveMessage = roomController.parseChatMessage(message, me);
 
     liveRoomController.send(roomId, chatMessage);
   });
