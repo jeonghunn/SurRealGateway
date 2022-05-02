@@ -31,11 +31,18 @@ export class Util {
     public requirePermission(type: AttendeeType, target: AttendeePermission): Function {
         return (request: any, response: Response, next: NextFunction) => {
             const attendeeController: AttendeeController = new AttendeeController();
-            const userId: number = parseInt(request.user.id);
+            const userId: number | null = parseInt(request.user?.id);
             const targetId: number = parseInt(request.params.group_id || request.params.id);
 
+            if (!userId) {
+                response.status(401).json({
+                    name: 'UNAUTHORIZED',
+                    message: 'Unauthorized.',
+                });
+            }
+
             //Allow Admin
-            if (request.user.permission === UserPermission.ADMIN) {
+            if (request.user?.permission === UserPermission.ADMIN) {
                 next();
                 return;
             }
