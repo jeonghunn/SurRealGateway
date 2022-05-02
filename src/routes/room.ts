@@ -57,15 +57,17 @@ router.get(
         param('group_id').isInt(),
     ]),
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
-    util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
         const roomController: RoomController = new RoomController();
         const attendeeController: AttendeeController = new AttendeeController();
 
         const id: number = parseInt(request.params.id);
         const groupId: number = parseInt(request.params.group_id)
+        const userId: number = parseInt(request.user.id);
 
         roomController.get(groupId, id).then((room: Room | null) => {
+            attendeeController.create(AttendeeType.ROOM, userId, id, AttendeePermission.MEMBER);
+
             response.status(200).json({
                 room,
             });
