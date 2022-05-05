@@ -94,6 +94,7 @@ router.get(
         const before: Date = request.query.before ? new Date(parseInt(request.query.before) * 1000) : new Date();
 
         chatController.getList(id, before, offset, limit).then((chats: Chat[]) => {
+            chats.reverse();
             response.status(200).json({
                 chats,
             });
