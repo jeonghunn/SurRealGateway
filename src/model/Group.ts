@@ -25,8 +25,12 @@ export class Group extends Model {
 
     @AllowNull
     @Length({ max: 30 })
-    @Column(DataType.TEXT)
-    name!: string;
+    @Column({
+        type: DataType.TEXT,
+    })
+    public get name(): string {
+        return this.getDataValue('name') || this.getDataValue('user')?.name || 'Unknown';
+    }
 
     @AllowNull
     @Length({ max: 300 })
@@ -40,6 +44,9 @@ export class Group extends Model {
         allowNull: false,
     })
     user_id!: number;
+
+    @BelongsTo(() => User, 'user_id')
+    user! : User;
 
     @Index('group_user_target')
     @AllowNull

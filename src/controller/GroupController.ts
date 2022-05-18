@@ -28,17 +28,29 @@ export class GroupController {
                     status: Status.NORMAL,
                     id,
                 },
-                include: {
-                    model: User,
-                    as: 'target',
-                    required: false,
-                    attributes: ['id', 'name'],
-                    where: {
-                        status: {[Op.ne]: UserStatus.REMOVED},
-                    }
+                include: [
+                    {
+                        model: User,
+                        as: 'target',
+                        required: false,
+                        attributes: ['id', 'name'],
+                        where: {
+                            status: {[Op.ne]: UserStatus.REMOVED},
+                        }
 
-                },
-        }
+                    },
+                    {
+                        model: User,
+                        as: 'user',
+                        required: false,
+                        attributes: ['id', 'name'],
+                        where: {
+                            status: {[Op.ne]: UserStatus.REMOVED},
+                        }
+
+                    },
+                ],
+            }
         )
     }
 
@@ -50,16 +62,28 @@ export class GroupController {
                     status: Status.NORMAL,
                     id: ids,
                 },
-                include: {
-                    model: User,
-                    as: 'target',
-                    required: false,
-                    attributes: ['id', 'name'],
-                    where: {
-                        status: {[Op.ne]: UserStatus.REMOVED},
-                    }
+                include: [
+                    {
+                        model: User,
+                        as: 'target',
+                        required: false,
+                        attributes: ['id', 'name'],
+                        where: {
+                            status: {[Op.ne]: UserStatus.REMOVED},
+                        }
 
-                },
+                    },
+                    {
+                        model: User,
+                        as: 'user',
+                        required: false,
+                        attributes: ['id', 'name'],
+                        where: {
+                            status: {[Op.ne]: UserStatus.REMOVED},
+                        }
+
+                    },
+                ],
             }
         )
     }
