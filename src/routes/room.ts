@@ -96,6 +96,7 @@ router.get(
         chatController.getList(id, before, offset, limit).then((chats: Chat[]) => {
             chats.reverse();
             response.status(200).json({
+                room_id: id,
                 chats,
             });
         });
