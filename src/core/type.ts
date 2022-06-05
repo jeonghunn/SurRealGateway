@@ -86,7 +86,7 @@ export class CommunicationResult extends Communication {
 
 export class LiveMessage extends Communication {
     public id?: number;
-    public content: string | undefined;
+    public content: string | any | undefined;
     public user?: User;
 }
 

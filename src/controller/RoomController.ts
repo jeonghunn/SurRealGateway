@@ -3,6 +3,7 @@ import {
     AttendeePermission,
     AttendeeType,
     AuthMessage,
+    CommunicationType,
     LiveMessage,
     SimpleUser,
     Status,
@@ -11,7 +12,6 @@ import { AttendeeController } from "./AttendeeController";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../model/User";
-import {getOptions} from "sequelize-typescript";
 
 const config = require('../config/config');
 
@@ -97,17 +97,29 @@ export class RoomController {
         }
     }
 
-    public parseChatMessage(content: string, me: SimpleUser): LiveMessage {
-        const chat: LiveMessage = JSON.parse(content);
+    public parseMessage(content: any, me: SimpleUser): LiveMessage | undefined {
 
-        chat.createdAt = new Date();
+        switch (content[0]) {
+            case '{':
+                const message: LiveMessage = JSON.parse(content);
 
-        const user: User = new User();
-        user.name = me.name!;
-        user.id = me.id!;
+                message.createdAt = new Date();
 
-        chat.user = user;
+                const user: User = new User();
+                user.name = me.name!;
+                user.id = me.id!;
 
-        return chat;
+                message.user = user;
+
+                return message;
+            case 76:
+                const liveMessage: LiveMessage = new LiveMessage();
+                liveMessage.content = content;
+                liveMessage.T = CommunicationType.LIVE;
+                return liveMessage;
+
+        }
+
+
     }
 }

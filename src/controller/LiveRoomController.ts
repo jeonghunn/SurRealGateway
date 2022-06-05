@@ -36,21 +36,34 @@ export class LiveRoomController {
     }
 
     public send(id: number, message: LiveMessage): void {
+
+        switch (message.T) {
+            case CommunicationType.CHAT:
+                this.sendSocketMessageToRoom(id, JSON.stringify(message));
+
+                const chat: Chat = new Chat();
+
+                chat.user_id = message.user?.id!!;
+                chat.createdAt = message.createdAt!!;
+                chat.room_id = id;
+                chat.content = message.content!!;
+                chat.status = Status.NORMAL;
+
+                this.chatController.save(chat);
+                break;
+            case CommunicationType.LIVE:
+                this.sendSocketMessageToRoom(id, message.content);
+                console.log("Live Message", message.content);
+                break;
+        }
+
+    }
+
+    public sendSocketMessageToRoom(id: number, content: any): void {
         this.rooms?.get(id).forEach((user: any) => {
-            user?.socket?.send(JSON.stringify(message));
+            user?.socket?.send(content);
         });
 
-        if (message.T === CommunicationType.CHAT) {
-            const chat: Chat = new Chat();
-
-            chat.user_id = message.user?.id!!;
-            chat.createdAt = message.createdAt!!;
-            chat.room_id = id;
-            chat.content = message.content!!;
-            chat.status = Status.NORMAL;
-
-            this.chatController.save(chat);
-        }
     }
 
     public close(id: number, userId: number, socket: any): void {

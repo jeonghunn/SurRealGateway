@@ -75,8 +75,15 @@ wsServer.on('connection', (socket: any, request: any) => {
     }
 
     try {
-      const chatMessage: LiveMessage = roomController.parseChatMessage(message, me);
-      liveRoomController.send(roomId, chatMessage);
+      const liveMessage: LiveMessage | undefined = roomController.parseMessage(message, me);
+
+      if (!liveMessage) {
+        console.log("Live Message : Invalid Live Message By User", me?.id);
+        return;
+      }
+
+      liveRoomController.send(roomId, liveMessage);
+
     } catch (e: any) {
       console.log("ERROR", e);
       return;
