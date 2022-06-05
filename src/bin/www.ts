@@ -74,9 +74,14 @@ wsServer.on('connection', (socket: any, request: any) => {
       return;
     }
 
-    const chatMessage: LiveMessage = roomController.parseChatMessage(message, me);
+    try {
+      const chatMessage: LiveMessage = roomController.parseChatMessage(message, me);
+      liveRoomController.send(roomId, chatMessage);
+    } catch (e: any) {
+      console.log("ERROR", e);
+      return;
+    }
 
-    liveRoomController.send(roomId, chatMessage);
   });
 
   socket.on('close', (responseCode: number, description: string) => {
