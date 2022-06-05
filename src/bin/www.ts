@@ -60,6 +60,11 @@ wsServer.on('connection', (socket: any, request: any) => {
       authResult.T = CommunicationType.AUTH;
       authResult.result = me !== null;
 
+      if (!me) {
+        socket.send(JSON.stringify(authResult));
+        return;
+      }
+
       attendeeController.get(AttendeeType.ROOM, me?.id!, roomId).then((attendee: Attendee | null) => {
         authResult.result = authResult.result && attendee !== null;
         socket.send(JSON.stringify(authResult));
