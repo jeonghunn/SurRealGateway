@@ -108,7 +108,7 @@ export class RelationController {
         });
     }
 
-    public accept(category: RelationCategory, userId: number, targetId: number): Promise<[number, Relation[]]> {
+    public accept(category: RelationCategory, userId: number, targetId: number): Promise<[number]> {
         return Relation.update({
                 status: RelationStatus.NORMAL,
             },
@@ -166,7 +166,7 @@ export class RelationController {
                             targetId,
                         ).then(((relation) => {
                             return this.accept(RelationCategory.FRIEND, targetId, userId).then(
-                                (result: [number, Relation[]]) => {
+                                (result: [number]) => {
                                     return relation[0] > 0;
                             });
                         }));
