@@ -5,9 +5,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, main ]
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, main ]
 
 jobs:
   build:
@@ -28,3 +28,26 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm run test
+  deployment:
+    runs-on: ubuntu-latest
+    environment: production
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: Dist
+      - name: deploy
+        uses: mdallasanta/ssh-scp-deploy@v1.2.0
+        with:
+          local: '/home/runner/work/SurRealGateway/SurRealGateway/'
+          remote: '~/surreal/api/'
+          host: ${{secrets.HOST}}
+          port: ${{secrets.PORT}}
+          user: ${{secrets.USERNAME}}
+          key: ${{secrets.PRIVATE_KEY}}
+          pre_upload: echo "This will be executed before the upload!"
+          post_upload: rm -rf ~/surreal/api/dist &&  mv ~/surreal/api/workspace ~/surreal/api/dist
+          ssh_options: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+          scp_options: -v
