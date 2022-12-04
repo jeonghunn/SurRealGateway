@@ -53,6 +53,6 @@ jobs:
           user: ${{secrets.USERNAME}}
           key: ${{secrets.PRIVATE_KEY}}
           pre_upload: echo "This will be executed before the upload!"
-          post_upload: rm -rf ~/surreal/api/dist &&  mv ~/surreal/api/workspace ~/surreal/api/dist
+          post_upload: rm -rf ~/surreal/api/dist &&  mv ~/surreal/api/workspace ~/surreal/api/dist && sudo chmod -R 777 ~/surreal/api/dist && sudo service surreal restart
           ssh_options: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
           scp_options: -v
