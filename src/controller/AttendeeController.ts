@@ -51,7 +51,10 @@ export class AttendeeController {
                 status: Status.NORMAL,
                 permission,
             });
-        });
+        }).catch((e: any) =>  {
+            console.log('AttendeeController: create : ', e);
+            return null;
+        });;
     }
 
     public getList(type: AttendeeType, userId: number): Promise<number[] | null> {
