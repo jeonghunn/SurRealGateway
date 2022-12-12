@@ -21,7 +21,7 @@ import { Room } from "./Room";
 import { Chat } from './Chat';
 
 @Table
-export class File extends Model {
+export class Attach extends Model {
     @AutoIncrement
     @PrimaryKey
     @Column(DataType.INTEGER.UNSIGNED)

@@ -20,7 +20,7 @@ import {
 import { User } from "./User";
 import { Group } from "./Group";
 import { Room } from "./Room";
-import {File} from "./File";
+import {Attach} from "./Attach";
 
 @Table
 export class Chat extends Model {
@@ -61,8 +61,8 @@ export class Chat extends Model {
     @Column(DataType.INTEGER)
     status!: Status;
 
-    @HasMany(() => File)
-    files?: File[];
+    @HasMany(() => Attach)
+    files?: Attach[];
 
     @CreatedAt
     createdAt!: Date;
