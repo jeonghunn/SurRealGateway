@@ -61,7 +61,7 @@ export class Attach extends Model {
 
     @Length({ max: 32 })
     @Column(DataType.TEXT)
-    md5!: string;
+    hash!: string;
 
     @Column(DataType.TINYINT)
     status!: Status;
