@@ -12,7 +12,7 @@ import { Relation } from "../model/Relation";
 
 const config = require('../config/config');
 
-export class UserController {
+export class UserService {
 
     public get defaultExpiredAtTimeStamp(): number {
         return new Date().getTime() + 86400;

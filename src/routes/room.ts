@@ -2,7 +2,7 @@ import {
     NextFunction,
     Response,
 } from "express";
-import { RoomController } from "../controller/RoomController";
+import { RoomService } from "../service/RoomService";
 import jwt from "express-jwt";
 import { Util } from "../core/util";
 import { Room } from "../model/Room";
@@ -14,15 +14,15 @@ import {
     AttendeePermission,
     AttendeeType,
 } from "../core/type";
-import { AttendeeController } from "../controller/AttendeeController";
-import { ChatController } from "../controller/ChatController";
+import { AttendeeService } from "../service/AttendeeService";
+import { ChatService } from "../service/ChatService";
 import { Chat } from "../model/Chat";
 
 const config = require('../config/config');
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const util: Util = new Util();
-const roomController: RoomController = new RoomController();
+const roomController: RoomService = new RoomService();
 
 router.post(
     '/',
@@ -58,15 +58,15 @@ router.get(
     ]),
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const roomController: RoomController = new RoomController();
-        const attendeeController: AttendeeController = new AttendeeController();
+        const roomService: RoomService = new RoomService();
+        const attendeeService: AttendeeService = new AttendeeService();
 
         const id: number = parseInt(request.params.id);
         const groupId: number = parseInt(request.params.group_id)
         const userId: number = parseInt(request.user.id);
 
-        roomController.get(groupId, id).then((room: Room | null) => {
-            attendeeController.create(AttendeeType.ROOM, userId, id, AttendeePermission.MEMBER);
+        roomService.get(groupId, id).then((room: Room | null) => {
+            attendeeService.create(AttendeeType.ROOM, userId, id, AttendeePermission.MEMBER);
 
             response.status(200).json({
                 room,
@@ -86,14 +86,14 @@ router.get(
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
-        const chatController: ChatController = new ChatController();
+        const chatService: ChatService = new ChatService();
 
         const id: number = parseInt(request.params.id);
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
         const before: Date = request.query.before ? new Date(parseInt(request.query.before) * 1000) : new Date();
 
-        chatController.getList(id, before, offset, limit).then((chats: Chat[]) => {
+        chatService.getList(id, before, offset, limit).then((chats: Chat[]) => {
             chats.reverse();
             response.status(200).json({
                 room_id: id,

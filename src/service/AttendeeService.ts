@@ -8,7 +8,7 @@ import { Op } from "sequelize";
 
 const config = require('../config/config');
 
-export class AttendeeController {
+export class AttendeeService {
 
     public get(
         type: AttendeeType,
@@ -23,7 +23,7 @@ export class AttendeeController {
                 target_id,
             },
         }).catch((e: any) =>  {
-            console.log('AttendeeController: get : ', e);
+            console.log('AttendeeService: get : ', e);
             return null;
         });
     }
@@ -52,7 +52,7 @@ export class AttendeeController {
                 permission,
             });
         }).catch((e: any) =>  {
-            console.log('AttendeeController: create : ', e);
+            console.log('AttendeeService: create : ', e);
             return null;
         });;
     }

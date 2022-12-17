@@ -4,7 +4,7 @@ import {
 } from "express";
 import jwt from "express-jwt";
 import { Util } from "../core/util";
-import { GroupController } from "../controller/GroupController";
+import { GroupService } from "../service/GroupService";
 import { Group } from "../model/Group";
 import {
     AttendeePermission,
@@ -21,10 +21,10 @@ router.get(
     '/',
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const groupController: GroupController = new GroupController();
+        const groupService: GroupService = new GroupService();
 
         const userId: number = parseInt(request.user.id);
-        groupController.getGroupList(userId, [ 'id', 'name', 'target_id' ]).then((groups: Group[] | null) => {
+        groupService.getGroupList(userId, [ 'id', 'name', 'target_id' ]).then((groups: Group[] | null) => {
             if (!groups) {
                 return response.status(500).json({
                     name: 'UNKNOWN_ERROR',
@@ -44,11 +44,11 @@ router.get(
     jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
-        const groupController: GroupController = new GroupController();
+        const groupService: GroupService = new GroupService();
 
         const id: number = parseInt(request.params.id);
 
-        groupController.get(id).then((group: Group | null) => {
+        groupService.get(id).then((group: Group | null) => {
             response.status(200).json({
                 group,
             });

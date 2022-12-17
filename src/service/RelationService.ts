@@ -4,13 +4,13 @@ import {
     RelationStatus,
     UserStatus,
 } from "../core/type";
-import {UserController} from "./UserController";
+import {UserService} from "./UserService";
 import { User } from "../model/User";
 import {Op} from "sequelize";
 
 const config = require('../config/config');
 
-export class RelationController {
+export class RelationService {
 
     public create(
         userId: number,
@@ -145,9 +145,9 @@ export class RelationController {
         userId: number,
         targetId: number,
     ): Promise<boolean> {
-        const userController: UserController = new UserController();
+        const userService: UserService = new UserService();
 
-        return userController.getById(targetId).then((user: User | null) => {
+        return userService.getById(targetId).then((user: User | null) => {
             if (!user) {
                 return false;
             }
@@ -188,9 +188,9 @@ export class RelationController {
     }
 
     public unfriend(userId: number, targetId: number): Promise<[number, Relation[]] | null> {
-        const userController: UserController = new UserController();
+        const userService: UserService = new UserService();
 
-        return userController.getById(targetId).then((user: User | null) => {
+        return userService.getById(targetId).then((user: User | null) => {
             return this.delete(userId, targetId, RelationCategory.FRIEND).then((relation) => {
                 this.delete(targetId, userId, RelationCategory.FRIEND);
 

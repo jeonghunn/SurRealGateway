@@ -9,7 +9,7 @@ import {
     AttendeePermission,
     UserPermission,
 } from "./type";
-import { AttendeeController } from "../controller/AttendeeController";
+import { AttendeeService } from "../service/AttendeeService";
 import { Attendee } from "../model/Attendee";
 
 export class Util {
@@ -30,7 +30,7 @@ export class Util {
 
     public requirePermission(type: AttendeeType, target: AttendeePermission): Function {
         return (request: any, response: Response, next: NextFunction) => {
-            const attendeeController: AttendeeController = new AttendeeController();
+            const attendeeService: AttendeeService = new AttendeeService();
             const userId: number | null = parseInt(request.user?.id);
             const targetId: number = parseInt(request.params.group_id || request.params.id);
 
@@ -47,7 +47,7 @@ export class Util {
                 return;
             }
 
-            attendeeController.get(type, userId, targetId).then((attendee: Attendee | null) => {
+            attendeeService.get(type, userId, targetId).then((attendee: Attendee | null) => {
                 if (!attendee?.permission || attendee?.permission < target) {
                     return response.status(403).json({
                         name: 'PERMISSION_DENIED',

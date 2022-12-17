@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import request from 'supertest';
 import {TestUtil} from "./TestUtil";
-import {ChatController} from "../controller/ChatController";
+import {ChatService} from "../service/ChatService";
 import {Chat} from "../model/Chat";
 import {Status} from "../core/type";
 
@@ -86,7 +86,7 @@ describe('Room', () => {
 
     it('Get Chat Message List', (done) => {
         const testUtil: TestUtil = new TestUtil();
-        const chatController: ChatController = new ChatController();
+        const chatService: ChatService = new ChatService();
         const before: number = new Date().getTime() / 1000;
         const chat: Chat = new Chat();
 

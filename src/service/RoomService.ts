@@ -8,14 +8,14 @@ import {
     SimpleUser,
     Status,
 } from "../core/type";
-import { AttendeeController } from "./AttendeeController";
+import { AttendeeService } from "./AttendeeService";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../model/User";
 
 const config = require('../config/config');
 
-export class RoomController {
+export class RoomService {
 
     public get(groupId: number, id: number): Promise<Room | null> {
         return Room.findOne({
@@ -26,7 +26,7 @@ export class RoomController {
                 },
             }
         ).catch((result) => {
-            console.log('Error: get from RoomController', result);
+            console.log('Error: get from RoomService', result);
             return null;
         });
 
@@ -41,7 +41,7 @@ export class RoomController {
         limit: number = 10,
 
     ): Promise<Room> {
-        const attendeeController: AttendeeController = new AttendeeController();
+        const attendeeService: AttendeeService = new AttendeeService();
 
         return Room.create({
             user_id,
@@ -53,7 +53,7 @@ export class RoomController {
             status: Status.NORMAL,
         }).then((room: Room) => {
 
-            attendeeController.create(
+            attendeeService.create(
                 AttendeeType.ROOM,
                 user_id,
                 room.id,
@@ -92,7 +92,7 @@ export class RoomController {
                 name: jwtInfo.name,
             };
         } catch (e: any) {
-            console.log('Error: getVerifiedUser from RoomController', e);
+            console.log('Error: getVerifiedUser from RoomService', e);
             return null;
         }
     }
@@ -112,7 +112,8 @@ export class RoomController {
                 message.user = user;
 
                 return message;
-            case 76:
+            default:
+
                 const liveMessage: LiveMessage = new LiveMessage();
                 liveMessage.content = content;
                 liveMessage.T = CommunicationType.LIVE;
