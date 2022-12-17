@@ -1,6 +1,7 @@
 import express from "express";
 import { Util } from "./core/util";
 import { Sequelize } from "sequelize-typescript";
+import fileUpload from "express-fileupload";
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -34,6 +35,9 @@ app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/group', groupRouter);
 
+app.use(fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 },
+}));
 
 // error handler
 app.use(function(err: any, req: any , res:any , next: any) {
