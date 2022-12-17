@@ -55,6 +55,14 @@ export class Attach extends Model {
     @Column(DataType.TEXT)
     binary_name!: string;
 
+    @Length({ max: 30 })
+    @Column(DataType.TEXT)
+    mimetype!: string;
+
+    @Length({ max: 32 })
+    @Column(DataType.TEXT)
+    md5!: string;
+
     @Column(DataType.TINYINT)
     status!: Status;
 
