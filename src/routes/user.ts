@@ -178,7 +178,7 @@ router.post('/:userId/friend',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.ssecret, algorithms: config.jwt.algorithms }),
+    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const relationService: RelationService = new RelationService();
         const userId: number = parseInt(request.user.id);
