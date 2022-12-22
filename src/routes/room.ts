@@ -22,7 +22,7 @@ const config = require('../config/config');
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const util: Util = new Util();
-const roomController: RoomService = new RoomService();
+const roomService: RoomService = new RoomService();
 
 router.post(
     '/',
@@ -37,7 +37,7 @@ router.post(
         const groupId: number = request.params.group_id;
         const userId: number = parseInt(request.user.id);
 
-        roomController.create(
+        roomService.create(
             userId,
             groupId,
             request.body.name,
@@ -120,7 +120,7 @@ router.get(
         const limit: number = parseInt(request.query.limit);
         const before: Date = request.query.before ? new Date(parseInt(request.query.before) * 1000) : new Date();
 
-        return roomController.getList(
+        return roomService.getList(
             groupId,
             before,
             offset,
