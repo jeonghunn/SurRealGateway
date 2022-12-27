@@ -3,7 +3,7 @@ import {
     Response,
 } from "express";
 import { RoomService } from "../service/RoomService";
-import jwt from "express-jwt";
+import { expressjwt } from "express-jwt";
 import { Util } from "../core/util";
 import { Room } from "../model/Room";
 import {
@@ -29,7 +29,7 @@ router.post(
     util.validate([
         param('group_id').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
 
@@ -56,7 +56,7 @@ router.get(
     util.validate([
         param('group_id').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const roomService: RoomService = new RoomService();
         const attendeeService: AttendeeService = new AttendeeService();
@@ -83,7 +83,7 @@ router.get(
         query('offset').isInt(),
         query('limit').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
         const chatService: ChatService = new ChatService();
@@ -111,7 +111,7 @@ router.get(
         query('offset').isInt(),
         query('limit').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
 

@@ -9,7 +9,7 @@ import {
     validationResult,
 } from "express-validator";
 import { User } from "../model/User";
-import jwt from "express-jwt";
+import { expressjwt } from "express-jwt";
 import { Util } from "../core/util";
 import {RelationService} from "../service/RelationService";
 import { Relation } from "../model/Relation";
@@ -102,7 +102,7 @@ router.post(
 
 
 router.get('/verify',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
     const userService: UserService = new UserService();
 
@@ -128,7 +128,7 @@ router.get('/verify',
 });
 
 router.get('/friends',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const relationService: RelationService = new RelationService();
         const userId: number = parseInt(request.user.id);
@@ -149,7 +149,7 @@ router.get('/:userId',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const userService: UserService = new UserService();
         const userId: number = parseInt(request.user.id);
@@ -178,7 +178,7 @@ router.post('/:userId/friend',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const relationService: RelationService = new RelationService();
         const userId: number = parseInt(request.user.id);
@@ -205,7 +205,7 @@ router.delete('/:userId/friend',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const relationService: RelationService = new RelationService();
         const userId: number = parseInt(request.user.id);
@@ -233,7 +233,7 @@ router.post('/:userId/chat',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const groupService: GroupService = new GroupService();
         const userId: number = parseInt(request.user.id);

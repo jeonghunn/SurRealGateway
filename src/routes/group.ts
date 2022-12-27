@@ -2,7 +2,7 @@ import {
     NextFunction,
     Response
 } from "express";
-import jwt from "express-jwt";
+import { expressjwt } from "express-jwt";
 import { Util } from "../core/util";
 import { GroupService } from "../service/GroupService";
 import { Group } from "../model/Group";
@@ -19,7 +19,7 @@ const util: Util = new Util();
 
 router.get(
     '/',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const groupService: GroupService = new GroupService();
 
@@ -41,7 +41,7 @@ router.get(
 
 router.get(
     '/:id',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
         const groupService: GroupService = new GroupService();

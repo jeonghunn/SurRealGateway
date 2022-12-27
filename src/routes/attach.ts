@@ -2,61 +2,31 @@ import {
     NextFunction,
     Response
 } from "express";
-import jwt from "express-jwt";
+import { expressjwt } from "express-jwt";
 import { Util } from "../core/util";
-import { GroupController } from "../controller/GroupController";
-import { Group } from "../model/Group";
-import {
-    AttendeePermission,
-    AttendeeType,
-} from "../core/type";
+import {AttachService} from "../service/AttachService";
+import {RoomService} from "../service/RoomService";
 
 const config = require('../config/config');
 const express = require('express');
+let fileupload = require("express-fileupload");
 const roomRouter = require('./room');
 const router = express.Router();
 const util: Util = new Util();
 
-router.get(
+router.post(
     '/',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    fileupload(),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const groupController: GroupController = new GroupController();
+        const attachService: AttachService = new AttachService();
+        const roomService: RoomService = new RoomService();
 
-        const userId: number = parseInt(request.user.id);
-        groupController.getGroupList(userId, [ 'id', 'name', 'target_id' ]).then((groups: Group[] | null) => {
-            if (!groups) {
-                return response.status(500).json({
-                    name: 'UNKNOWN_ERROR',
-                    message: 'Sorry something went wrong. Please try again.',
-                });
-            }
 
-            response.status(200).json({
-                groups,
-            });
-        });
+        console.log(request.files?.attachment);
 
+        return response.status(200).json({});
 });
 
-router.get(
-    '/:id',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
-    util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
-    (request: any, response: Response, next: NextFunction) => {
-        const groupController: GroupController = new GroupController();
-
-        const id: number = parseInt(request.params.id);
-
-        groupController.get(id).then((group: Group | null) => {
-            response.status(200).json({
-                group,
-            });
-        });
-
-    });
-
-
-router.use('/:group_id/room', roomRouter);
 
 module.exports = router;
