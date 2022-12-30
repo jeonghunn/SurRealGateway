@@ -35,7 +35,7 @@ export class Util {
             const targetId: number = parseInt(request.params.group_id || request.params.id);
 
             if (!userId) {
-                response.status(401).json({
+                return response.status(401).json({
                     name: 'UNAUTHORIZED',
                     message: 'Unauthorized.',
                 });
