@@ -35,7 +35,7 @@ router.post(
 
         const ipAddress: string = util.getIPAddress(request);
         const groupId: number = request.params.group_id;
-        const userId: number = parseInt(request.user.id);
+        const userId: number = parseInt(request.auth.id);
 
         roomService.create(
             userId,
@@ -63,7 +63,7 @@ router.get(
 
         const id: number = parseInt(request.params.id);
         const groupId: number = parseInt(request.params.group_id)
-        const userId: number = parseInt(request.user.id);
+        const userId: number = parseInt(request.auth.id);
 
         roomService.get(groupId, id).then((room: Room | null) => {
             attendeeService.create(AttendeeType.ROOM, userId, id, AttendeePermission.MEMBER);

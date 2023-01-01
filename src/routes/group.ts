@@ -23,7 +23,7 @@ router.get(
     (request: any, response: Response, next: NextFunction) => {
         const groupService: GroupService = new GroupService();
 
-        const userId: number = parseInt(request.user.id);
+        const userId: number = parseInt(request.auth.id);
         groupService.getGroupList(userId, [ 'id', 'name', 'target_id' ]).then((groups: Group[] | null) => {
             if (!groups) {
                 return response.status(500).json({

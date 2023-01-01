@@ -106,7 +106,7 @@ router.get('/verify',
     (request: any, response: Response, next: NextFunction) => {
     const userService: UserService = new UserService();
 
-    userService.getById(request.user?.id).then((user: User | null) => {
+    userService.getById(request.auth?.id).then((user: User | null) => {
         if (!user) {
             return response.status(401).json({});
         }
@@ -130,7 +130,7 @@ router.get('/friends',
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const relationService: RelationService = new RelationService();
-        const userId: number = parseInt(request.user.id);
+        const userId: number = parseInt(request.auth.id);
 
         relationService.getList(
             userId,
@@ -151,7 +151,7 @@ router.get('/:userId',
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const userService: UserService = new UserService();
-        const userId: number = parseInt(request.user.id);
+        const userId: number = parseInt(request.auth.id);
 
         userService.getById(request.params.userId, userId).then((user: User | null) => {
             if (!user) {
@@ -180,7 +180,7 @@ router.post('/:userId/friend',
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const relationService: RelationService = new RelationService();
-        const userId: number = parseInt(request.user.id);
+        const userId: number = parseInt(request.auth.id);
         const targetUserId: number = parseInt(request.params.userId);
 
         if (userId === targetUserId) {
@@ -207,7 +207,7 @@ router.delete('/:userId/friend',
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const relationService: RelationService = new RelationService();
-        const userId: number = parseInt(request.user.id);
+        const userId: number = parseInt(request.auth.id);
         const targetUserId: number = parseInt(request.params.userId);
 
         if (userId === targetUserId) {
@@ -235,8 +235,8 @@ router.post('/:userId/chat',
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
         const groupService: GroupService = new GroupService();
-        const userId: number = parseInt(request.user.id);
-        const userName: string = request.user.name;
+        const userId: number = parseInt(request.auth.id);
+        const userName: string = request.auth.name;
         const targetUserId: number = parseInt(request.params.userId);
 
         if (userId === targetUserId) {

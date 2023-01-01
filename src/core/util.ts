@@ -31,7 +31,7 @@ export class Util {
     public requirePermission(type: AttendeeType, target: AttendeePermission): Function {
         return (request: any, response: Response, next: NextFunction) => {
             const attendeeService: AttendeeService = new AttendeeService();
-            const userId: number | null = parseInt(request.user?.id);
+            const userId: number | null = parseInt(request.auth?.id);
             const targetId: number = parseInt(request.params.group_id || request.params.id);
 
             if (!userId) {
@@ -42,7 +42,7 @@ export class Util {
             }
 
             //Allow Admin
-            if (request.user?.permission === UserPermission.ADMIN) {
+            if (request.auth?.permission === UserPermission.ADMIN) {
                 next();
                 return;
             }
