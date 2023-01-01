@@ -106,10 +106,9 @@ router.get('/verify',
     (request: any, response: Response, next: NextFunction) => {
     const userService: UserService = new UserService();
 
-    userService.getById(request.user.id).then((user: User | null) => {
+    userService.getById(request.user?.id).then((user: User | null) => {
         if (!user) {
-            response.status(401);
-            return;
+            return response.status(401).json({});
         }
         response.json({
             user: {
