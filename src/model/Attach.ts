@@ -37,6 +37,7 @@ export class Attach extends Model {
 
     @Index
     @ForeignKey(() => Room)
+    @AllowNull
     @Column({
         type: DataType.INTEGER,
         allowNull: false,

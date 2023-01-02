@@ -28,7 +28,7 @@ export class Util {
         };
     };
 
-    public requirePermission(type: AttendeeType, target: AttendeePermission): Function {
+    public requirePermission(type: AttendeeType | null, target: AttendeePermission): Function {
         return (request: any, response: Response, next: NextFunction) => {
             const attendeeService: AttendeeService = new AttendeeService();
             const userId: number | null = parseInt(request.auth?.id);
@@ -41,12 +41,11 @@ export class Util {
                 });
             }
 
-            //Allow Admin
-            if (request.auth?.permission === UserPermission.ADMIN) {
+            //Allow Admin or All Users
+            if (request.auth?.permission === UserPermission.ADMIN || !type) {
                 next();
                 return;
             }
-
             attendeeService.get(type, userId, targetId).then((attendee: Attendee | null) => {
                 if (!attendee?.permission || attendee?.permission < target) {
                     return response.status(403).json({
