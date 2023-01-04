@@ -17,13 +17,19 @@ const config = require('../config/config');
 
 export class RoomService {
 
-    public get(groupId: number, id: number): Promise<Room | null> {
+    public get(groupId: number, id: number, isSecure: boolean = true): Promise<Room | null> {
+
+        const exclude: string[] = isSecure ? ['ip_address'] : [];
+
         return Room.findOne({
                 where: {
                     status: Status.NORMAL,
                     id,
                     group_id: groupId,
                 },
+            attributes: {
+                exclude,
+            }
             }
         ).catch((result) => {
             console.log('Error: get from RoomService', result);
