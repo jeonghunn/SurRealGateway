@@ -71,7 +71,16 @@ export class RoomService {
     }
 
 
-    public getList(group_id: number, before: Date, offset: number = 0, limit: number = 15): Promise<Room[]> {
+    public getList(
+        group_id: number,
+        before: Date,
+        offset: number = 0,
+        limit: number = 15,
+        isSecure: boolean = true,
+        ): Promise<Room[]> {
+
+        const exclude: string[] = isSecure ? ['ip_address'] : [];
+
         return Room.findAll(
             {
                 where: {
@@ -84,6 +93,9 @@ export class RoomService {
                 ],
                 offset,
                 limit,
+                attributes: {
+                    exclude,
+                }
             }
         )
     }
