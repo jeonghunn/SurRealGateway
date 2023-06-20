@@ -118,7 +118,7 @@ export class RoomService {
     public parseMessage(content: any, me: SimpleUser): LiveMessage | undefined {
 
         switch (content[0]) {
-            case '{':
+            case 123:
                 const message: LiveMessage = JSON.parse(content);
 
                 message.createdAt = new Date();
