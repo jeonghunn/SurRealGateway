@@ -41,6 +41,7 @@ export class RoomService {
     public create(
         user_id: number,
         group_id: number,
+        letter?: string,
         name?: string,
         description?: string,
         ip_address?: string,
@@ -53,6 +54,7 @@ export class RoomService {
             user_id,
             group_id,
             name,
+            letter,
             description,
             ip_address,
             limit,
@@ -67,6 +69,9 @@ export class RoomService {
             )
 
             return room;
+        }).catch((result) => {
+            console.log('Error: create from RoomService', result);
+            return null;
         });
     }
 

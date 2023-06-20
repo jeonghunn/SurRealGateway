@@ -40,6 +40,7 @@ router.post(
         roomService.create(
             userId,
             groupId,
+            request.body.letter,
             request.body.name,
             request.body.description,
             ipAddress,
