@@ -23,16 +23,21 @@ export class AttachService {
     }
 
     public isImage(extension: string): boolean {
-        const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
         return allowedExtensions.includes(extension);
     }
 
-    public getFileType(fileName: string): FileType {
-        return this.isImage(fileName) ? FileType.IMAGE : FileType.BINARY;
+    public getFileType(extension: string, mimetype: string): FileType {
+        return this.isImage(extension) && mimetype.includes('image') ? FileType.IMAGE : FileType.BINARY;
     }
 
     public getFileNameAndExtension(name: string): any {
         return path.parse(name);
+    }
+
+    public getUrl(attach: Attach): string {
+
+        return config.attach.cdnUrl + attach.binary_name;
     }
 
     public saveFile(file: any): Promise<boolean> {

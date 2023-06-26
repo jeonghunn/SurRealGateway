@@ -34,7 +34,7 @@ router.post(
 
         console.log('[File Upload]', request.file);
 
-        attachService.create({
+        return attachService.create({
             user_id: userId,
             room_id: request.body.room_id,
             name: fileNameAndExtension.name,
@@ -42,13 +42,24 @@ router.post(
             binary_name: request.file?.filename,
             mimetype: request?.file?.mimetype,
             status: Status.NORMAL,
-            type: attachService.getFileType(fileNameAndExtension.ext),
+            type: attachService.getFileType(fileNameAndExtension.ext, request.file?.mimetype),
             size: request?.file?.size,
             ip_address: util.getIPAddress(request),
+        }).then((attach: any) => { 
+            return response.status(200).json({
+                id: attach.id,
+                name: attach.name,
+                extension: attach.extension,
+                binary_name: attach.binary_name,
+                mimetype: attach.mimetype,
+                type: attach.type,
+                size: attach.size,
+                url: attachService.getUrl(attach),
+            });
         });
 
 
-        return response.status(200).json({});
+        return response.status(500).json({});
 });
 
 
