@@ -2,6 +2,7 @@ import {Attendee} from "../model/Attendee";
 import {
     AttendeePermission,
     AttendeeType,
+    FileType,
     Status,
 } from "../core/type";
 import { Op } from "sequelize";
@@ -26,8 +27,8 @@ export class AttachService {
         return allowedExtensions.includes(extension);
     }
 
-    public getFileType(fileName: string): string {
-        return this.isImage(fileName) ? 'IMAGE' : 'OBJECT';
+    public getFileType(fileName: string): FileType {
+        return this.isImage(fileName) ? FileType.IMAGE : FileType.BINARY;
     }
 
     public getFileNameAndExtension(name: string): any {
