@@ -12,6 +12,8 @@ import { AttendeeService } from "./AttendeeService";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../model/User";
+import { AttachService } from "./AttachService";
+import { Attach } from "../model/Attach";
 
 const config = require('../config/config');
 
@@ -120,19 +122,35 @@ export class RoomService {
         }
     }
 
-    public parseMessage(content: any, me: SimpleUser): LiveMessage | undefined {
+    public parseMessage(
+        attachService: AttachService,
+        content: any,
+        me: SimpleUser,
+        ): LiveMessage | undefined {
 
         switch (content[0]) {
             case 123:
                 const message: LiveMessage = JSON.parse(content);
-
+                const attaches: any[] = [];
+                
                 message.createdAt = new Date();
 
                 const user: User = new User();
                 user.name = me.name!;
                 user.id = me.id!;
 
+                message?.meta?.attaches?.forEach((attach: any) => {
+                    attaches.push({
+                        binary_name: attach,
+                        url: attachService.getUrl({
+                            binary_name: attach,
+                        } as Attach),
+                    });
+
+                });
+
                 message.user = user;
+                message.meta.attaches = attaches;
 
                 return message;
             default:

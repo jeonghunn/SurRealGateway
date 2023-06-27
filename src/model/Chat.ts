@@ -61,8 +61,8 @@ export class Chat extends Model {
     @Column(DataType.INTEGER)
     status!: Status;
 
-    @HasMany(() => Attach)
-    files?: Attach[];
+    @Column(DataType.JSON)
+    meta?: any;
 
     @CreatedAt
     createdAt!: Date;

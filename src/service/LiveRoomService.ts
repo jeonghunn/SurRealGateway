@@ -48,6 +48,7 @@ export class LiveRoomService {
                 chat.room_id = id;
                 chat.content = message.content!!;
                 chat.status = Status.NORMAL;
+                chat.meta = message.meta;
 
                 this.chatService.save(chat);
                 break;

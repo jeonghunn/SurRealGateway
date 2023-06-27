@@ -18,6 +18,7 @@ export class ChatService {
                     'user_id',
                     'room_id',
                     'status',
+                    'meta',
                     'createdAt',
                     'updatedAt',
                 ],

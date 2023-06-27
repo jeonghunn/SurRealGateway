@@ -88,6 +88,7 @@ export class LiveMessage extends Communication {
     public id?: number;
     public content: string | any | undefined;
     public user?: User;
+    public meta?: any;
 }
 
 export class AuthMessage extends Communication {

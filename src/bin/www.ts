@@ -75,7 +75,7 @@ wsServer.on('connection', (socket: any, request: any) => {
     }
 
     try {
-      const liveMessage: LiveMessage | undefined = roomService.parseMessage(message, me);
+      const liveMessage: LiveMessage | undefined = roomService.parseMessage(attachService, message, me);
 
       if (!liveMessage) {
         console.log("Live Message : Invalid Live Message By User", me?.id);
