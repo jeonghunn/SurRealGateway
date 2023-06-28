@@ -150,7 +150,11 @@ export class RoomService {
                 });
 
                 message.user = user;
-                message.meta.attaches = attaches;
+
+                if(message?.meta?.attaches) {
+                    message.meta.attaches = attaches;
+                }
+                
 
                 return message;
             default:
