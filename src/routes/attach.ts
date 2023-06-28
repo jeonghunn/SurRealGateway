@@ -62,5 +62,30 @@ router.post(
         return response.status(500).json({});
 });
 
+router.get(
+    '/:binary_name',
+    (request: any, response: Response, next: NextFunction) => {
+        const attachService: AttachService = new AttachService();
+        const binaryName: string = request.params.binary_name;
+        const width: number = parseInt(request.query.width);
+        const height: number = parseInt(request.query.height);
+
+
+        return attachService.get(binaryName, width, height).then((attach: any) => {
+            if (!attach) {
+                console.log('[File Download]', attach);
+                return response.status(404).json({});
+            }
+
+            
+            const filePath: string = attachService.getPath(attach, width, height);
+
+            return response.status(200).download(filePath, `${attach.filename}${attach.extension}`);
+
+        });
+
+    });
+
+
 
 module.exports = router;

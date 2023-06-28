@@ -6,7 +6,7 @@ module.exports = (() => {
             secret: 'TEST_SERVER_SECRET',
         },
         attach: {
-            cdnUrl: 'http://localhost:8000/',
+            cdnUrl: 'http://localhost:3000/attach/',
             path: '../attach/',
         },
     }
