@@ -80,7 +80,7 @@ router.get(
             
             const filePath: string = attachService.getPath(attach, width, height);
 
-            return response.status(200).download(filePath, `${attach.filename}${attach.extension}`);
+            return response.status(200).download(filePath, `${attach.name}${attach.extension}`);
 
         });
 
