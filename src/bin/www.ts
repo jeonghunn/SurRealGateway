@@ -15,6 +15,7 @@ import { RoomService } from "../service/RoomService";
 import { AttendeeService } from "../service/AttendeeService";
 import { Attendee } from "../model/Attendee";
 import { LiveRoomService } from "../service/LiveRoomService";
+import { AttachService } from "../service/AttachService";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -44,6 +45,7 @@ const rooms = new Map();
 const liveRoomService: LiveRoomService = new LiveRoomService();
 const roomService: RoomService = new RoomService();
 const attendeeService: AttendeeService = new AttendeeService();
+const attachService: AttachService = new AttachService();
 
 wsServer.on('connection', (socket: any, request: any) => {
 
@@ -60,6 +62,7 @@ wsServer.on('connection', (socket: any, request: any) => {
       authResult.T = CommunicationType.AUTH;
       authResult.result = me !== null;
 
+      console.log(`[Live] Trying to join the room ${roomId} by user ${me?.id}`, authResult);
       if (!me) {
         socket.send(JSON.stringify(authResult));
         return;
