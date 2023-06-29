@@ -25,7 +25,15 @@ export class AttachService {
     }
 
     public createThumbnail(binaryName: string, width: number, height: number): Promise<any | null> {
-        return imageThumbnail(path.join(config.attach.path, binaryName), {width, height, responseType: 'buffer'}).then((thumbnail: any) => {
+        return imageThumbnail(
+            path.join(config.attach.path, binaryName),
+            {
+                width,
+                height,
+                responseType: 'buffer',
+                fit: 'cover',
+            },
+            ).then((thumbnail: any) => {
             return fs.writeFile(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, binaryName), thumbnail, (err: any) => {
                 if (err) {
                     console.log('[Thumbnail] : Thumbnail not created. ', err);
