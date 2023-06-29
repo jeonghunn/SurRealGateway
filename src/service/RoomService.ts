@@ -141,10 +141,14 @@ export class RoomService {
 
                 message?.meta?.attaches?.forEach((attach: any) => {
                     attaches.push({
-                        binary_name: attach,
                         url: attachService.getUrl({
-                            binary_name: attach,
+                            binary_name: attach.binary_name,
                         } as Attach),
+                        binary_name: attach.binary_name,
+                        type: attach.type,
+                        name: attach.name,
+                        extension: attach.extension,
+                        size: attach.size,
                     });
 
                 });
