@@ -74,7 +74,7 @@ export class AttachService {
             return null;
         }).then((attach: Attach | null) => {
 
-            if (attach.type === FileType.IMAGE && width && height) {
+            if (attach?.type === FileType.IMAGE && width && height) {
                 fs.access(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, binaryName), fs.F_OK, (err: any) => {
 
                     if (err) {
