@@ -8,7 +8,11 @@ var logger = require('morgan');
 const multer  = require('multer')
 const dbConfig = require('./config/db_config');
 const config = require('./config/config')
-export const upload = multer({ dest: config.attach.path });
+export const upload = multer({
+    dest: config.attach.path,
+    limits: { fileSize: config.attach.sizeLimit },
+});
+
 export const sequelize = new Sequelize(
     dbConfig.database,
     dbConfig.user,

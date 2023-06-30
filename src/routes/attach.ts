@@ -30,6 +30,13 @@ router.post(
             );
         }
 
+        if (request.file.size > config.attach.sizeLimit - 3) {
+            return response.status(413).json(
+                { message: 'File size is too big.'}
+            );
+
+        }
+
         const fileNameAndExtension: any = attachService.getFileNameAndExtension(request.file?.originalname);
 
         console.log('[File Upload]', request.file);

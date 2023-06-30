@@ -8,6 +8,7 @@ module.exports = (() => {
         attach: {
             cdnUrl: 'http://localhost:3000/attach/',
             path: '../attach/',
+            sizeLimit: 100 * 1024 * 1024,
         },
     }
 })();
