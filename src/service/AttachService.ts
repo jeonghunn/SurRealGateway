@@ -36,13 +36,15 @@ export class AttachService {
             ).then((thumbnail: any) => {
             return fs.writeFile(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, binaryName), thumbnail, (err: any) => {
                 if (err) {
-                    console.log('[Thumbnail] : Thumbnail not created. ', err);
+                    console.log('[Thumbnail] : Thumbnail creation has been failed. ', err);
                     return null;
                 }
 
                 return thumbnail;
 
             });
+        }).catch(() => {
+            console.log('[Thumbnail] : Thumbnail not created. ');
         });
     }
 
