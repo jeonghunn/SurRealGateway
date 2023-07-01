@@ -22,6 +22,12 @@ export enum Status {
     REMOVED,
 }
 
+export enum PrivacyType {
+    PUBLIC,
+    MEMBERS_ONLY,
+    PRIVATE,
+}
+
 export enum RelationStatus {
     NORMAL,
     REMOVED,
@@ -88,6 +94,7 @@ export class LiveMessage extends Communication {
     public id?: number;
     public content: string | any | undefined;
     public user?: User;
+    public meta?: any;
 }
 
 export class AuthMessage extends Communication {

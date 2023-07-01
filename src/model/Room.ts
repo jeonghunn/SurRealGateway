@@ -30,6 +30,10 @@ export class Room extends Model {
     @Column(DataType.TEXT)
     description!: string;
 
+    @Length({ max: 2 })
+    @Column(DataType.TEXT)
+    letter!: string;
+
     @Index
     @ForeignKey(() => User)
     @Column({

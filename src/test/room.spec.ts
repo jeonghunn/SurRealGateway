@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import request from 'supertest';
 import {TestUtil} from "./TestUtil";
-import {ChatController} from "../controller/ChatController";
+import {ChatService} from "../service/ChatService";
 import {Chat} from "../model/Chat";
 import {Status} from "../core/type";
 
@@ -86,7 +86,7 @@ describe('Room', () => {
 
     it('Get Chat Message List', (done) => {
         const testUtil: TestUtil = new TestUtil();
-        const chatController: ChatController = new ChatController();
+        const chatService: ChatService = new ChatService();
         const before: number = new Date().getTime() / 1000;
         const chat: Chat = new Chat();
 
@@ -97,35 +97,39 @@ describe('Room', () => {
 
         testUtil.signIn().end( (err, res) => {
 
-            console.log("EWFWEFWEFWEFWEF", res.body.user_id)
 
             chat.content = "TEST"
             chat.createdAt = new Date(new Date().getTime() - 30000);
             chat.status = Status.NORMAL;
             chat.room_id = roomId;
             chat.user_id = res.body.user_id;
-            chat.save();
+            chat.save().then(() => {
+                request(app)
+                    .get(`/group/2/room/${roomId}/chat`)
+                    .set('Authorization', `Bearer ${res.body.token}`)
+                    .query({
+                        offset: 0,
+                        limit: 15,
+                        before: before,
+                    })
+                    .expect(200)
+                    .end((err, res) => {
+                        if (err) {
+                            console.log(err, res);
+                            return;
+                        }
 
 
-            request(app)
-                .get(`/group/2/room/${roomId}/chat`)
-                .set('Authorization', `Bearer ${res.body.token}`)
-                .query({
-                    offset: 0,
-                    limit: 15,
-                    before: before,
-                })
-                .expect(200)
-                .end((err, res) => {
-                    if (err) {
-                        console.log(err, res);
-                        return;
-                    }
 
-                    expect(res.body.chats.length).greaterThan(0);
+                        expect(res.body.chats.length).greaterThan(0);
 
-                    done();
-                });
+                        done();
+                    });
+
+            });
+
+
+
 
         });
 

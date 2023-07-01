@@ -11,10 +11,11 @@ import {
   CommunicationType,
   SimpleUser,
 } from "../core/type";
-import { RoomController } from "../controller/RoomController";
-import { AttendeeController } from "../controller/AttendeeController";
+import { RoomService } from "../service/RoomService";
+import { AttendeeService } from "../service/AttendeeService";
 import { Attendee } from "../model/Attendee";
-import { LiveRoomController } from "../controller/LiveRoomController";
+import { LiveRoomService } from "../service/LiveRoomService";
+import { AttachService } from "../service/AttachService";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -41,9 +42,10 @@ var server = http.createServer(app);
 
 const wsServer = new webSocket.Server({ server });
 const rooms = new Map();
-const liveRoomController: LiveRoomController = new LiveRoomController();
-const roomController: RoomController = new RoomController();
-const attendeeController: AttendeeController = new AttendeeController();
+const liveRoomService: LiveRoomService = new LiveRoomService();
+const roomService: RoomService = new RoomService();
+const attendeeService: AttendeeService = new AttendeeService();
+const attachService: AttachService = new AttachService();
 
 wsServer.on('connection', (socket: any, request: any) => {
 
@@ -55,34 +57,42 @@ wsServer.on('connection', (socket: any, request: any) => {
   socket.on('message', (message: string) => {
 
     if(!me) {
-      me = roomController.getVerifiedUser(message);
+      me = roomService.getVerifiedUser(message);
       const authResult: CommunicationResult = new CommunicationResult();
       authResult.T = CommunicationType.AUTH;
       authResult.result = me !== null;
 
+      console.log(`[Live] Trying to join the room ${roomId} by user ${me?.id}`, authResult);
       if (!me) {
         socket.send(JSON.stringify(authResult));
         return;
       }
 
-      attendeeController.get(AttendeeType.ROOM, me?.id!, roomId).then((attendee: Attendee | null) => {
+      attendeeService.get(AttendeeType.ROOM, me?.id!, roomId).then((attendee: Attendee | null) => {
         authResult.result = authResult.result && attendee !== null;
         socket.send(JSON.stringify(authResult));
-        liveRoomController.join(roomId, me?.id!!, socket);
+        
+        if (!authResult.result) {
+          console.log(`[Live] Permission Error: room ${roomId} by user ${me?.id}`, authResult);
+          me = null;
+          return;
+        }
+
+        liveRoomService.join(roomId, me?.id!!, socket);
       });
 
       return;
     }
 
     try {
-      const liveMessage: LiveMessage | undefined = roomController.parseMessage(message, me);
+      const liveMessage: LiveMessage | undefined = roomService.parseMessage(attachService, message, me);
 
       if (!liveMessage) {
         console.log("Live Message : Invalid Live Message By User", me?.id);
         return;
       }
 
-      liveRoomController.send(roomId, liveMessage);
+      liveRoomService.send(roomId, liveMessage);
 
     } catch (e: any) {
       console.log("ERROR", e);
@@ -92,7 +102,7 @@ wsServer.on('connection', (socket: any, request: any) => {
   });
 
   socket.on('close', (responseCode: number, description: string) => {
-    liveRoomController.close(roomId, me?.id!!, socket);
+    liveRoomService.close(roomId, me?.id!!, socket);
   });
 });
 

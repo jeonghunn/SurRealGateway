@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import request from 'supertest';
-import {UserController} from "../controller/UserController";
+import {UserService} from "../service/UserService";
 import {User} from "../model/User";
 import {TestUtil} from "./TestUtil";
-import {RelationController} from "../controller/RelationController";
-import {RoomController} from "../controller/RoomController";
+import {RelationService} from "../service/RelationService";
+import {RoomService} from "../service/RoomService";
 import {Room} from "../model/Room";
 import {Status} from "../core/type";
 import {Op} from "sequelize";
@@ -54,8 +54,8 @@ describe('User', () => {
                 newUserToken = res.body.token;
                 newUserId = res.body.user_id;
 
-                const userController: UserController = new UserController();
-                userController.getByEmail(`${text}`, `${text}.com`).then((result) =>{
+                const userService: UserService = new UserService();
+                userService.getByEmail(`${text}`, `${text}.com`).then((result) =>{
 
                     expect(result).not.to.be.null;
                     done();
@@ -81,7 +81,7 @@ describe('User', () => {
     });
 
     it('Start Chat With Friend', (done) => {
-        const roomController: RoomController = new RoomController();
+        const roomService: RoomService = new RoomService();
 
         request(app)
             .post('/user/22/chat')
@@ -162,7 +162,7 @@ describe('User', () => {
     });
 
     it('UnFriend Request', (done) => {
-        const relationController: RelationController = new RelationController();
+        const relationService: RelationService = new RelationService();
         testUtil.signIn().end((err, res) => {
             request(app)
                 .delete('/user/22/friend')
@@ -174,7 +174,7 @@ describe('User', () => {
                         return;
                     }
 
-                    relationController.getList(newUserId, 22).then((result) => {
+                    relationService.getList(newUserId, 22).then((result) => {
                         expect(result?.length).equals(0);
                         done();
                     });

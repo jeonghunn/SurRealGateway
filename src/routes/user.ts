@@ -2,22 +2,22 @@ import {
     NextFunction,
     Response,
 } from "express";
-import { UserController } from "../controller/UserController";
+import { UserService } from "../service/UserService";
 import {
     body,
     param,
     validationResult,
 } from "express-validator";
 import { User } from "../model/User";
-import jwt from "express-jwt";
+import { expressjwt } from "express-jwt";
 import { Util } from "../core/util";
-import {RelationController} from "../controller/RelationController";
+import {RelationService} from "../service/RelationService";
 import { Relation } from "../model/Relation";
 import {
     RelationCategory,
     RelationStatus,
 } from "../core/type";
-import {GroupController} from "../controller/GroupController";
+import {GroupService} from "../service/GroupService";
 
 const config = require('../config/config');
 const express = require('express');
@@ -31,34 +31,34 @@ router.post(
         body('password').isLength({ min: 5 }),
     ]),
     (req: any, res: Response, next: NextFunction) => {
-    const userController: UserController = new UserController();
+    const userService: UserService = new UserService();
     const errors: any = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({errors: errors.array()});
     }
 
-    userController.isEmailDuplicate(req.body.email).then(isEmailDuplicated => {
+    userService.isEmailDuplicate(req.body.email).then(isEmailDuplicated => {
         if (isEmailDuplicated) {
             res.status(409);
             res.json({message: "duplicated account."});
             return;
         }
 
-        userController.signUp(
+        userService.signUp(
             req.body.email,
             req.body.password,
             req.body.name,
             req.body.last_name,
             req.body.gender,
         ).then((user: User) => {
-            const token: string = userController.createToken(user.id);
+            const token: string = userService.createToken(user.id, null, user.email, user.name);
 
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            res.cookie('Authorization', 'Bearer' + ' ' + token, userController.authCookieOptions);
+            res.cookie('Authorization', 'Bearer' + ' ' + token, userService.authCookieOptions);
 
             res.json({
                 user_id: user.id,
@@ -77,20 +77,20 @@ router.post(
         body('password').isLength({ min: 5 }),
     ]),
     (request: any, response: Response, next: NextFunction) => {
-        const userController: UserController = new UserController();
+        const userService: UserService = new UserService();
         const errors: any = validationResult(request);
         if (!errors.isEmpty()) {
             return response.status(400).json({errors: errors.array()});
         }
 
-        userController.signIn(request.body.email, request.body.password).then((user: User | null) => {
+        userService.signIn(request.body.email, request.body.password).then((user: User | null) => {
             if (!user) {
                 return response.status(403).json({ message: 'Wrong email or password.' });
             }
 
-            const token: string = userController.createToken(user.id, null, user.email, user.name);
+            const token: string = userService.createToken(user.id, null, user.email, user.name);
 
-            response.cookie('Authorization', `Bearer ${token}`, userController.authCookieOptions);
+            response.cookie('Authorization', `Bearer ${token}`, userService.authCookieOptions);
 
             return response.json({
                 user_id: user.id,
@@ -102,14 +102,13 @@ router.post(
 
 
 router.get('/verify',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-    const userController: UserController = new UserController();
+    const userService: UserService = new UserService();
 
-    userController.getById(request.user.id).then((user: User | null) => {
+    userService.getById(request.auth?.id).then((user: User | null) => {
         if (!user) {
-            response.status(401);
-            return;
+            return response.status(401).json({});
         }
         response.json({
             user: {
@@ -128,12 +127,12 @@ router.get('/verify',
 });
 
 router.get('/friends',
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const relationController: RelationController = new RelationController();
-        const userId: number = parseInt(request.user.id);
+        const relationService: RelationService = new RelationService();
+        const userId: number = parseInt(request.auth.id);
 
-        relationController.getList(
+        relationService.getList(
             userId,
             null,
             RelationCategory.FRIEND,
@@ -149,12 +148,12 @@ router.get('/:userId',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const userController: UserController = new UserController();
-        const userId: number = parseInt(request.user.id);
+        const userService: UserService = new UserService();
+        const userId: number = parseInt(request.auth.id);
 
-        userController.getById(request.params.userId, userId).then((user: User | null) => {
+        userService.getById(request.params.userId, userId).then((user: User | null) => {
             if (!user) {
                 response.status(404).json({});
                 return;
@@ -178,10 +177,10 @@ router.post('/:userId/friend',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const relationController: RelationController = new RelationController();
-        const userId: number = parseInt(request.user.id);
+        const relationService: RelationService = new RelationService();
+        const userId: number = parseInt(request.auth.id);
         const targetUserId: number = parseInt(request.params.userId);
 
         if (userId === targetUserId) {
@@ -191,7 +190,7 @@ router.post('/:userId/friend',
             return;
         }
 
-        relationController.sendFriendRequest(userId, targetUserId).then((isSuccess: boolean) => {
+        relationService.sendFriendRequest(userId, targetUserId).then((isSuccess: boolean) => {
             if (!isSuccess) {
                 response.status(403).json({});
                 return;
@@ -205,10 +204,10 @@ router.delete('/:userId/friend',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const relationController: RelationController = new RelationController();
-        const userId: number = parseInt(request.user.id);
+        const relationService: RelationService = new RelationService();
+        const userId: number = parseInt(request.auth.id);
         const targetUserId: number = parseInt(request.params.userId);
 
         if (userId === targetUserId) {
@@ -218,7 +217,7 @@ router.delete('/:userId/friend',
             return;
         }
 
-        relationController.unfriend(userId, targetUserId).then((relation) => {
+        relationService.unfriend(userId, targetUserId).then((relation) => {
             if (!relation) {
                 response.status(403).json({});
                 return;
@@ -233,12 +232,11 @@ router.post('/:userId/chat',
     util.validate([
         param('userId').isInt(),
     ]),
-    jwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
-        const relationController: RelationController = new RelationController();
-        const groupController: GroupController = new GroupController();
-        const userId: number = parseInt(request.user.id);
-        const userName: string = request.user.name;
+        const groupService: GroupService = new GroupService();
+        const userId: number = parseInt(request.auth.id);
+        const userName: string = request.auth.name;
         const targetUserId: number = parseInt(request.params.userId);
 
         if (userId === targetUserId) {
@@ -248,7 +246,7 @@ router.post('/:userId/chat',
             return;
         }
 
-        groupController.createFriendGroup(userId, targetUserId, userName).then((group) => {
+        groupService.createFriendGroup(userId, targetUserId, userName).then((group) => {
             if (!group) {
                 response.status(404).json({ name: "FAILED_GROUP_CREATION"});
                 return;

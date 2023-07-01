@@ -3,15 +3,15 @@ import {
     LiveMessage,
     Status,
 } from "../core/type";
-import { ChatController } from "./ChatController";
+import { ChatService } from "./ChatService";
 import { Chat } from "../model/Chat";
 
 const config = require('../config/config');
 
-export class LiveRoomController {
+export class LiveRoomService {
 
     public rooms: any = new Map();
-    private chatController: ChatController = new ChatController();
+    private chatService: ChatService = new ChatService();
 
     public join(id :number, userId: number, socket: any): void {
         let liveRoom: any = this.rooms.get(id);
@@ -48,8 +48,9 @@ export class LiveRoomController {
                 chat.room_id = id;
                 chat.content = message.content!!;
                 chat.status = Status.NORMAL;
+                chat.meta = message.meta;
 
-                this.chatController.save(chat);
+                this.chatService.save(chat);
                 break;
             case CommunicationType.LIVE:
                 this.sendSocketMessageToRoom(id, message.content);

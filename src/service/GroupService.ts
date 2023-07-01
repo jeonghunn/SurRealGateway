@@ -5,18 +5,18 @@ import {
     UserStatus,
 } from "../core/type";
 import {Op} from "sequelize";
-import { AttendeeController } from "./AttendeeController";
+import { AttendeeService } from "./AttendeeService";
 import { User } from "../model/User";
-import { RoomController } from "./RoomController";
+import { RoomService } from "./RoomService";
 import { Room } from "../model/Room";
 
-export class GroupController {
+export class GroupService {
 
     public create(meta: any): Promise<Group> {
-        const roomController: RoomController = new RoomController();
+        const roomService: RoomService = new RoomService();
 
         return Group.create(meta).then((group: Group) => {
-            return roomController.create(meta.user_id, group.id).then((room: Room) => {
+            return roomService.create(meta.user_id, group.id).then((room: Room) => {
                 return group;
             });
         });
@@ -113,7 +113,7 @@ export class GroupController {
         groupName: string,
         ipAddress: string | null = null,
     ): Promise<Group | null> {
-        const attendeeController: AttendeeController = new AttendeeController();
+        const attendeeService: AttendeeService = new AttendeeService();
 
         return this.getFriendGroup(userId, targetId).then((result: Group | null) => {
             if (result) {
@@ -134,8 +134,8 @@ export class GroupController {
                     return null;
                 }
 
-                attendeeController.create(AttendeeType.GROUP, userId, group!!.id);
-                attendeeController.create(AttendeeType.GROUP, targetId, group!!.id);
+                attendeeService.create(AttendeeType.GROUP, userId, group!!.id);
+                attendeeService.create(AttendeeType.GROUP, targetId, group!!.id);
 
                return group;
             });
@@ -144,8 +144,8 @@ export class GroupController {
     }
 
     public getGroupList(userId: number, attributes: string[]): Promise<Group[] | null> {
-        const attendeeController: AttendeeController = new AttendeeController();
-        return attendeeController.getList(AttendeeType.GROUP, userId).then((attendeeIds: number[] | null) => {
+        const attendeeService: AttendeeService = new AttendeeService();
+        return attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: number[] | null) => {
             if (!attendeeIds) {
                 return null;
             }

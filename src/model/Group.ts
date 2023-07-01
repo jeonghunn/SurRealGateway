@@ -71,6 +71,9 @@ export class Group extends Model {
     @Column(DataType.INTEGER)
     status!: Status;
 
+    @Column(DataType.INTEGER)
+    privacy!: number;
+
     @CreatedAt
     createdAt!: Date;
 

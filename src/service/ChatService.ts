@@ -6,7 +6,7 @@ import { Chat } from "../model/Chat";
 import { Op } from "sequelize";
 import { User } from "../model/User";
 
-export class ChatController {
+export class ChatService {
 
     public getList(roomId: number, before: Date, offset: number = 0, limit: number = 15): Promise<Chat[]> {
         return Chat.findAll(
@@ -18,6 +18,7 @@ export class ChatController {
                     'user_id',
                     'room_id',
                     'status',
+                    'meta',
                     'createdAt',
                     'updatedAt',
                 ],

@@ -21,7 +21,7 @@ import { Room } from "./Room";
 import { Chat } from './Chat';
 
 @Table
-export class File extends Model {
+export class Attach extends Model {
     @AutoIncrement
     @PrimaryKey
     @Column(DataType.INTEGER.UNSIGNED)
@@ -37,6 +37,7 @@ export class File extends Model {
 
     @Index
     @ForeignKey(() => Room)
+    @AllowNull
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
@@ -54,6 +55,14 @@ export class File extends Model {
     @Length({ max: 40 })
     @Column(DataType.TEXT)
     binary_name!: string;
+
+    @Length({ max: 30 })
+    @Column(DataType.TEXT)
+    mimetype!: string;
+
+    @Length({ max: 32 })
+    @Column(DataType.TEXT)
+    hash!: string;
 
     @Column(DataType.TINYINT)
     status!: Status;

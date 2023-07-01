@@ -8,9 +8,12 @@ import {
     AttendeeType,
     AttendeePermission,
     UserPermission,
+    PrivacyType,
 } from "./type";
-import { AttendeeController } from "../controller/AttendeeController";
+import { AttendeeService } from "../service/AttendeeService";
 import { Attendee } from "../model/Attendee";
+import { GroupService } from "../service/GroupService";
+import { Group } from "../model/Group";
 
 export class Util {
 
@@ -28,34 +31,53 @@ export class Util {
         };
     };
 
-    public requirePermission(type: AttendeeType, target: AttendeePermission): Function {
+    public setPermissionError(response: Response) {
+        return response.status(403).json({
+            name: 'PERMISSION_DENIED',
+            message: 'Permission Denied.',
+        });
+    }
+
+    public requirePermission(type: AttendeeType | null, target: AttendeePermission): Function {
         return (request: any, response: Response, next: NextFunction) => {
-            const attendeeController: AttendeeController = new AttendeeController();
-            const userId: number | null = parseInt(request.user?.id);
+            const attendeeService: AttendeeService = new AttendeeService();
+            const groupService: GroupService = new GroupService();
+            const userId: number | null = parseInt(request.auth?.id);
             const targetId: number = parseInt(request.params.group_id || request.params.id);
 
             if (!userId) {
-                response.status(401).json({
+                return response.status(401).json({
                     name: 'UNAUTHORIZED',
                     message: 'Unauthorized.',
                 });
             }
 
-            //Allow Admin
-            if (request.user?.permission === UserPermission.ADMIN) {
+            //Allow Admin or All Users
+            if (request.auth?.permission === UserPermission.ADMIN || type === null) {
                 next();
                 return;
             }
+            attendeeService.get(type, userId, targetId).then((attendee: Attendee | null) => {
+                if (attendee?.permission >= target) {
+                    next();
+                    return;
+                } else if(type == AttendeeType.GROUP) {
+                    groupService.get(target).then((group: Group) => {
+                        if (group.privacy === PrivacyType.PUBLIC) {
+                            next();
+                            return;
+                        }
 
-            attendeeController.get(type, userId, targetId).then((attendee: Attendee | null) => {
-                if (!attendee?.permission || attendee?.permission < target) {
-                    return response.status(403).json({
-                        name: 'PERMISSION_DENIED',
-                        message: 'Permission Denied.',
+                        return this.setPermissionError(response);
                     });
                 } else {
-                    next();
+                    return this.setPermissionError(response);
                 }
+
+                
+            }).catch((reason: any) => {
+                console.log('[PERMISSION] Error: ', reason);
+                return this.setPermissionError(response);
             });
 
         }

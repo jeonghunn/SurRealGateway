@@ -8,25 +8,33 @@ import {
     SimpleUser,
     Status,
 } from "../core/type";
-import { AttendeeController } from "./AttendeeController";
+import { AttendeeService } from "./AttendeeService";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { User } from "../model/User";
+import { AttachService } from "./AttachService";
+import { Attach } from "../model/Attach";
 
 const config = require('../config/config');
 
-export class RoomController {
+export class RoomService {
 
-    public get(groupId: number, id: number): Promise<Room | null> {
+    public get(groupId: number, id: number, isSecure: boolean = true): Promise<Room | null> {
+
+        const exclude: string[] = isSecure ? ['ip_address'] : [];
+
         return Room.findOne({
                 where: {
                     status: Status.NORMAL,
                     id,
                     group_id: groupId,
                 },
+            attributes: {
+                exclude,
+            }
             }
         ).catch((result) => {
-            console.log('Error: get from RoomController', result);
+            console.log('Error: get from RoomService', result);
             return null;
         });
 
@@ -35,25 +43,27 @@ export class RoomController {
     public create(
         user_id: number,
         group_id: number,
+        letter?: string,
         name?: string,
         description?: string,
         ip_address?: string,
         limit: number = 10,
 
     ): Promise<Room> {
-        const attendeeController: AttendeeController = new AttendeeController();
+        const attendeeService: AttendeeService = new AttendeeService();
 
         return Room.create({
             user_id,
             group_id,
             name,
+            letter,
             description,
             ip_address,
             limit,
             status: Status.NORMAL,
         }).then((room: Room) => {
 
-            attendeeController.create(
+            attendeeService.create(
                 AttendeeType.ROOM,
                 user_id,
                 room.id,
@@ -61,11 +71,23 @@ export class RoomController {
             )
 
             return room;
+        }).catch((result) => {
+            console.log('Error: create from RoomService', result);
+            return null;
         });
     }
 
 
-    public getList(group_id: number, before: Date, offset: number = 0, limit: number = 15): Promise<Room[]> {
+    public getList(
+        group_id: number,
+        before: Date,
+        offset: number = 0,
+        limit: number = 15,
+        isSecure: boolean = true,
+        ): Promise<Room[]> {
+
+        const exclude: string[] = isSecure ? ['ip_address'] : [];
+
         return Room.findAll(
             {
                 where: {
@@ -78,6 +100,9 @@ export class RoomController {
                 ],
                 offset,
                 limit,
+                attributes: {
+                    exclude,
+                }
             }
         )
     }
@@ -92,27 +117,52 @@ export class RoomController {
                 name: jwtInfo.name,
             };
         } catch (e: any) {
-            console.log('Error: getVerifiedUser from RoomController', e);
+            console.log('Error: getVerifiedUser from RoomService', e);
             return null;
         }
     }
 
-    public parseMessage(content: any, me: SimpleUser): LiveMessage | undefined {
+    public parseMessage(
+        attachService: AttachService,
+        content: any,
+        me: SimpleUser,
+        ): LiveMessage | undefined {
 
         switch (content[0]) {
-            case '{':
+            case 123:
                 const message: LiveMessage = JSON.parse(content);
-
+                const attaches: any[] = [];
+                
                 message.createdAt = new Date();
 
                 const user: User = new User();
                 user.name = me.name!;
                 user.id = me.id!;
 
+                message?.meta?.attaches?.forEach((attach: any) => {
+                    attaches.push({
+                        url: attachService.getUrl({
+                            binary_name: attach.binary_name,
+                        } as Attach),
+                        binary_name: attach.binary_name,
+                        type: attach.type,
+                        name: attach.name,
+                        extension: attach.extension,
+                        size: attach.size,
+                    });
+
+                });
+
                 message.user = user;
 
+                if(message?.meta?.attaches) {
+                    message.meta.attaches = attaches;
+                }
+                
+
                 return message;
-            case 76:
+            default:
+
                 const liveMessage: LiveMessage = new LiveMessage();
                 liveMessage.content = content;
                 liveMessage.T = CommunicationType.LIVE;
