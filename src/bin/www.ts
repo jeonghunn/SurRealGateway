@@ -71,6 +71,13 @@ wsServer.on('connection', (socket: any, request: any) => {
       attendeeService.get(AttendeeType.ROOM, me?.id!, roomId).then((attendee: Attendee | null) => {
         authResult.result = authResult.result && attendee !== null;
         socket.send(JSON.stringify(authResult));
+        
+        if (!authResult.result) {
+          console.log(`[Live] Permission Error: room ${roomId} by user ${me?.id}`, authResult);
+          me = null;
+          return;
+        }
+
         liveRoomService.join(roomId, me?.id!!, socket);
       });
 

@@ -58,6 +58,7 @@ router.get(
         param('group_id').isInt(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+    util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
         const roomService: RoomService = new RoomService();
         const attendeeService: AttendeeService = new AttendeeService();

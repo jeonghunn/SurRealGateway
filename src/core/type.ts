@@ -22,6 +22,12 @@ export enum Status {
     REMOVED,
 }
 
+export enum PrivacyType {
+    PUBLIC,
+    MEMBERS_ONLY,
+    PRIVATE,
+}
+
 export enum RelationStatus {
     NORMAL,
     REMOVED,

@@ -8,9 +8,12 @@ import {
     AttendeeType,
     AttendeePermission,
     UserPermission,
+    PrivacyType,
 } from "./type";
 import { AttendeeService } from "../service/AttendeeService";
 import { Attendee } from "../model/Attendee";
+import { GroupService } from "../service/GroupService";
+import { Group } from "../model/Group";
 
 export class Util {
 
@@ -28,9 +31,17 @@ export class Util {
         };
     };
 
+    public setPermissionError(response: Response) {
+        return response.status(403).json({
+            name: 'PERMISSION_DENIED',
+            message: 'Permission Denied.',
+        });
+    }
+
     public requirePermission(type: AttendeeType | null, target: AttendeePermission): Function {
         return (request: any, response: Response, next: NextFunction) => {
             const attendeeService: AttendeeService = new AttendeeService();
+            const groupService: GroupService = new GroupService();
             const userId: number | null = parseInt(request.auth?.id);
             const targetId: number = parseInt(request.params.group_id || request.params.id);
 
@@ -42,19 +53,31 @@ export class Util {
             }
 
             //Allow Admin or All Users
-            if (request.auth?.permission === UserPermission.ADMIN || !type) {
+            if (request.auth?.permission === UserPermission.ADMIN || type === null) {
                 next();
                 return;
             }
             attendeeService.get(type, userId, targetId).then((attendee: Attendee | null) => {
-                if (!attendee?.permission || attendee?.permission < target) {
-                    return response.status(403).json({
-                        name: 'PERMISSION_DENIED',
-                        message: 'Permission Denied.',
+                if (attendee?.permission >= target) {
+                    next();
+                    return;
+                } else if(type == AttendeeType.GROUP) {
+                    groupService.get(target).then((group: Group) => {
+                        if (group.privacy === PrivacyType.PUBLIC) {
+                            next();
+                            return;
+                        }
+
+                        return this.setPermissionError(response);
                     });
                 } else {
-                    next();
+                    return this.setPermissionError(response);
                 }
+
+                
+            }).catch((reason: any) => {
+                console.log('[PERMISSION] Error: ', reason);
+                return this.setPermissionError(response);
             });
 
         }
