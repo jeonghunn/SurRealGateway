@@ -51,7 +51,7 @@ router.post(
             req.body.last_name,
             req.body.gender,
         ).then((user: User) => {
-            const token: string = userService.createToken(user.id);
+            const token: string = userService.createToken(user.id, null, user.email, user.name);
 
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
