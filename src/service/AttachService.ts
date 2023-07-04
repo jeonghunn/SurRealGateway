@@ -32,6 +32,7 @@ export class AttachService {
                 height,
                 responseType: 'buffer',
                 fit: 'cover',
+                withMetaData: true,
             },
             ).then((thumbnail: any) => {
             return fs.writeFile(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, binaryName), thumbnail, (err: any) => {
