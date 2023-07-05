@@ -93,9 +93,10 @@ router.get(
         const id: number = parseInt(request.params.id);
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
-        const before: Date = request.query.before ? new Date(parseInt(request.query.before) * 1000) : new Date();
+        const future: boolean = parseInt(request.query.future) === 1;
+        const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
 
-        chatService.getList(id, before, offset, limit).then((chats: Chat[]) => {
+        chatService.getList(id, date, offset, limit, future).then((chats: Chat[]) => {
             chats.reverse();
             response.status(200).json({
                 room_id: id,

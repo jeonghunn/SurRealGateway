@@ -8,7 +8,13 @@ import { User } from "../model/User";
 
 export class ChatService {
 
-    public getList(roomId: number, before: Date, offset: number = 0, limit: number = 15): Promise<Chat[]> {
+    public getList(
+        roomId: number,
+        date: Date,
+        offset: number = 0,
+        limit: number = 15,
+        isFuture: boolean = false,
+        ): Promise<Chat[]> {
         return Chat.findAll(
             {
                 attributes: [
@@ -25,7 +31,7 @@ export class ChatService {
                 where: {
                     status: Status.NORMAL,
                     room_id: roomId,
-                    createdAt: {[Op.lte]: before},
+                    createdAt: {[isFuture ? Op.gt : Op.lte]: date},
                 },
                 include: {
                     model: User,
