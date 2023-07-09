@@ -1,6 +1,7 @@
 import {Group} from "../model/Group";
 import {
     AttendeeType,
+    PrivacyType,
     Status,
     UserStatus,
 } from "../core/type";
@@ -127,6 +128,7 @@ export class GroupService {
                     name: groupName,
                     ip_address: ipAddress,
                     status: Status.NORMAL,
+                    privacy: PrivacyType.PRIVATE,
                 }
             ).then((group: Group | null) => {
 
