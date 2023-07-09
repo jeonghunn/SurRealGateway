@@ -38,7 +38,7 @@ export class Util {
         });
     }
 
-    public requirePermission(type: AttendeeType | null, target: AttendeePermission): Function {
+    public requirePermission(type: AttendeeType | null, targetPermission: AttendeePermission): Function {
         return (request: any, response: Response, next: NextFunction) => {
             const attendeeService: AttendeeService = new AttendeeService();
             const groupService: GroupService = new GroupService();
@@ -57,13 +57,14 @@ export class Util {
                 next();
                 return;
             }
-            attendeeService.get(type, userId, targetId).then((attendee: Attendee | null) => {
-                if (attendee?.permission >= target) {
+            return attendeeService.get(type, userId, targetId).then((attendee: Attendee | null) => {
+                if (attendee?.permission >= targetPermission) {
                     next();
                     return;
                 } else if(type == AttendeeType.GROUP) {
-                    groupService.get(target).then((group: Group) => {
-                        if (group.privacy === PrivacyType.PUBLIC) {
+                    groupService.get(targetId).then((group: Group) => {
+
+                        if (group?.privacy === PrivacyType.PUBLIC) {
                             next();
                             return;
                         }
