@@ -33,7 +33,7 @@ export class GroupService {
                         model: User,
                         as: 'target',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }
@@ -43,7 +43,7 @@ export class GroupService {
                         model: User,
                         as: 'user',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }
@@ -67,7 +67,7 @@ export class GroupService {
                         model: User,
                         as: 'target',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }
@@ -77,7 +77,7 @@ export class GroupService {
                         model: User,
                         as: 'user',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }

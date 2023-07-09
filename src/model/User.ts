@@ -43,6 +43,9 @@ export class User extends Model {
     @Column(DataType.TEXT)
     last_name!: string;
 
+    @Column(DataType.TEXT)
+    color!: string;
+
     @Column(DataType.TINYINT)
     gender!: Gender;
 
