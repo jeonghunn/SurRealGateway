@@ -106,7 +106,7 @@ export class UserService {
             name,
             last_name: lastName,
             status: UserStatus.NORMAL,
-            permission: UserPermission.ADMIN,
+            permission: UserPermission.USER,
             gender,
             color: stringToColor('night ' + emailArray[0] + emailArray[1]),
         });
