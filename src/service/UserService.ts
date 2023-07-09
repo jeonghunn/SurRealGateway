@@ -10,6 +10,7 @@ import {
 import {Op} from "sequelize";
 import { Relation } from "../model/Relation";
 
+const stringToColor = require('string-to-color');
 const config = require('../config/config');
 
 export class UserService {
@@ -105,8 +106,9 @@ export class UserService {
             name,
             last_name: lastName,
             status: UserStatus.NORMAL,
-            permission: UserPermission.ADMIN,
+            permission: UserPermission.USER,
             gender,
+            color: stringToColor('night ' + emailArray[0] + emailArray[1]),
         });
     }
 

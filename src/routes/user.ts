@@ -162,6 +162,7 @@ router.get('/:userId',
                 user: {
                     id: user.id,
                     name: user.name,
+                    color: user.color,
                     last_name: user.last_name,
                     createdAt: user.createdAt,
                     relation: user.relation,

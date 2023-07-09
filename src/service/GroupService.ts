@@ -1,6 +1,7 @@
 import {Group} from "../model/Group";
 import {
     AttendeeType,
+    PrivacyType,
     Status,
     UserStatus,
 } from "../core/type";
@@ -33,7 +34,7 @@ export class GroupService {
                         model: User,
                         as: 'target',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }
@@ -43,7 +44,7 @@ export class GroupService {
                         model: User,
                         as: 'user',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }
@@ -67,7 +68,7 @@ export class GroupService {
                         model: User,
                         as: 'target',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }
@@ -77,7 +78,7 @@ export class GroupService {
                         model: User,
                         as: 'user',
                         required: false,
-                        attributes: ['id', 'name'],
+                        attributes: ['id', 'name', 'color'],
                         where: {
                             status: {[Op.ne]: UserStatus.REMOVED},
                         }
@@ -127,6 +128,7 @@ export class GroupService {
                     name: groupName,
                     ip_address: ipAddress,
                     status: Status.NORMAL,
+                    privacy: PrivacyType.PRIVATE,
                 }
             ).then((group: Group | null) => {
 
