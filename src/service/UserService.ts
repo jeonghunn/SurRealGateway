@@ -124,6 +124,7 @@ export class UserService {
         expiredAt: Date | null = null,
         email: string | null = null,
         name: string | null = null,
+        color: string | null = null,
     ): string {
         const payload: any = {
             iss: config.serverDomain,
@@ -132,6 +133,7 @@ export class UserService {
             id: userId,
             email: email,
             name: name,
+            color: color,
         }
 
         return jsonwebtoken.sign(payload, config.jwt.secret, {algorithm: config.jwt.algorithms[0]});

@@ -51,7 +51,13 @@ router.post(
             req.body.last_name,
             req.body.gender,
         ).then((user: User) => {
-            const token: string = userService.createToken(user.id, null, user.email, user.name);
+            const token: string = userService.createToken(
+                user.id,
+                null,
+                user.email,
+                user.name,
+                user.color,
+                );
 
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -88,7 +94,13 @@ router.post(
                 return response.status(403).json({ message: 'Wrong email or password.' });
             }
 
-            const token: string = userService.createToken(user.id, null, user.email, user.name);
+            const token: string = userService.createToken(
+                user.id,
+                null,
+                user.email,
+                user.name,
+                user.color,
+                );
 
             response.cookie('Authorization', `Bearer ${token}`, userService.authCookieOptions);
 
