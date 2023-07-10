@@ -108,4 +108,5 @@ export class Live extends Communication {
 export class SimpleUser {
     public id!: number;
     public name?: string;
+    public color?: string;
 }

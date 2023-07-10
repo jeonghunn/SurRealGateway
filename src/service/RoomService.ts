@@ -115,6 +115,7 @@ export class RoomService {
             return {
                 id: jwtInfo.id,
                 name: jwtInfo.name,
+                color: jwtInfo.color,
             };
         } catch (e: any) {
             console.log('Error: getVerifiedUser from RoomService', e);
@@ -138,6 +139,7 @@ export class RoomService {
                 const user: User = new User();
                 user.name = me.name!;
                 user.id = me.id!;
+                user.color = me.color!;
 
                 message?.meta?.attaches?.forEach((attach: any) => {
                     attaches.push({
