@@ -1,5 +1,6 @@
 import {Attendee} from "../model/Attendee";
 import {
+    AttachStatus,
     AttendeePermission,
     AttendeeType,
     FileType,
@@ -15,11 +16,22 @@ const config = require('../config/config');
 const path = require('path');
 const fs = require('fs');
 const imageThumbnail = require('image-thumbnail');
+const ffmpegCommand = require('fluent-ffmpeg');
 
 export class AttachService {
 
     public create(meta: any): Promise<Attach> {
+        const isConvertNeeded: boolean = meta.type === FileType.VIDEO && !this.isHtmlVideo(meta.extension);
+
+        if(isConvertNeeded) {
+            meta.status = AttachStatus.PROCESSING;
+        }
+
         return Attach.create(meta).then((attach: Attach) => {
+            if (isConvertNeeded) {
+                this.convertVideo(attach);
+            }
+
             return attach;
         });
     }
@@ -49,15 +61,31 @@ export class AttachService {
         });
     }
 
-    public getPath(attach: Attach, width: number, height: number): string {
+    public isHtmlVideo(extension: string): boolean {
+        const allowedExtensions: string[] = ['.mp4', '.webm'];
+        return allowedExtensions.includes(extension);
+    }
+
+    public getPath(
+        attach: Attach,
+        width: number = null,
+        height: number = null,
+        prefer: string = null,
+        ): string {
         if(attach?.type === FileType.IMAGE) {
             if(width && height) {
                 return path.join(config.attach.path, 'thumbnail', `${width}x${height}`, attach.binary_name);
             }
+        } else if(attach?.type === FileType.VIDEO && prefer === 'video/mp4' && !this.isHtmlVideo(attach.extension)) {
+            return path.join(config.attach.path, 'video', 'mp4', attach.binary_name);
         }
 
-        return path.join(config.attach.path, attach.binary_name);
+        return this.getDefaultPath(attach);
 
+    }
+
+    public getDefaultPath(attach: Attach): string {
+        return path.join(config.attach.path, attach.binary_name);
     }
 
 
@@ -70,7 +98,7 @@ export class AttachService {
         return Attach.findOne({
             where: {
                 binary_name: binaryName,
-                status: Status.NORMAL,
+                status: {[Op.ne]: AttachStatus.REMOVED},
             }
         }).catch((result) => {
             console.log('[Error] : get from AttachService', result);
@@ -101,8 +129,21 @@ export class AttachService {
         return allowedExtensions.includes(extension);
     }
 
+    public isVideo(extension: string): boolean {
+        const allowedExtensions = ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.webm'];
+        return allowedExtensions.includes(extension);
+    }
+
     public getFileType(extension: string, mimetype: string): FileType {
-        return this.isImage(extension) && mimetype.includes('image') ? FileType.IMAGE : FileType.BINARY;
+        if (this.isImage(extension) && mimetype.includes('image')) {
+            return FileType.IMAGE;
+        }
+
+        if (this.isVideo(extension) && mimetype.includes('video')) {
+            return FileType.VIDEO;
+        }
+
+        return FileType.BINARY;
     }
 
     public getFileNameAndExtension(name: string): any {
@@ -132,6 +173,32 @@ export class AttachService {
             const attach: Attach = new Attach();
 
             return this.create(attach);
+        });
+    }
+
+    public convertVideo(attach: Attach): Promise<any> {
+        return new Promise<any>(() => {
+
+            var command = ffmpegCommand(this.getDefaultPath(attach))
+                            // .audioCodec('libfaac')
+                            // .videoCodec('libx264')
+                            .format('mp4');
+
+            command.save(this.getPath(attach, null, null, 'video/mp4'));
+            command.on('end', () => {
+                console.log('[AttachService] Video Converter Completed', attach.binary_name);
+                attach.update({
+                    status: AttachStatus.NORMAL,
+                });
+                
+            });
+            command.on('error', (err: any) => {
+                console.log('[AttachService] Video Converter Error : ' + err);
+                attach.update({
+                    status: AttachStatus.NORMAL,
+                });
+            });
+
         });
     }
 
