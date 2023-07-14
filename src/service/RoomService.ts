@@ -150,7 +150,9 @@ export class RoomService {
                         type: attach.type,
                         name: attach.name,
                         extension: attach.extension,
+                        mimetype: attach.mimetype,
                         size: attach.size,
+                        status: attach.status,
                     });
 
                 });

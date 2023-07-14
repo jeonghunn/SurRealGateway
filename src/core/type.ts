@@ -22,6 +22,12 @@ export enum Status {
     REMOVED,
 }
 
+export enum AttachStatus {
+    NORMAL,
+    PROCESSING,
+    REMOVED,
+}
+
 export enum PrivacyType {
     PUBLIC,
     MEMBERS_ONLY,
@@ -72,6 +78,7 @@ export enum ChatType {
 export enum FileType {
     BINARY,
     IMAGE,
+    VIDEO,
 }
 
 export enum CommunicationType {
