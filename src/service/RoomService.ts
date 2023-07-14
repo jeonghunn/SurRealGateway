@@ -110,7 +110,7 @@ export class RoomService {
     public getVerifiedUser(authMessage: string): SimpleUser | null {
         try {
             const auth: AuthMessage = JSON.parse(authMessage);
-            const jwtInfo: any = jwt.verify(auth.token?.split(" ")[1]!, 'TEST_SERVER_SECRET');
+            const jwtInfo: any = jwt.verify(auth.token?.split(" ")[1]!, config.jwt.secret);
 
             return {
                 id: jwtInfo.id,
