@@ -16,12 +16,12 @@ const config = require('../config/config');
 export class UserService {
 
     public get defaultExpiredAtTimeStamp(): number {
-        return new Date().getTime() + 86400;
+        return new Date().getTime() + (86400 * 30 * 12 * 3);
     }
 
     public get authCookieOptions(): any {
         return {
-            maxAge: 86400 * 1000,
+            maxAge: 86400 * 1000 * 30 * 12 * 3,
             encode: (v: any) => v,
         };
     }
@@ -103,7 +103,7 @@ export class UserService {
             email_name: emailArray[0],
             email_host: emailArray[1],
             password: passwordHash,
-            name,
+            name: name?.trim(),
             last_name: lastName,
             status: UserStatus.NORMAL,
             permission: UserPermission.USER,
