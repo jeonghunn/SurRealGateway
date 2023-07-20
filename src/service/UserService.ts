@@ -103,7 +103,7 @@ export class UserService {
             email_name: emailArray[0],
             email_host: emailArray[1],
             password: passwordHash,
-            name,
+            name: name?.trim(),
             last_name: lastName,
             status: UserStatus.NORMAL,
             permission: UserPermission.USER,
