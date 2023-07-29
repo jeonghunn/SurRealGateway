@@ -1,6 +1,8 @@
 import express from "express";
 import { Util } from "./core/util";
 import { Sequelize } from "sequelize-typescript";
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -23,6 +25,9 @@ export const sequelize = new Sequelize(
         models: [__dirname + '/model']
     }
 );
+
+const firebaseApp = initializeApp(config.firebase);
+const analytics = getAnalytics(firebaseApp);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/user');
