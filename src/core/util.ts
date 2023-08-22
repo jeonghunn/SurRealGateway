@@ -88,5 +88,9 @@ export class Util {
         return request.headers['x-forwarded-for'] || request.connection.remoteAddress;
     }
 
+    public getUserAgent(request: any): string {
+        return request.headers['user-agent'];
+    }
+
 }
 

@@ -1,18 +1,12 @@
 
 import { google } from 'googleapis';
-import { initializeApp } from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
-import { credential } from 'firebase-admin';
 
 const config = require('../config/config');
 const request = require('request');
 
 
 export class FirebaseService {
-
-    public app: any = initializeApp({
-        credential: credential.applicationDefault(),
-      });
 
 
     public subscribeToTopic(token: string, topic: string): Promise<any> {

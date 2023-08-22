@@ -11,6 +11,7 @@ import {
     Model,
     PrimaryKey,
     Table,
+    Unique,
     UpdatedAt,
 } from "sequelize-typescript";
 import { Status } from "../core/type";
@@ -34,6 +35,7 @@ export class Client extends Model {
 
     @Index
     @ForeignKey(() => User)
+    @Unique('client_user_token_unique')
     @Column({
         type: DataType.BIGINT.UNSIGNED,
         allowNull: false,
@@ -57,8 +59,14 @@ export class Client extends Model {
     @UpdatedAt
     updatedAt!: Date;
 
+    @Column(DataType.DATE)
+    last_active: Date;
+
     @AllowNull
+    @Length({ max: 255 })
+    @Unique('client_user_token_unique')
     @Column(DataType.TEXT)
+    @Index
     token!: string;
 
 
