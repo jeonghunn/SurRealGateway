@@ -1,5 +1,6 @@
 import {
     AutoIncrement,
+    BelongsTo,
     Column,
     CreatedAt,
     DataType,
@@ -49,6 +50,9 @@ export class Room extends Model {
         allowNull: false,
     })
     group_id!: number;
+
+    @BelongsTo(() => Group, 'group_id')
+    group! : Group;
 
     @Length({min: 0, max: 250})
     @Column(DataType.TEXT)

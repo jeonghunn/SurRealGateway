@@ -1,5 +1,6 @@
 import express from "express";
 import { Util } from "./core/util";
+import { FirebaseService } from "./service/FirebaseService";
 import { Sequelize } from "sequelize-typescript";
 import { initializeApp } from 'firebase-admin/app';
 import { credential } from 'firebase-admin';
@@ -51,6 +52,7 @@ app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/group', groupRouter);
 app.use('/attach', attachRouter);
+app.use('/client', clientRouter);
 
 
 // error handler

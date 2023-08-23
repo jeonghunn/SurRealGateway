@@ -9,27 +9,69 @@ const request = require('request');
 export class FirebaseService {
 
 
-    public subscribeToTopic(token: string, topic: string): Promise<any> {
-        return getMessaging().subscribeToTopic(token, topic);
+    public subscribeToTopic(tokens: string[], topic: string): Promise<any> {
+        return getMessaging().subscribeToTopic(tokens, topic).catch((error: any) => {
+            console.log('[FirebaseService] Error:', error);
+            return null;
+        });
+    }
+    
+    public subscribeToGroup(groupId: number, tokens: string[]): Promise<any> {
+        if (!tokens || tokens.length === 0) {
+            return Promise.resolve();
+        }
+
+        console.log('subscribeToGroup', groupId, tokens);
+        return this.subscribeToTopic(tokens, this.getTopicName(groupId));
     }
 
     public unsubscribeFromTopic(token: string, topic: string): Promise<any> {
-        return getMessaging().unsubscribeFromTopic(token, topic);
+        return getMessaging().unsubscribeFromTopic(token, topic).catch((error: any) => {
+            console.log('[FirebaseService] Error:', error);
+            return null;
+        });
     }
 
-    public sendPushToTopic(topic: string, title: string, body: string, data: any): Promise<any> {
+    public getTopicName(groupId: number): string {
+        return `group_${groupId}`;
+    }
+
+    public sendNotificationToTopic(
+        groupId: number,
+        title: string,
+        body: string,
+        url: string,
+        message: any = null,
+        ): Promise<any> {
+        return this.sendPushToTopic(this.getTopicName(groupId), title, body, url, message);
+    }
+
+    public sendPushToTopic(
+        topic: string,
+        title: string,
+        body: string,
+        url: string,
+        message: any = null,
+        ): Promise<any> {
         return getMessaging().send({
-            notification: {
+            data: {
                 title,
                 body,
+                url,
+                user_id: message?.user?.id?.toString()!!,
             },
-            data,
             topic,
             webpush: {
                 fcmOptions: {
-                    link: "https://dummypage.com"
+                    link: url,
                 }
             }
+        }).then((response: any) => {
+            console.log('Successfully sent message:', response);
+            return response;
+        }).catch((error: any) => {
+            console.log('[FirebaseService] Error:', error);
+            return null;
         });
     }
 

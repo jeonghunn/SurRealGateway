@@ -16,6 +16,9 @@ import { AttendeeService } from "../service/AttendeeService";
 import { Attendee } from "../model/Attendee";
 import { LiveRoomService } from "../service/LiveRoomService";
 import { AttachService } from "../service/AttachService";
+import { Room } from "../model/Room";
+import { Group } from "../model/Group";
+import { GroupService } from "../service/GroupService";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -46,13 +49,19 @@ const liveRoomService: LiveRoomService = new LiveRoomService();
 const roomService: RoomService = new RoomService();
 const attendeeService: AttendeeService = new AttendeeService();
 const attachService: AttachService = new AttachService();
+const groupService: GroupService = new GroupService();
 
 wsServer.on('connection', (socket: any, request: any) => {
 
   const roomId: number = parseInt(request?.url?.split('/')[1],  10);
+  let room: Room = null;
   let me: SimpleUser | null;
 
   console.log("User tries to enter the room ", roomId);
+
+  roomService.getById(roomId).then((roomItem: Room | null) => {
+    room = roomItem;
+  });
 
   socket.on('message', (message: string) => {
 
@@ -92,7 +101,7 @@ wsServer.on('connection', (socket: any, request: any) => {
         return;
       }
 
-      liveRoomService.send(roomId, liveMessage);
+      liveRoomService.send(roomId, liveMessage, room);
 
     } catch (e: any) {
       console.log("ERROR", e);

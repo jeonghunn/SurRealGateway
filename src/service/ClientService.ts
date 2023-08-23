@@ -13,11 +13,21 @@ import { Client } from "../model/Client";
 
 export class ClientService {
 
-    public create(meta: any): Promise<Client> {
+    public create(meta: any): Promise<[Client, boolean]> {
 
         return Client.upsert(meta).then((result: [Client, boolean]) => {
-            return result[0];
+            return result;
         });
+    }
+
+    public getByUser(userId: number): Promise<Client[]> {
+        return Client.findAll({
+                where: {
+                    user_id: userId,
+                    status: Status.NORMAL,
+                },
+            }
+        )
     }
 
     public getOSAndBrowser(userAgent: string): { os: string, browser: string } {
@@ -79,7 +89,7 @@ export class ClientService {
         userAgent: string,
         token: string,
         name: string = null,
-        ): Promise<Client> {
+        ): Promise<[Client, boolean]> {
 
             return this.create({
             user_id: userId,
