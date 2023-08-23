@@ -17,6 +17,8 @@ import {
 import { AttendeeService } from "../service/AttendeeService";
 import { ChatService } from "../service/ChatService";
 import { Chat } from "../model/Chat";
+import { ClientService } from "../service/ClientService";
+import { FirebaseService } from "../service/FirebaseService";
 
 const config = require('../config/config');
 const express = require('express');
@@ -62,13 +64,22 @@ router.get(
     (request: any, response: Response, next: NextFunction) => {
         const roomService: RoomService = new RoomService();
         const attendeeService: AttendeeService = new AttendeeService();
+        const clientService: ClientService = new ClientService();
+        const firebaseService: FirebaseService = new FirebaseService();
 
         const id: number = parseInt(request.params.id);
         const groupId: number = parseInt(request.params.group_id)
         const userId: number = parseInt(request.auth.id);
 
         roomService.get(groupId, id).then((room: Room | null) => {
-            attendeeService.create(AttendeeType.ROOM, userId, id, AttendeePermission.MEMBER);
+            attendeeService.add(
+                AttendeeType.ROOM,
+                userId,
+                id,
+                AttendeePermission.MEMBER,
+                firebaseService,
+                clientService,
+                );
 
             response.status(200).json({
                 room,

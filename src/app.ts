@@ -1,6 +1,10 @@
 import express from "express";
 import { Util } from "./core/util";
+import { FirebaseService } from "./service/FirebaseService";
 import { Sequelize } from "sequelize-typescript";
+import { initializeApp } from 'firebase-admin/app';
+import { credential } from 'firebase-admin';
+
 
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -24,10 +28,15 @@ export const sequelize = new Sequelize(
     }
 );
 
+const firebaseApp: any = initializeApp({
+    credential: credential.applicationDefault(),
+  });
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/user');
 var groupRouter = require('./routes/group');
 var attachRouter = require('./routes/attach');
+var clientRouter = require('./routes/client');
 
 const util: Util = new Util();
 
@@ -43,6 +52,7 @@ app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/group', groupRouter);
 app.use('/attach', attachRouter);
+app.use('/client', clientRouter);
 
 
 // error handler

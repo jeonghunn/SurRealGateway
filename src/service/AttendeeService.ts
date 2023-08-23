@@ -5,6 +5,9 @@ import {
     Status,
 } from "../core/type";
 import { Op } from "sequelize";
+import { FirebaseService } from "./FirebaseService";
+import { ClientService } from "./ClientService";
+import { Client } from "../model/Client";
 
 const config = require('../config/config');
 
@@ -54,7 +57,33 @@ export class AttendeeService {
         }).catch((e: any) =>  {
             console.log('AttendeeService: create : ', e);
             return null;
-        });;
+        });
+    }
+
+    public add(
+        type: AttendeeType,
+        userId: number,
+        targetId: number,
+        permission: AttendeePermission = AttendeePermission.MEMBER,
+        firebaseService: FirebaseService = null,
+        clientService: ClientService = null,
+    ): Promise<Attendee> {
+
+        return this.create(
+            type,
+            userId,
+            targetId,
+            permission,  
+        ).then((attendee: Attendee | null) => {
+            if (attendee && firebaseService) {
+                clientService.getByUser(userId).then((clients: Client[]) => {
+                    firebaseService.subscribeToGroup(targetId, clients.map(x => x.token));
+                });
+            }
+
+           return attendee;
+        });
+
     }
 
     public getList(type: AttendeeType, userId: number): Promise<number[] | null> {

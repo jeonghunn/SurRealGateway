@@ -14,6 +14,9 @@ import jwt from "jsonwebtoken";
 import { User } from "../model/User";
 import { AttachService } from "./AttachService";
 import { Attach } from "../model/Attach";
+import { Group } from "../model/Group";
+import { ClientService } from "./ClientService";
+import { FirebaseService } from "./FirebaseService";
 
 const config = require('../config/config');
 
@@ -40,6 +43,28 @@ export class RoomService {
 
     }
 
+    public getById(id: number) {
+        return Room.findOne({
+            where: {
+                status: Status.NORMAL,
+                id,
+            },
+            include: [
+                {
+                    model: Group,
+                    as: 'group',
+                    required: false,
+                    attributes: ['id', 'name', 'target_id'],
+
+                },
+            ],
+        }
+    ).catch((result) => {
+        console.log('Error: get from RoomService', result);
+        return null;
+    });
+    }
+
     public create(
         user_id: number,
         group_id: number,
@@ -51,6 +76,8 @@ export class RoomService {
 
     ): Promise<Room> {
         const attendeeService: AttendeeService = new AttendeeService();
+        const clientService: ClientService = new ClientService();
+        const firebaseService: FirebaseService = new FirebaseService();
 
         return Room.create({
             user_id,
@@ -63,11 +90,13 @@ export class RoomService {
             status: Status.NORMAL,
         }).then((room: Room) => {
 
-            attendeeService.create(
+            attendeeService.add(
                 AttendeeType.ROOM,
                 user_id,
                 room.id,
                 AttendeePermission.ADMIN,
+                firebaseService,
+                clientService,
             )
 
             return room;

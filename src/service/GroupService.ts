@@ -1,5 +1,6 @@
 import {Group} from "../model/Group";
 import {
+    AttendeePermission,
     AttendeeType,
     PrivacyType,
     Status,
@@ -10,6 +11,8 @@ import { AttendeeService } from "./AttendeeService";
 import { User } from "../model/User";
 import { RoomService } from "./RoomService";
 import { Room } from "../model/Room";
+import { FirebaseService } from "./FirebaseService";
+import { ClientService } from "./ClientService";
 
 export class GroupService {
 
@@ -115,6 +118,8 @@ export class GroupService {
         ipAddress: string | null = null,
     ): Promise<Group | null> {
         const attendeeService: AttendeeService = new AttendeeService();
+        const firebaseService: FirebaseService = new FirebaseService();
+        const clientService: ClientService = new ClientService();
 
         return this.getFriendGroup(userId, targetId).then((result: Group | null) => {
             if (result) {
@@ -136,8 +141,22 @@ export class GroupService {
                     return null;
                 }
 
-                attendeeService.create(AttendeeType.GROUP, userId, group!!.id);
-                attendeeService.create(AttendeeType.GROUP, targetId, group!!.id);
+                attendeeService.add(
+                    AttendeeType.GROUP,
+                    userId,
+                    group!!.id,
+                    AttendeePermission.MEMBER,
+                    firebaseService,
+                    clientService,
+                    );
+                attendeeService.add(
+                    AttendeeType.GROUP,
+                    targetId,
+                    group!!.id,
+                    AttendeePermission.MEMBER,
+                    firebaseService,
+                    clientService,
+                    );
 
                return group;
             });
