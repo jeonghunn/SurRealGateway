@@ -27,6 +27,7 @@ router.post(
     '/',
     util.validate([
         body('token').isString(),
+        !body('key').isEmpty() || body('key').isString(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     (request: any, response: Response, next: NextFunction) => {
@@ -40,6 +41,7 @@ router.post(
         const userId: number = parseInt(request.auth.id);
 
         clientService.add(
+            request.body.key,
             userId,
             ipAddress,
             userAgent,

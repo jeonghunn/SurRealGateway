@@ -84,6 +84,7 @@ export class ClientService {
     }
 
     public add(
+        key: string,
         userId: number,
         ipAddress: string, 
         userAgent: string,
@@ -92,12 +93,13 @@ export class ClientService {
         ): Promise<[Client, boolean]> {
 
             return this.create({
-            user_id: userId,
-            ip_address: ipAddress,
-            user_agent: userAgent,
-            token,
-            name: this.getName(name, userAgent),
-            last_active: new Date(),
+                id: key,
+                user_id: userId,
+                ip_address: ipAddress,
+                user_agent: userAgent,
+                token,
+                name: this.getName(name, userAgent),
+                last_active: new Date(),
         });
     }
 
