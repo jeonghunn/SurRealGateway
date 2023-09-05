@@ -5,6 +5,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    Default,
     ForeignKey,
     Index,
     Length,
@@ -19,9 +20,9 @@ import { User } from "./User";
 
 @Table
 export class Client extends Model {
-    @AutoIncrement
     @PrimaryKey
-    @Column(DataType.INTEGER.UNSIGNED)
+    @Default(DataType.UUIDV4)
+    @Column(DataType.UUIDV4)
     id!: number;
 
     @AllowNull
