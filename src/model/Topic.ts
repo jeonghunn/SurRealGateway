@@ -34,12 +34,8 @@ export class Topic extends Model {
     name!: string;
 
     @Index
-    @ForeignKey(() => User)
-    @Column({
-        type: DataType.BIGINT.UNSIGNED,
-        allowNull: false,
-    })
-    user_id!: number;
+    @BelongsTo(() => Group, 'group_id')
+    parent! : Topic;
 
     @Index
     @ForeignKey(() => Room)
