@@ -21,6 +21,7 @@ import { User } from "./User";
 import { Group } from "./Group";
 import { Room } from "./Room";
 import {Attach} from "./Attach";
+import { Chat } from "./Chat";
 
 @Table
 export class Topic extends Model {
@@ -36,6 +37,10 @@ export class Topic extends Model {
     @Index
     @BelongsTo(() => Group, 'group_id')
     parent! : Topic;
+
+    @Index
+    @BelongsTo(() => Chat, 'chat_id')
+    chat! : Topic;
 
     @Index
     @ForeignKey(() => Room)
