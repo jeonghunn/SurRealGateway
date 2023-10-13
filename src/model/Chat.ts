@@ -21,6 +21,7 @@ import { User } from "./User";
 import { Group } from "./Group";
 import { Room } from "./Room";
 import {Attach} from "./Attach";
+import { Topic } from "./Topic";
 
 @Table
 export class Chat extends Model {
@@ -42,6 +43,17 @@ export class Chat extends Model {
         allowNull: false,
     })
     user_id!: number;
+
+    @BelongsTo(() => User)
+    user! : User;
+
+    @Index
+    @ForeignKey(() => Topic)
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
+    topic_id!: number;
 
     @BelongsTo(() => User)
     user! : User;

@@ -39,8 +39,12 @@ export class Topic extends Model {
     parent! : Topic;
 
     @Index
-    @BelongsTo(() => Chat, 'chat_id')
-    chat! : Topic;
+    @ForeignKey(() => Chat)
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
+    chat_id!: number;
 
     @Index
     @ForeignKey(() => Room)
