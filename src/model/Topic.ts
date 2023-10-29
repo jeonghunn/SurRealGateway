@@ -18,7 +18,6 @@ import {
     Status,
 } from "../core/type";
 import { User } from "./User";
-import { Group } from "./Group";
 import { Room } from "./Room";
 import {Attach} from "./Attach";
 import { Chat } from "./Chat";
@@ -35,7 +34,7 @@ export class Topic extends Model {
     name!: string;
 
     @Index
-    @BelongsTo(() => Group, 'group_id')
+    @BelongsTo(() => Topic, 'parent_id')
     parent! : Topic;
 
     @Index
@@ -53,9 +52,6 @@ export class Topic extends Model {
         allowNull: false,
     })
     room_id!: number;
-
-    @BelongsTo(() => Group, 'group_id')
-    group! : Group;
 
     @Length({min: 0, max: 250})
     @Column(DataType.TEXT)
