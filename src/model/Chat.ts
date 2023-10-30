@@ -54,9 +54,6 @@ export class Chat extends Model {
     })
     topic_id!: number;
 
-    @BelongsTo(() => User)
-    user! : User;
-
     @Index
     @ForeignKey(() => Room)
     @Column({
