@@ -3,6 +3,7 @@ import {
     Response,
 } from "express";
 import { RoomService } from "../service/RoomService";
+import { AiService } from "../service/AiService";
 import { expressjwt } from "express-jwt";
 import { Util } from "../core/util";
 import { Room } from "../model/Room";
@@ -25,6 +26,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const util: Util = new Util();
 const roomService: RoomService = new RoomService();
+const aiService: AiService = new AiService();
 
 router.post(
     '/',
@@ -98,7 +100,8 @@ router.get(
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
-    (request: any, response: Response, next: NextFunction) => {
+    async (request: any, response: Response, next: NextFunction) => {
+        console.log("start");
         const chatService: ChatService = new ChatService();
 
         const id: number = parseInt(request.params.id);
@@ -106,17 +109,66 @@ router.get(
         const limit: number = parseInt(request.query.limit);
         const future: boolean = parseInt(request.query.future) === 1;
         const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
-
-        chatService.getList(id, date, offset, limit, future).then((chats: Chat[]) => {
+        try {
+            const chats: Chat[] = await chatService.getList(id, date, offset, limit, future);
             chats.reverse();
+            const chatContents: string[] = chats.map(chat => chat.content);
             response.status(200).json({
                 room_id: id,
                 chats,
             });
-        });
+            // AiService를 사용하여 chatContents를 기반으로 응답을 생성
+            const aiResponse = await aiService.chatWithGPT(chatContents);
+            console.log(aiResponse);
+        } catch (error) {
+            console.error('오류 발생:', error);
+            response.status(500).json({
+                error: '서버 오류',
+            });
+        }
+
 
     });
 
+
+router.get(
+        '/:id/AI',
+        util.validate([
+            param('group_id').isInt(),
+            query('offset').isInt(),
+            query('limit').isInt(),
+        ]),
+        
+        async (request: any, response: Response, next: NextFunction) => {
+            console.log("start");
+            const chatService: ChatService = new ChatService();
+            const aiService: AiService = new AiService(); // AiService를 초기화합니다
+            console.log("AI");
+            const id: number = parseInt(request.params.id);
+            const offset: number = parseInt(request.query.offset);
+            const limit: number = parseInt(request.query.limit);
+            const future: boolean = parseInt(request.query.future) === 1;
+            const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
+    
+            try {
+                console.log("getChat");
+                const chats: Chat[] = await chatService.getList(id, date, offset, limit, future);
+                console.log("printchat")
+                console.log(chats);
+                const chatContents: string[] = chats.map(chat => chat.content);
+                console.log("chatcont");
+                console.log(chatContents);
+                // AiService를 사용하여 chatContents를 기반으로 응답을 생성
+                const aiResponse = await aiService.chatWithGPT(chatContents);
+                console.log(aiResponse);
+            } catch (error) {
+                console.error('오류 발생:', error);
+                response.status(500).json({
+                    error: '서버 오류',
+                });
+            }
+        });
+    
 
 router.get(
     '/',
