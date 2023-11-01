@@ -52,6 +52,10 @@ export class ChatService {
         )
     }
 
+    public get(id: number): Promise<Chat | null> {
+        return Chat.findByPk(id);
+    }
+
     public async save(chat: Chat): Promise<Chat> {
         return chat.save()
     }
