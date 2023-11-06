@@ -26,7 +26,6 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const util: Util = new Util();
 const roomService: RoomService = new RoomService();
-const aiService: AiService = new AiService();
 
 router.post(
     '/',
@@ -122,7 +121,7 @@ router.get(
 
 
 router.get(
-        '/:id/AI',
+        '/:id/ai',
         util.validate([
             param('group_id').isInt(),
             query('offset').isInt(),
@@ -130,10 +129,9 @@ router.get(
         ]),
         
         async (request: any, response: Response, next: NextFunction) => {
-            console.log("start");
             const chatService: ChatService = new ChatService();
-            const aiService: AiService = new AiService(); // AiService를 초기화합니다
-            console.log("AI");
+            const aiService: AiService = new AiService();
+
             const id: number = parseInt(request.params.id);
             const offset: number = parseInt(request.query.offset);
             const limit: number = parseInt(request.query.limit);
@@ -141,20 +139,18 @@ router.get(
             const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
     
             try {
-                console.log("getChat");
                 const chats: Chat[] = await chatService.getList(id, date, offset, limit, future);
-                console.log("printchat")
-                console.log(chats);
                 const chatContents: string[] = chats.map(chat => chat.content);
-                console.log("chatcont");
-                console.log(chatContents);
-                // AiService를 사용하여 chatContents를 기반으로 응답을 생성
-                const aiResponse = await aiService.chatWithGPT(chatContents);
-                console.log(aiResponse);
+                const aiResponse: string = await aiService.getChatGPTAnswer(chatContents.join('\n'));
+
+                response.status(200).json({
+                    response: aiResponse,
+                });
+
             } catch (error) {
-                console.error('오류 발생:', error);
-                response.status(500).json({
-                    error: '서버 오류',
+                console.error('[Room] AI API Error: ', error);
+                return  response.status(500).json({
+                    error: 'Unexpected Error',
                 });
             }
         });
