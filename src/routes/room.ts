@@ -121,7 +121,7 @@ router.get(
 
 
 router.get(
-        '/:id/ai',
+        '/:id/summary',
         util.validate([
             param('group_id').isInt(),
             query('offset').isInt(),
