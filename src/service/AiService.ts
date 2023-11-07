@@ -4,7 +4,7 @@ const config = require('../config/config');
 export class AiService {
 
   public openAi: any = new OpenAIApi(config.openAI);
-  public SYSTEM_ROLE: string = 'From now on, you are a kind and helpful secretary who organizes the conversation systematically. Answer in language that used in the conversation.';
+  public SYSTEM_ROLE: string = 'Organize only final concluded information in a bullet form without any greetings. Answer in language that used in the conversation.';
 
   public async getChatGPTAnswer(
     prompt: string,
