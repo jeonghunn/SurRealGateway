@@ -4,7 +4,8 @@ const config = require('../config/config');
 export class AiService {
 
   public openAi: any = new OpenAIApi(config.openAI);
-  public SYSTEM_ROLE: string = 'Organize only final concluded information in a bullet form without any greetings. Answer in language that used in the conversation.';
+
+  public readonly SYSTEM_ROLE_2 : string = 'Answer in language that used in the conversation. 1. Write the topic of the conversation at the first line without declaring Title. 2. After writing a title, Write the summary by organizing only final concluded information in a bullet form without any greetings.';
 
   public async getChatGPTAnswer(
     prompt: string,
@@ -18,7 +19,7 @@ export class AiService {
         messages: [
           {
             role: "system",
-            content: this.SYSTEM_ROLE,
+            content: this.SYSTEM_ROLE_2,
           },
           {
             role: "user",
