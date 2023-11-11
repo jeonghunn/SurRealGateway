@@ -140,8 +140,10 @@ router.get(
     
             try {
                 const chats: Chat[] = await chatService.getList(id, date, offset, limit, future);
-                const chatContents: string[] = chats.map(chat => chat.content);
-                const aiResponse: string = await aiService.getChatGPTAnswer(chatContents.join('\n'));
+                const chatContents: string[] = chats.map(chat => `${chat?.user?.name}: ${chat.content} `);
+                const aiResponse: string = await aiService.getChatGPTAnswer(
+                   chatContents.reverse().join('\n')
+                    );
 
                 response.status(200).json({
                     response: aiResponse,
