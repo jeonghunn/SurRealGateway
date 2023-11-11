@@ -10,7 +10,7 @@ export class AiService {
   public async getChatGPTAnswer(
     prompt: string,
     maxTokens: number = 500,
-    model: string = 'gpt-3.5-turbo',
+    model: string = 'gpt-4-1106-preview',
     ): Promise<string | null> {
     try {
       const response = await this.openAi.chat.completions.create({
