@@ -17,7 +17,8 @@ export class TopicService {
         name: string,
         roomId: number,
         parentId: number,
-        chatId: number,
+        category: string | null,
+        chatId: number | null,
         userId: number,
         meta: string | null = null,
         status: Status = Status.NORMAL,
@@ -39,6 +40,10 @@ export class TopicService {
             return null;
         });
 
+    }
+
+    public get(id: number): Promise<Topic | null> {
+        return Topic.findByPk(id);
     }
 
 

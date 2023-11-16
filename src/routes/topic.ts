@@ -62,6 +62,7 @@ router.post(
             req.body.name,
             roomId,
             req.body.parent_id,
+            req.body.category,
             chat.id,
             userId,
             req.body.meta,
@@ -73,6 +74,65 @@ router.post(
         });
     });
 
+
+    router.post(
+        '/',
+        util.validate([
+            param('group_id').isInt(),
+            param('room_id').isInt(),
+            body('topic_id').isInt().optional({ nullable: true }),
+        ]),
+        expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+        util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
+        (req: any, res: Response, next: NextFunction) => {
+        const userService: UserService = new UserService();
+        const chatService: ChatService = new ChatService();
+        const topicService: TopicService = new TopicService();
+        const errors: any = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array()});
+        }
+        
+        const userId: number = parseInt(req.auth.id);
+        const topicId: number | null = parseInt(req.body.topic_id, 10) || null;
+        const roomId: number = parseInt(req.params.room_id, 10);
+
+        if (!topicId) {
+
+            return topicService.create(
+                req.body.name,
+                roomId,
+                null,
+                req.body.category,
+                null,
+                userId,
+                req.body.meta,
+                ).then((topic: Topic) => {
+                    return res.status(200).json(topic);
+                }
+            )
+
+        }
+    
+        return topicService.get(topicId).then((parentTopic: Topic) => {
+            if (!parentTopic) {
+                return res.status(404).json({errors: [{msg: 'Topic not found'}]});
+            }
+
+            return topicService.create(
+                req.body.name,
+                roomId,
+                topicId,
+                req.body.category,
+                userId,
+                req.body.meta,
+                ).then((topic: Topic) => {
+                    return res.status(200).json(topic);
+                });
+
+            });
+        });
+    
 
     router.get(
         '/',
