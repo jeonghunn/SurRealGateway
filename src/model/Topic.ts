@@ -45,7 +45,7 @@ export class Topic extends Model {
     @ForeignKey(() => Chat)
     @Column({
         type: DataType.BIGINT.UNSIGNED,
-        allowNull: false,
+        allowNull: true,
     })
     chat_id!: number;
 
