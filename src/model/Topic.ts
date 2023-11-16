@@ -37,6 +37,10 @@ export class Topic extends Model {
     @BelongsTo(() => Topic, 'parent_id')
     parent! : Topic;
 
+    @Length({max: 80})
+    @Column(DataType.TEXT)
+    category!: string;
+
     @Index
     @ForeignKey(() => Chat)
     @Column({
