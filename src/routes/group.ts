@@ -40,6 +40,23 @@ router.get(
 });
 
 router.get(
+    '/create',
+    (request: any, response: Response, next: NextFunction) => {
+        const groupService: GroupService = new GroupService();
+        const userId: number = parseInt(request.auth.id);
+        const userName: string = request.auth.name;
+        groupService.createEmptyGroup(userId, userName).then((group) => {
+            
+            groupService.AddAttendee(452,group);
+
+            response.status(200).json({
+                group,
+            });
+        });
+
+});
+
+router.get(
     '/:id',
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),

@@ -163,6 +163,7 @@ export class GroupService {
         });
 
     }
+       
 
     public getGroupList(userId: number, attributes: string[]): Promise<Group[] | null> {
         const attendeeService: AttendeeService = new AttendeeService();
@@ -173,6 +174,64 @@ export class GroupService {
 
             return this.getListById(attendeeIds, attributes);
         });
+    }
+
+    public createEmptyGroup(
+        userId: number,
+        groupName: string,
+        ipAddress: string | null = null,
+    ): Promise<Group | null> {
+        const attendeeService: AttendeeService = new AttendeeService();
+        const firebaseService: FirebaseService = new FirebaseService();
+        const clientService: ClientService = new ClientService();
+
+       
+        return this.create(
+            {
+                user_id: userId,
+                name: groupName,
+                ip_address: ipAddress,
+                status: Status.NORMAL,
+                privacy: PrivacyType.PRIVATE,
+            }
+        ).then((group: Group | null) => {
+
+                if(!group) {
+                    return null;
+                }
+
+                attendeeService.add(
+                    AttendeeType.GROUP,
+                    userId,
+                    group!!.id,
+                    AttendeePermission.MEMBER,
+                    firebaseService,
+                    clientService,
+                    );
+                
+
+               return group;
+            });
+    };
+
+    public AddAttendee(
+        targetId : number,
+        group: Group, 
+        ): Promise<Group | null> {
+        const attendeeService: AttendeeService = new AttendeeService();
+        const firebaseService: FirebaseService = new FirebaseService();
+        const clientService: ClientService = new ClientService();
+        
+        attendeeService.add(
+            AttendeeType.GROUP,
+            targetId,
+            group!!.id,
+            AttendeePermission.MEMBER,
+            firebaseService,
+            clientService,
+            );
+            
+            return Promise.resolve(group);
     }
 
 }
