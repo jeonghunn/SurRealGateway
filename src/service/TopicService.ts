@@ -18,7 +18,7 @@ export class TopicService {
         roomId: number,
         parentId: number,
         category: string | null,
-        chatId: number | null,
+        chatId: string | null,
         userId: number,
         meta: string | null = null,
         status: Status = Status.NORMAL,

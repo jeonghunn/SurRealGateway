@@ -4,6 +4,7 @@ import {
     Column,
     CreatedAt,
     DataType,
+    Default,
     ForeignKey,
     HasMany,
     Index,
@@ -25,10 +26,10 @@ import { Topic } from "./Topic";
 
 @Table
 export class Chat extends Model {
-    @AutoIncrement
     @PrimaryKey
-    @Column(DataType.BIGINT.UNSIGNED)
-    id!: number;
+    @Default(DataType.UUIDV4)
+    @Column(DataType.UUIDV4)
+    id!: string;
 
     @Column(DataType.TINYINT)
     category!: ChatType;

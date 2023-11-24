@@ -7,6 +7,8 @@ import { ChatService } from "./ChatService";
 import { Chat } from "../model/Chat";
 import { FirebaseService } from "./FirebaseService";
 import { Room } from "../model/Room";
+import { Topic } from "../model/Topic";
+import { v4 } from 'uuid';
 
 const config = require('../config/config');
 
@@ -16,7 +18,12 @@ export class LiveRoomService {
     private chatService: ChatService = new ChatService();
     private firebaseService: FirebaseService = new FirebaseService();
 
-    public join(id :number, userId: number, socket: any): void {
+    public join(
+        id :number,
+        userId: number,
+        socket: any,
+        topicId: number | null = null,
+        ): void {
         let liveRoom: any = this.rooms.get(id);
 
         if(!liveRoom) {
@@ -29,6 +36,7 @@ export class LiveRoomService {
             {
                 id,
                 userId,
+                topic: topicId,
                 socket,
             }
         );
@@ -38,21 +46,33 @@ export class LiveRoomService {
         return this.rooms.set(id, []).get(id);
     }
 
+    public getUUID(): string {
+        const tokens: string[] = v4().split('-');
+        return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
+    }
+
+
     public send(
         id: number,
         message: LiveMessage,
         room: Room = null,
+        topicId: number | null = null,
         ): void {
 
         switch (message.T) {
             case CommunicationType.CHAT:
-                this.sendSocketMessageToRoom(id, JSON.stringify(message));
+                const chatId: string = this.getUUID();
+                message.id = chatId;
+
+                this.sendSocketMessageToRoom(id, JSON.stringify(message), topicId);
 
                 const chat: Chat = new Chat();
 
+                chat.id = chatId;
                 chat.user_id = message.user?.id!!;
                 chat.createdAt = message.createdAt!!;
                 chat.room_id = id;
+                chat.topic_id = topicId;
                 chat.content = message.content!!;
                 chat.status = Status.NORMAL;
                 chat.meta = message.meta;
@@ -87,7 +107,11 @@ export class LiveRoomService {
         this.firebaseService.sendNotificationToTopic(room.group_id, title, body, url, message);
     }
 
-    public sendSocketMessageToRoom(id: number, content: any): void {
+    public sendSocketMessageToRoom(
+        id: number,
+        content: any,
+        topicId: number | null = null,
+        ): void {
         this.rooms?.get(id).forEach((user: any) => {
             user?.socket?.send(content);
         });

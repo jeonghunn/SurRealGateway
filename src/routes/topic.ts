@@ -35,7 +35,7 @@ router.post(
     util.validate([
         param('group_id').isInt(),
         param('room_id').isInt(),
-        param('chat_id').isInt(),
+        param('chat_id').isString(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
@@ -49,7 +49,7 @@ router.post(
     }
     
     const userId: number = parseInt(req.auth.id);
-    const chatId: number = parseInt(req.params.chat_id, 10);
+    const chatId: string = req?.params?.chat_id;
 
     return chatService.get(chatId).then((chat: Chat) => {
         const roomId: number = chat ? parseInt(req.params.room_id, 10): 0;
@@ -124,6 +124,7 @@ router.post(
                 roomId,
                 topicId,
                 req.body.category,
+                null,
                 userId,
                 req.body.meta,
                 ).then((topic: Topic) => {

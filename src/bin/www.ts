@@ -19,6 +19,7 @@ import { AttachService } from "../service/AttachService";
 import { Room } from "../model/Room";
 import { Group } from "../model/Group";
 import { GroupService } from "../service/GroupService";
+import { Topic } from "../model/Topic";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -54,10 +55,12 @@ const groupService: GroupService = new GroupService();
 wsServer.on('connection', (socket: any, request: any) => {
 
   const roomId: number = parseInt(request?.url?.split('/')[1],  10);
+  let topicId: number | null = null;
   let room: Room = null;
+  let topic: Topic = null;
   let me: SimpleUser | null;
 
-  console.log("User tries to enter the room ", roomId);
+  console.log("User tries to enter the room ", roomId, `(${topic?.id})`);
 
   roomService.getById(roomId).then((roomItem: Room | null) => {
     room = roomItem;
@@ -72,6 +75,7 @@ wsServer.on('connection', (socket: any, request: any) => {
       authResult.result = me !== null;
 
       console.log(`[Live] Trying to join the room ${roomId} by user ${me?.id}`, authResult);
+
       if (!me) {
         socket.send(JSON.stringify(authResult));
         return;
@@ -87,7 +91,7 @@ wsServer.on('connection', (socket: any, request: any) => {
           return;
         }
 
-        liveRoomService.join(roomId, me?.id!!, socket);
+        liveRoomService.join(roomId, me?.id!!, socket, topicId);
       });
 
       return;
@@ -101,7 +105,16 @@ wsServer.on('connection', (socket: any, request: any) => {
         return;
       }
 
-      liveRoomService.send(roomId, liveMessage, room);
+      if(liveMessage.T === CommunicationType.TOPIC) {
+        topicId = liveMessage.id;
+        return;
+      }
+      
+      if (liveMessage.meta?.topic_id) {
+        topicId = liveMessage.meta.topic_id;
+      }
+
+      liveRoomService.send(roomId, liveMessage, room, topicId);
 
     } catch (e: any) {
       console.log("ERROR", e);

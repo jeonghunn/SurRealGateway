@@ -104,12 +104,20 @@ router.get(
                 const chatService: ChatService = new ChatService();
 
         const id: number = parseInt(request.params.id);
+        const topicId: number | null = request.query.topic_id ? parseInt(request.query.topic_id) : null;
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
         const future: boolean = parseInt(request.query.future) === 1;
         const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
         
-        chatService.getList(id, date, offset, limit, future).then((chats: Chat[]) => {
+        chatService.getList(
+            id,
+            topicId,
+            date,
+            offset,
+            limit,
+            future,
+            ).then((chats: Chat[]) => {
             chats.reverse();
             response.status(200).json({
                 room_id: id,
@@ -134,13 +142,14 @@ router.get(
             const aiService: AiService = new AiService();
 
             const id: number = parseInt(request.params.id);
+            const topicId: number | null = request.query.topic_id ? parseInt(request.query.topic_id) : null;
             const offset: number = parseInt(request.query.offset);
             const limit: number = parseInt(request.query.limit);
             const future: boolean = parseInt(request.query.future) === 1;
             const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
     
             try {
-                const chats: Chat[] = await chatService.getList(id, date, offset, limit, future);
+                const chats: Chat[] = await chatService.getList(id, topicId, date, offset, limit, future);
                 const chatContents: string[] = chats.map(chat => `${chat?.user?.name}: ${chat.content} `);
                 const aiResponse: string = await aiService.getChatGPTAnswer(
                    chatContents.reverse().join('\n')
