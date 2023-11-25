@@ -46,6 +46,17 @@ export class TopicService {
         return Topic.findByPk(id);
     }
 
+    public getByChatId(chatId: string): Promise<Topic | null> { 
+        return Topic.findOne({
+            where: {
+                chat_id: chatId,
+            }
+        }).catch((e) => {
+            console.log('Error: getByChatId from TopicService', e);
+            return null;
+        });
+    }
+
 
 
 }

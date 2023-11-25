@@ -109,12 +109,8 @@ wsServer.on('connection', (socket: any, request: any) => {
         topicId = liveMessage.id;
         return;
       }
-      
-      if (liveMessage.meta?.topic_id) {
-        topicId = liveMessage.meta.topic_id;
-      }
 
-      liveRoomService.send(roomId, liveMessage, room, topicId);
+      liveRoomService.send(roomId, liveMessage, room, liveMessage?.topic_id);
 
     } catch (e: any) {
       console.log("ERROR", e);

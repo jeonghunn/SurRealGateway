@@ -59,6 +59,7 @@ router.post(
 router.get(
     '/:id',
     util.validate([
+        param('id').isInt(),
         param('group_id').isInt(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
@@ -94,7 +95,9 @@ router.get(
 router.get(
     '/:id/chat',
     util.validate([
+        param('id').isInt(),
         param('group_id').isInt(),
+        query('topic_id').isInt().optional({ nullable: true }),
         query('offset').isInt(),
         query('limit').isInt(),
     ]),

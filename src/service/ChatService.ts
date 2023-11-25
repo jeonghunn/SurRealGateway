@@ -47,7 +47,7 @@ export class ChatService {
 
                 },
                 order: [
-                    ['id', 'DESC'],
+                    ['createdAt', 'DESC'],
                 ],
                 offset,
                 limit,

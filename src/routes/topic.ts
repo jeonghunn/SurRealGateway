@@ -58,18 +58,25 @@ router.post(
             return res.status(404).json({errors: [{msg: 'Chat not found'}]});
         }
 
-        return topicService.create(
-            req.body.name,
-            roomId,
-            req.body.parent_id,
-            req.body.category,
-            chat.id,
-            userId,
-            req.body.meta,
-            ).then((topic: Topic) => {
-                console.log("topic", topic);
-                return res.status(200).json(topic);
-            });
+        topicService.getByChatId(chat.id).then((existTopic: Topic) => {
+            if (existTopic) {
+                return res.status(200).json(existTopic);
+            }
+
+            return topicService.create(
+                req.body.name,
+                roomId,
+                chat.topic_id,
+                req.body.category,
+                chat.id,
+                userId,
+                req.body.meta,
+                ).then((topic: Topic) => {
+                    return res.status(200).json(topic);
+                });
+            
+        });
+
 
         });
     });
@@ -136,13 +143,27 @@ router.post(
     
 
     router.get(
-        '/',
+        '/:id',
+        util.validate([
+            param('id').isInt(),
+            param('group_id').isInt(),
+            param('room_id').isInt(),
+        ]),
+        expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
+        util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
         (req: any, res: Response, next: NextFunction) => {
 
+            const topicService: TopicService = new TopicService();
+            const id: number = parseInt(req.params.id, 10);
+
+            return topicService.get(id).then((topic: Topic) => {
+                if (!topic) {
+                    return res.status(404).json({errors: [{msg: 'Topic not found'}]});
+                }
+
+                return res.status(200).json(topic);
+            });
     
-        return res.status(200).json({ 'hi': 'hi' });
-    
-        
     
         });
 

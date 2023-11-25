@@ -27,7 +27,6 @@ import { Topic } from "./Topic";
 @Table
 export class Chat extends Model {
     @PrimaryKey
-    @Default(DataType.UUIDV4)
     @Column(DataType.UUIDV4)
     id!: string;
 
