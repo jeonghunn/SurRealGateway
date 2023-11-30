@@ -30,7 +30,10 @@ export class Chat extends Model {
     @Column(DataType.UUIDV4)
     id!: string;
 
-    @Column(DataType.TINYINT)
+    @Column({
+        type: DataType.TINYINT,
+        defaultValue: 0,
+    })
     category!: ChatType;
 
     @Column(DataType.TEXT)

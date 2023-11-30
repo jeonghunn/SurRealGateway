@@ -24,6 +24,10 @@ import { ChatService } from "../service/ChatService";
 import { Chat } from "../model/Chat";
 import { TopicService } from "../service/TopicService";
 import { Topic } from "../model/Topic";
+import { LiveRoomService } from "../service/LiveRoomService";
+import { liveRoomService } from "../bin/www";
+import { RoomService } from "../service/RoomService";
+import { Room } from "../model/Room";
 
 const config = require('../config/config');
 const express = require('express');
@@ -40,7 +44,7 @@ router.post(
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (req: any, res: Response, next: NextFunction) => {
-    const userService: UserService = new UserService();
+    const roomService: RoomService = new RoomService();
     const chatService: ChatService = new ChatService();
     const topicService: TopicService = new TopicService();
     const errors: any = validationResult(req);
@@ -48,6 +52,7 @@ router.post(
         return res.status(400).json({errors: errors.array()});
     }
     
+    const groupId: number = parseInt(req.params.group_id, 10);
     const userId: number = parseInt(req.auth.id);
     const chatId: string = req?.params?.chat_id;
 
@@ -62,18 +67,21 @@ router.post(
             if (existTopic) {
                 return res.status(200).json(existTopic);
             }
-
-            return topicService.create(
-                req.body.name,
-                roomId,
-                chat.topic_id,
-                req.body.category,
-                chat.id,
-                userId,
-                req.body.meta,
-                ).then((topic: Topic) => {
-                    return res.status(200).json(topic);
-                });
+            
+            roomService.get(groupId, roomId).then((room: Room) => {
+                return topicService.add(
+                    liveRoomService,
+                    req.body.name,
+                    room,
+                    chat.topic_id,
+                    req.body.category,
+                    chat.id,
+                    userId,
+                    req.body.meta,
+                    ).then((topic: Topic) => {
+                        return res.status(200).json(topic);
+                    });
+            });
             
         });
 

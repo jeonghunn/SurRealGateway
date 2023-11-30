@@ -1,4 +1,5 @@
 import {
+    ChatCategory,
     CommunicationType,
     LiveMessage,
     Status,
@@ -63,12 +64,14 @@ export class LiveRoomService {
             case CommunicationType.CHAT:
                 const chatId: string = this.getUUID();
                 message.id = chatId;
+                message.category = message.category || ChatCategory.MESSAGE;
 
                 this.sendSocketMessageToRoom(id, JSON.stringify(message), topicId);
 
                 const chat: Chat = new Chat();
 
                 chat.id = chatId;
+                chat.category = message.category;
                 chat.user_id = message.user?.id!!;
                 chat.createdAt = message.createdAt!!;
                 chat.room_id = id;

@@ -1,4 +1,7 @@
 import {
+    ChatCategory,
+    CommunicationType,
+    LiveMessage,
     Status,
     UserStatus,
 } from "../core/type";
@@ -6,6 +9,9 @@ import { Chat } from "../model/Chat";
 import { Op } from "sequelize";
 import { User } from "../model/User";
 import { Topic } from "../model/Topic";
+import { ChatService } from "./ChatService";
+import { LiveRoomService } from "./LiveRoomService";
+import { Room } from "../model/Room";
 
 export class TopicService {
 
@@ -40,6 +46,55 @@ export class TopicService {
             return null;
         });
 
+    }
+
+    public add(
+        liveRoomService: LiveRoomService,
+        name: string,
+        room: Room,
+        parentId: number,
+        category: string | null,
+        chatId: string | null,
+        userId: number,
+        meta: string | null = null,
+        status: Status = Status.NORMAL,
+        ipAddress: string | null = null,
+    ): Promise<Topic> {
+        return this.create(
+            name,
+            room?.id!!,
+            parentId,
+            category,
+            chatId,
+            userId,
+            meta,
+            status,
+            ipAddress,
+        ).then((topic: Topic | null) => {
+            const user: User = new User();
+
+            user.id = userId;
+            user.name = name;
+            
+            const liveMessage: LiveMessage = {
+                id: topic?.chat_id!!,
+                category: ChatCategory.TOPIC_PREVIEW,
+                T: CommunicationType.CHAT,
+                user,
+                content: topic?.name!!,
+                topic_id: parentId,
+                meta: {
+                    child_topic_id: topic?.id!!,
+                }
+
+            };
+            liveRoomService.send(room?.id!!, liveMessage, room, parentId);
+
+            return topic;
+        }).catch((error: any) => {
+            console.log('Error: add from TopicService', error);
+            return null;
+        });
     }
 
     public get(id: number): Promise<Topic | null> {

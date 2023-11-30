@@ -46,7 +46,7 @@ var server = http.createServer(app);
 
 const wsServer = new webSocket.Server({ server });
 const rooms = new Map();
-const liveRoomService: LiveRoomService = new LiveRoomService();
+export const liveRoomService: LiveRoomService = new LiveRoomService();
 const roomService: RoomService = new RoomService();
 const attendeeService: AttendeeService = new AttendeeService();
 const attachService: AttachService = new AttachService();
