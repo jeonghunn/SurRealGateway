@@ -91,7 +91,7 @@ wsServer.on('connection', (socket: any, request: any) => {
           return;
         }
 
-        liveRoomService.join(roomId, me?.id!!, socket, topicId);
+        liveRoomService.join(roomId, me?.id!!, socket);
       });
 
       return;

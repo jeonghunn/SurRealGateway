@@ -23,7 +23,6 @@ export class LiveRoomService {
         id :number,
         userId: number,
         socket: any,
-        topicId: number | null = null,
         ): void {
         let liveRoom: any = this.rooms.get(id);
 
@@ -31,13 +30,12 @@ export class LiveRoomService {
             liveRoom = this.create(id);
         }
 
-        console.log(liveRoom);
+        console.log('LIVEROOM', liveRoom);
 
         liveRoom.push(
             {
                 id,
                 userId,
-                topic: topicId,
                 socket,
             }
         );
