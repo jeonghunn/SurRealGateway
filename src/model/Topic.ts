@@ -4,7 +4,6 @@ import {
     Column,
     CreatedAt,
     DataType,
-    Default,
     ForeignKey,
     HasMany,
     Index,
@@ -19,43 +18,36 @@ import {
     Status,
 } from "../core/type";
 import { User } from "./User";
-import { Group } from "./Group";
 import { Room } from "./Room";
 import {Attach} from "./Attach";
-import { Topic } from "./Topic";
+import { Chat } from "./Chat";
 
 @Table
-export class Chat extends Model {
+export class Topic extends Model {
+    @AutoIncrement
     @PrimaryKey
-    @Column(DataType.UUIDV4)
-    id!: string;
+    @Column(DataType.BIGINT.UNSIGNED)
+    id!: number;
 
-    @Column({
-        type: DataType.TINYINT,
-        defaultValue: 0,
-    })
-    category!: ChatType;
-
+    @Length({max: 140})
     @Column(DataType.TEXT)
-    content!: string;
+    name!: string;
 
     @Index
-    @ForeignKey(() => User)
-    @Column({
-        type: DataType.BIGINT.UNSIGNED,
-        allowNull: false,
-    })
-    user_id!: number;
+    @BelongsTo(() => Topic, 'parent_id')
+    parent! : Topic;
 
-    @BelongsTo(() => User)
-    user! : User;
+    @Length({max: 80})
+    @Column(DataType.TEXT)
+    category!: string;
 
     @Index
-    @ForeignKey(() => Topic)
+    @ForeignKey(() => Chat)
     @Column({
         type: DataType.BIGINT.UNSIGNED,
+        allowNull: true,
     })
-    topic_id!: number;
+    chat_id!: number;
 
     @Index
     @ForeignKey(() => Room)
