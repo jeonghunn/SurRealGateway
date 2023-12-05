@@ -1,40 +1,32 @@
 import {
     AutoIncrement,
-    BelongsTo,
     Column,
     CreatedAt,
     DataType,
-    Default,
     ForeignKey,
-    HasMany,
     Index,
-    Length,
     Model,
     PrimaryKey,
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
 import {
-    ChatType,
     Status,
 } from "../core/type";
 import { User } from "./User";
 import { Group } from "./Group";
 import { Room } from "./Room";
 import {Attach} from "./Attach";
-import { Topic } from "./Topic";
 
 @Table
-export class Chat extends Model {
+export class Summary extends Model {
+    @AutoIncrement
     @PrimaryKey
-    @Column(DataType.UUIDV4)
-    id!: string;
+    @Column(DataType.BIGINT.UNSIGNED)
+    id!: number;
 
-    @Column({
-        type: DataType.TINYINT,
-        defaultValue: 0,
-    })
-    category!: ChatType;
+    @Column(DataType.TEXT)
+    title!: string;
 
     @Column(DataType.TEXT)
     content!: string;
@@ -47,16 +39,6 @@ export class Chat extends Model {
     })
     user_id!: number;
 
-    @BelongsTo(() => User)
-    user! : User;
-
-    @Index
-    @ForeignKey(() => Topic)
-    @Column({
-        type: DataType.BIGINT.UNSIGNED,
-    })
-    topic_id!: number;
-
     @Index
     @ForeignKey(() => Room)
     @Column({
@@ -65,15 +47,8 @@ export class Chat extends Model {
     })
     room_id!: number;
 
-    @Length({min: 0, max: 250})
-    @Column(DataType.TEXT)
-    ip_address?: string;
-
     @Column(DataType.INTEGER)
     status!: Status;
-
-    @Column(DataType.JSON)
-    meta?: any;
 
     @CreatedAt
     createdAt!: Date;

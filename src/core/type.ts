@@ -7,8 +7,8 @@ export enum Gender {
 }
 
 export enum ChatCategory {
-    NORMAL,
-    NOTICE,
+    MESSAGE,
+    TOPIC_PREVIEW,
 }
 
 export enum RoomStatus {
@@ -85,6 +85,7 @@ export enum CommunicationType {
     AUTH,
     CHAT,
     LIVE,
+    TOPIC,
 }
 
 export class Communication {
@@ -98,9 +99,11 @@ export class CommunicationResult extends Communication {
 }
 
 export class LiveMessage extends Communication {
-    public id?: number;
+    public id?: string | any;
+    public category: number;
     public content: string | any | undefined;
     public user?: User;
+    public topic_id?: number | null;
     public meta?: any;
 }
 

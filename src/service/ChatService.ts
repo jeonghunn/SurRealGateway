@@ -10,6 +10,7 @@ export class ChatService {
 
     public getList(
         roomId: number,
+        topicId: number | null,
         date: Date,
         offset: number = 0,
         limit: number = 15,
@@ -23,6 +24,7 @@ export class ChatService {
                     'content',
                     'user_id',
                     'room_id',
+                    'topic_id',
                     'status',
                     'meta',
                     'createdAt',
@@ -31,6 +33,7 @@ export class ChatService {
                 where: {
                     status: Status.NORMAL,
                     room_id: roomId,
+                    topic_id: topicId,
                     createdAt: {[isFuture ? Op.gt : Op.lte]: date},
                 },
                 include: {
@@ -44,12 +47,16 @@ export class ChatService {
 
                 },
                 order: [
-                    ['id', 'DESC'],
+                    ['createdAt', 'DESC'],
                 ],
                 offset,
                 limit,
             }
         )
+    }
+
+    public get(id: string): Promise<Chat | null> {
+        return Chat.findByPk(id);
     }
 
     public async save(chat: Chat): Promise<Chat> {

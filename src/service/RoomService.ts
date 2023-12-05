@@ -152,6 +152,62 @@ export class RoomService {
         }
     }
 
+    public getChatMessage(
+        attachService: AttachService,
+        me: SimpleUser,
+        message: LiveMessage,
+        ): LiveMessage {
+        const attaches: any[] = [];
+                
+        message.createdAt = new Date();
+
+        const user: User = new User();
+        user.name = me.name!;
+        user.id = me.id!;
+        user.color = me.color!;
+
+        message?.meta?.attaches?.forEach((attach: any) => {
+            attaches.push({
+                url: attachService.getUrl({
+                    binary_name: attach.binary_name,
+                } as Attach),
+                binary_name: attach.binary_name,
+                type: attach.type,
+                name: attach.name,
+                extension: attach.extension,
+                mimetype: attach.mimetype,
+                size: attach.size,
+                status: attach.status,
+            });
+
+        });
+
+        message.user = user;
+
+        if(message?.meta?.attaches) {
+            message.meta.attaches = attaches;
+        }
+        
+        return message;
+    }
+
+    public getFormattedMessage(
+        attachService: AttachService,
+        content: any,
+        me: SimpleUser,
+        ): LiveMessage {
+        const message: LiveMessage = JSON.parse(content);
+
+        switch (message.T) {
+            case CommunicationType.CHAT:
+                return this.getChatMessage(attachService, me, message);
+            case CommunicationType.TOPIC:
+                return message;
+            default:
+                return message;
+        }
+    }
+
     public parseMessage(
         attachService: AttachService,
         content: any,
@@ -160,40 +216,7 @@ export class RoomService {
 
         switch (content[0]) {
             case 123:
-                const message: LiveMessage = JSON.parse(content);
-                const attaches: any[] = [];
-                
-                message.createdAt = new Date();
-
-                const user: User = new User();
-                user.name = me.name!;
-                user.id = me.id!;
-                user.color = me.color!;
-
-                message?.meta?.attaches?.forEach((attach: any) => {
-                    attaches.push({
-                        url: attachService.getUrl({
-                            binary_name: attach.binary_name,
-                        } as Attach),
-                        binary_name: attach.binary_name,
-                        type: attach.type,
-                        name: attach.name,
-                        extension: attach.extension,
-                        mimetype: attach.mimetype,
-                        size: attach.size,
-                        status: attach.status,
-                    });
-
-                });
-
-                message.user = user;
-
-                if(message?.meta?.attaches) {
-                    message.meta.attaches = attaches;
-                }
-                
-
-                return message;
+                return this.getFormattedMessage(attachService, content, me);
             default:
 
                 const liveMessage: LiveMessage = new LiveMessage();

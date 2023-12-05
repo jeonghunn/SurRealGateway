@@ -1,6 +1,6 @@
 {
   "name": "surrealgateway",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "private": true,
   "scripts": {
     "build": "tsc",
@@ -28,6 +28,7 @@
     "morgan": "~1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^2.3.3",
+    "openai": "4.15.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
     "sequelize": "^6.21.6",
@@ -35,6 +36,7 @@
     "string-to-color": "^2.2.2",
     "supertest": "^6.2.4",
     "typescript": "^4.7.4",
+    "uuid": "^9.0.1",
     "validator": "^13.7.0",
     "ws": "^8.8.1"
   },
@@ -45,6 +47,7 @@
     "@types/express-jwt": "^6.0.4",
     "@types/jsonwebtoken": "^8.5.9",
     "@types/mocha": "^9.1.1",
-    "@types/supertest": "^2.0.12"
+    "@types/supertest": "^2.0.12",
+    "@types/uuid": "^9.0.7"
   }
 }

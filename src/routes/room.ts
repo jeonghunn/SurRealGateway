@@ -3,6 +3,7 @@ import {
     Response,
 } from "express";
 import { RoomService } from "../service/RoomService";
+import { AiService } from "../service/AiService";
 import { expressjwt } from "express-jwt";
 import { Util } from "../core/util";
 import { Room } from "../model/Room";
@@ -22,6 +23,7 @@ import { FirebaseService } from "../service/FirebaseService";
 
 const config = require('../config/config');
 const express = require('express');
+const topicRouter = require('./topic');
 const router = express.Router({ mergeParams: true });
 const util: Util = new Util();
 const roomService: RoomService = new RoomService();
@@ -57,6 +59,7 @@ router.post(
 router.get(
     '/:id',
     util.validate([
+        param('id').isInt(),
         param('group_id').isInt(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
@@ -92,31 +95,81 @@ router.get(
 router.get(
     '/:id/chat',
     util.validate([
+        param('id').isInt(),
         param('group_id').isInt(),
+        query('topic_id').isInt().optional({ nullable: true }),
         query('offset').isInt(),
         query('limit').isInt(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
-        const chatService: ChatService = new ChatService();
+                const chatService: ChatService = new ChatService();
 
         const id: number = parseInt(request.params.id);
+        const topicId: number | null = request.query.topic_id ? parseInt(request.query.topic_id) : null;
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
         const future: boolean = parseInt(request.query.future) === 1;
         const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
-
-        chatService.getList(id, date, offset, limit, future).then((chats: Chat[]) => {
+        
+        chatService.getList(
+            id,
+            topicId,
+            date,
+            offset,
+            limit,
+            future,
+            ).then((chats: Chat[]) => {
             chats.reverse();
             response.status(200).json({
                 room_id: id,
                 chats,
             });
-        });
+            });
+
 
     });
 
+
+router.get(
+        '/:id/summary',
+        util.validate([
+            param('group_id').isInt(),
+            query('offset').isInt(),
+            query('limit').isInt(),
+        ]),
+        
+        async (request: any, response: Response, next: NextFunction) => {
+            const chatService: ChatService = new ChatService();
+            const aiService: AiService = new AiService();
+
+            const id: number = parseInt(request.params.id);
+            const topicId: number | null = request.query.topic_id ? parseInt(request.query.topic_id) : null;
+            const offset: number = parseInt(request.query.offset);
+            const limit: number = parseInt(request.query.limit);
+            const future: boolean = parseInt(request.query.future) === 1;
+            const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
+    
+            try {
+                const chats: Chat[] = await chatService.getList(id, topicId, date, offset, limit, future);
+                const chatContents: string[] = chats.map(chat => `${chat?.user?.name}: ${chat.content} `);
+                const aiResponse: string = await aiService.getChatGPTAnswer(
+                   chatContents.reverse().join('\n')
+                    );
+
+                response.status(200).json({
+                    response: aiResponse,
+                });
+
+            } catch (error) {
+                console.error('[Room] AI API Error: ', error);
+                return  response.status(500).json({
+                    error: 'Unexpected Error',
+                });
+            }
+        });
+    
 
 router.get(
     '/',
@@ -146,5 +199,6 @@ router.get(
         });
     });
 
+router.use('/:room_id/topic', topicRouter);
 
 module.exports = router;

@@ -10,6 +10,7 @@ import {
     AttendeePermission,
     AttendeeType,
 } from "../core/type";
+import { param } from "express-validator";
 
 const config = require('../config/config');
 const express = require('express');
@@ -41,6 +42,9 @@ router.get(
 
 router.get(
     '/:id',
+    util.validate([
+        param('id').isInt(),
+    ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
