@@ -98,8 +98,18 @@ export class ClientService {
                 ip_address: ipAddress,
                 user_agent: userAgent,
                 token,
+                status: Status.NORMAL,
                 name: this.getName(name, userAgent),
                 last_active: new Date(),
+        });
+    }
+
+    public get(key: string): Promise<Client | null> {
+        return Client.findOne({
+            where: {
+                id: key,
+                status: Status.NORMAL,
+            },
         });
     }
 

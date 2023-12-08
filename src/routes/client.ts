@@ -40,24 +40,34 @@ router.post(
         const userAgent: string = util.getUserAgent(request);
         const userId: number = parseInt(request.auth.id);
 
-        clientService.add(
-            request.body.key,
-            userId,
-            ipAddress,
-            userAgent,
-            request.body.token,
-        ).then((result: [Client, boolean]) => {
-            const client: Client = result[0];
-            response.json(client);
+        return clientService.get(request.body.key).then((currentClient: Client | null) => {
 
-            if (!result[1]) {
-                return;
+            if (currentClient && currentClient.token === request.body.token) {
+               return response.json(currentClient);
             }
 
-            attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: any) => {
-                attendeeIds.forEach((attendeeId: any) => {
-                    firebaseService.subscribeToGroup(attendeeId, [client.token]);
+            return clientService.add(
+                request.body.key,
+                userId,
+                ipAddress,
+                userAgent,
+                request.body.token,
+            ).then((result: [Client, boolean]) => {
+                const client: Client = result[0];
+    
+                attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: any) => {
+                    attendeeIds.forEach((attendeeId: any) => {
+
+                        if (currentClient) {
+                            firebaseService.unsubscribeFromGroup(attendeeId, currentClient.token);
+                        }
+                        
+                        firebaseService.subscribeToGroup(attendeeId, [client.token]);
+                    });
                 });
+
+                return response.json(client);
+                
             });
             
         });

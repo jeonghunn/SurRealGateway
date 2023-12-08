@@ -86,7 +86,7 @@ export class AttendeeService {
 
     }
 
-    public getList(type: AttendeeType, userId: number): Promise<number[] | null> {
+    public async getList(type: AttendeeType, userId: number): Promise<number[] | null> {
         return Attendee.findAll({
             raw: true,
             attributes: ['target_id'],
