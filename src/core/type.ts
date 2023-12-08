@@ -22,6 +22,12 @@ export enum Status {
     REMOVED,
 }
 
+export enum SpaceStatus{
+    NORMAL,
+    REMOVED,
+    DEACTIVATED,
+}
+
 export enum AttachStatus {
     NORMAL,
     PROCESSING,
