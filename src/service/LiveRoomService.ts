@@ -99,6 +99,9 @@ export class LiveRoomService {
         let body: string = `${message.user?.name!!}\n${message.content}`;
         let url: string = config.frontUrl + `/group/${groupId}/room/${room?.id}`;
 
+        if (message?.topic_id) {
+            url += `/topic/${message.topic_id}`;
+        }
 
         if (room?.group?.target_id)  {
             title = message.user?.name!!;
