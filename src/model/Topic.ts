@@ -21,6 +21,7 @@ import { User } from "./User";
 import { Room } from "./Room";
 import {Attach} from "./Attach";
 import { Chat } from "./Chat";
+import { Space } from "./Space";
 
 @Table
 export class Topic extends Model {
@@ -56,6 +57,17 @@ export class Topic extends Model {
         allowNull: false,
     })
     room_id!: number;
+
+    @ForeignKey(() => Space)
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: false,
+    })
+    space_id!: number;
+
+    @BelongsTo(() => Space, 'space_id')
+    space! : Space;
+
 
     @Length({min: 0, max: 250})
     @Column(DataType.TEXT)
