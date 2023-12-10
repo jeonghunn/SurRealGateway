@@ -27,6 +27,7 @@ export class TopicService {
         chatId: string | null,
         userId: number,
         meta: string | null = null,
+        spaceId: string | null = null,
         status: Status = Status.NORMAL,
         ipAddress: string | null = null,
         ): Promise<Topic> {
@@ -40,10 +41,13 @@ export class TopicService {
             user_id: userId,
             meta,
             status,
+            space_id: spaceId,
             ip_address: ipAddress,
         }).catch((e) => {
             console.log('Error: create from TopicService', e);
-            return null;
+            return new Promise((resolve, reject) => {
+                reject(e);
+            });
         });
 
     }
@@ -57,6 +61,7 @@ export class TopicService {
         chatId: string | null,
         userId: number,
         meta: string | null = null,
+        spaceId: string | null = null,
         status: Status = Status.NORMAL,
         ipAddress: string | null = null,
     ): Promise<Topic> {
@@ -68,6 +73,7 @@ export class TopicService {
             chatId,
             userId,
             meta,
+            spaceId,
             status,
             ipAddress,
         ).then((topic: Topic | null) => {
@@ -98,7 +104,12 @@ export class TopicService {
     }
 
     public get(id: number): Promise<Topic | null> {
-        return Topic.findByPk(id);
+        return Topic.findByPk(id).catch((e) => {
+            console.log('Error: get from TopicService', e);
+            return new Promise((resolve, reject) => {
+                reject(e);
+            });
+        });
     }
 
     public getByChatId(chatId: string): Promise<Topic | null> { 

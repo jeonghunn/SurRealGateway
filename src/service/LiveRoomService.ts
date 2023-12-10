@@ -16,23 +16,28 @@ const config = require('../config/config');
 export class LiveRoomService {
 
     public rooms: any = new Map();
+    public spaces: any = new Map();
     private chatService: ChatService = new ChatService();
     private firebaseService: FirebaseService = new FirebaseService();
+
+    public getRoomListInstance(isSpace: boolean): any {
+        return isSpace ? this.spaces : this.rooms;
+    }
+
 
     public join(
         id :number,
         userId: number,
         socket: any,
+        isSpace: boolean = false,
         ): void {
-        let liveRoom: any = this.rooms.get(id);
+        let currentRoom: any = this.getRoomListInstance(isSpace).get(id);
 
-        if(!liveRoom) {
-            liveRoom = this.create(id);
+        if(!currentRoom) {
+            currentRoom = this.create(id);
         }
 
-        console.log('LIVEROOM', liveRoom);
-
-        liveRoom.push(
+        currentRoom.push(
             {
                 id,
                 userId,
@@ -41,8 +46,8 @@ export class LiveRoomService {
         );
     }
 
-    public create(id: number): any[] {
-        return this.rooms.set(id, []).get(id);
+    public create(id: number, isSpace: boolean = false): any[] {
+        return this.getRoomListInstance(isSpace).set(id, []).get(id);
     }
 
     public getUUID(): string {
@@ -64,7 +69,7 @@ export class LiveRoomService {
                 message.id = chatId;
                 message.category = message.category || ChatCategory.MESSAGE;
 
-                this.sendSocketMessageToRoom(id, JSON.stringify(message), topicId);
+                this.sendSocketMessageToRoom(id, JSON.stringify(message), false);
 
                 const chat: Chat = new Chat();
 
@@ -82,7 +87,7 @@ export class LiveRoomService {
                 this.sendNotification(room.group_id, room, message);
                 break;
             case CommunicationType.LIVE:
-                this.sendSocketMessageToRoom(id, message.content);
+                this.sendSocketMessageToRoom(id, message.content, true);
                 console.log("Live Message", message.content);
                 break;
         }
@@ -114,18 +119,37 @@ export class LiveRoomService {
     public sendSocketMessageToRoom(
         id: number,
         content: any,
-        topicId: number | null = null,
+        isSpace: boolean = false,
         ): void {
-        this.rooms?.get(id).forEach((user: any) => {
-            user?.socket?.send(content);
+        this.getRoomListInstance(isSpace)?.get(id).forEach((user: any) => {
+            let isSuccess: boolean = false;
+
         });
 
     }
 
-    public close(id: number, userId: number, socket: any): void {
-        console.log(`Live Left: ID: ${id}, User: ${userId}`);
+    public sendSocketMessageToUser(user: any, content: any, retry: number = 0): void {
+        if (retry > 10) {
+            console.log('Error: sendSocketMessageToUser TOO MANY RETRIES', user, content);
+        }
 
-       this.rooms?.get(id)?.splice(this.rooms?.get(id).findIndex((liveUser: any) => {
+        user?.socket?.send(content).catch((e: any) => {
+            console.log('Error: sendSocketMessageToUser', e);
+            this.sendSocketMessageToUser(user, content, retry + 1);
+        });
+    }
+
+    public close(
+        id: number,
+        userId: number,
+        socket: any,
+        isSpace: boolean = false,
+        ): void {
+        console.log(`Live Left (${isSpace ? 'Space' : 'Chat'}): ID: ${id}, User: ${userId}`);
+
+        const currentRoom: any = this.getRoomListInstance(isSpace).get(id);
+
+        currentRoom.splice(currentRoom.findIndex((liveUser: any) => {
             return (liveUser.userId === userId && liveUser.socket === socket);
         }), 1);
     }
