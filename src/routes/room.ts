@@ -24,6 +24,7 @@ import { FirebaseService } from "../service/FirebaseService";
 const config = require('../config/config');
 const express = require('express');
 const topicRouter = require('./topic');
+const spaceRouter = require('./space');
 const router = express.Router({ mergeParams: true });
 const util: Util = new Util();
 const roomService: RoomService = new RoomService();
@@ -200,5 +201,6 @@ router.get(
     });
 
 router.use('/:room_id/topic', topicRouter);
+router.use('/:room_id/space', spaceRouter);
 
 module.exports = router;
