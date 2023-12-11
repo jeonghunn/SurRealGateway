@@ -19,6 +19,7 @@ export class LiveRoomService {
     public spaces: any = new Map();
     private chatService: ChatService = new ChatService();
     private firebaseService: FirebaseService = new FirebaseService();
+    private isLocked: number = 0;
 
     public getRoomListInstance(isSpace: boolean): any {
         return isSpace ? this.spaces : this.rooms;
@@ -31,6 +32,8 @@ export class LiveRoomService {
         socket: any,
         isSpace: boolean = false,
         ): void {
+        this.isLocked++;
+        
         let currentRoom: any = this.getRoomListInstance(isSpace).get(id);
 
         if(!currentRoom) {
@@ -44,6 +47,8 @@ export class LiveRoomService {
                 socket,
             }
         );
+
+        this.isLocked--;
     }
 
     public create(id: number, isSpace: boolean = false): any[] {
@@ -149,9 +154,12 @@ export class LiveRoomService {
 
         const currentRoom: any = this.getRoomListInstance(isSpace).get(id);
 
-        currentRoom.splice(currentRoom.findIndex((liveUser: any) => {
-            return (liveUser.userId === userId && liveUser.socket === socket);
-        }), 1);
+        if (this.isLocked === 0) {
+            console.log('Cleaning Dead Sockets');
+            currentRoom?.set(id, currentRoom?.get(id)?.filter((user: any) => {
+                return user?.socket?.readyState === 1;
+            }));
+        }
     }
 
 
