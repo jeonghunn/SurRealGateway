@@ -15,6 +15,7 @@ import { FirebaseService } from "../service/FirebaseService";
 import { body, param } from "express-validator";
 import { AttendeeService } from "../service/AttendeeService";
 import { Client } from "../model/Client";
+import { v4 } from "uuid";
 
 const config = require('../config/config');
 const express = require('express');
@@ -47,7 +48,7 @@ router.post(
             }
 
             return clientService.add(
-                request.body.key,
+                v4().toString(),
                 userId,
                 ipAddress,
                 userAgent,
