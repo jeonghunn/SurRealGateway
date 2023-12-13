@@ -45,7 +45,7 @@ var server = http.createServer(app);
 
 
 const wsServer = new webSocket.Server({ server });
-const rooms = new Map();
+
 export const liveRoomService: LiveRoomService = new LiveRoomService();
 const roomService: RoomService = new RoomService();
 const attendeeService: AttendeeService = new AttendeeService();
@@ -54,13 +54,23 @@ const groupService: GroupService = new GroupService();
 
 wsServer.on('connection', (socket: any, request: any) => {
 
-  const roomId: number = parseInt(request?.url?.split('/')[1],  10);
+  const urlPathArray: string[] = request?.url?.split('/');
+
+  const roomId: number = parseInt(urlPathArray[1],  10);
   let topicId: number | null = null;
+  let spaceKey: string | null = null;
   let room: Room = null;
   let topic: Topic = null;
   let me: SimpleUser | null;
+  let isSpace: boolean = false;
 
   console.log("User tries to enter the room ", roomId, `(${topic?.id})`);
+
+  if (urlPathArray?.length > 2 && urlPathArray[2] === 'space') {
+    isSpace = true;
+    spaceKey = urlPathArray[3];
+    console.log("User tries to enter the space ", spaceKey);
+  }
 
   roomService.getById(roomId).then((roomItem: Room | null) => {
     room = roomItem;
@@ -91,7 +101,12 @@ wsServer.on('connection', (socket: any, request: any) => {
           return;
         }
 
-        liveRoomService.join(roomId, me?.id!!, socket);
+        liveRoomService.join(
+          isSpace ? spaceKey : roomId,
+          me?.id!!,
+          socket,
+          isSpace,
+          );
       });
 
       return;

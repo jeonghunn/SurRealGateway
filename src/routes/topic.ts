@@ -28,6 +28,9 @@ import { LiveRoomService } from "../service/LiveRoomService";
 import { liveRoomService } from "../bin/www";
 import { RoomService } from "../service/RoomService";
 import { Room } from "../model/Room";
+import { SpaceService } from "../service/SpaceService";
+import { v4 } from "uuid";
+import { Space } from "../model/Space";
 
 const config = require('../config/config');
 const express = require('express');
@@ -96,13 +99,14 @@ router.post(
             param('group_id').isInt(),
             param('room_id').isInt(),
             body('topic_id').isInt().optional({ nullable: true }),
+            body('space').isString(),
         ]),
         expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
         util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
         (req: any, res: Response, next: NextFunction) => {
-        const userService: UserService = new UserService();
-        const chatService: ChatService = new ChatService();
         const topicService: TopicService = new TopicService();
+        const spaceService: SpaceService = new SpaceService();
+        const roomService: RoomService = new RoomService();
         const errors: any = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({errors: errors.array()});
@@ -111,44 +115,64 @@ router.post(
         const userId: number = parseInt(req.auth.id);
         const topicId: number | null = parseInt(req.body.topic_id, 10) || null;
         const roomId: number = parseInt(req.params.room_id, 10);
+        const groupId: number = parseInt(req.params.group_id, 10);
+        const spaceAppName: string | null = req.body.space || null;
 
-        if (!topicId) {
+        let spaceCreationPromise: Promise<Space | null> = spaceService.add(
+            spaceAppName,
+            userId,
+            roomId,
+            groupId,
+            null,    
+        );
 
-            return topicService.create(
-                req.body.name,
-                roomId,
-                null,
-                req.body.category,
-                null,
-                userId,
-                req.body.meta,
-                ).then((topic: Topic) => {
-                    return res.status(200).json(topic);
-                }
-            )
-
-        }
-    
-        return topicService.get(topicId).then((parentTopic: Topic) => {
-            if (!parentTopic) {
-                return res.status(404).json({errors: [{msg: 'Topic not found'}]});
+        return roomService.get(groupId, roomId).then((room: Room) => {
+            if (!room) {
+                return res.status(404).json({errors: [{msg: 'Room not found'}]});
             }
 
-            return topicService.create(
-                req.body.name,
-                roomId,
-                topicId,
-                req.body.category,
-                null,
-                userId,
-                req.body.meta,
-                ).then((topic: Topic) => {
-                    return res.status(200).json(topic);
+            return spaceCreationPromise.then((spaceResult: Space) => {
+                if (!spaceResult?.dataValues) {
+                    return res.status(404).json({errors: [{msg: 'Space not found'}]});
+                }
+    
+                let topicCreationPromise: Promise<Topic | null> = topicService.add(
+                    liveRoomService,
+                    req.body.name,
+                    room,       
+                    topicId,
+                    req.body.category,
+                    null,
+                    userId,
+                    req.body.meta,
+                    spaceResult?.dataValues?.id,
+                    );
+    
+                const topicPromises: Promise<any>[] = [];
+                
+                topicPromises.push(topicId ? topicService.get(topicId) : Promise.resolve(null));
+                topicPromises.push(topicCreationPromise);
+    
+                return Promise.all(topicPromises).then((topics: Topic[]) => {
+                    console.log("topics", topics);
+                    const parentTopic: Topic | null = topics[0];
+                    const newTopic: Topic | null = topics[1];
+    
+                    if (topicId && !parentTopic) {
+                        return res.status(404).json({errors: [{msg: 'Topic not found'}]});
+                    }
+    
+                    return res.status(200).json(
+                        {
+                            space: spaceResult?.dataValues,
+                            topic: newTopic,
+                        }
+                    );
                 });
-
             });
         });
     
+    });
 
     router.get(
         '/:id',

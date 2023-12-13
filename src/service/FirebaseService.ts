@@ -25,6 +25,15 @@ export class FirebaseService {
         return this.subscribeToTopic(tokens, this.getTopicName(groupId));
     }
 
+    public unsubscribeFromGroup(groupId: number, token: string): Promise<any> {
+        if(!token) {
+            return Promise.resolve();
+        }
+
+        console.log('unsubscribeFromGroup', groupId, token);
+        return this.unsubscribeFromTopic(token, this.getTopicName(groupId));
+    }
+
     public unsubscribeFromTopic(token: string, topic: string): Promise<any> {
         return getMessaging().unsubscribeFromTopic(token, topic).catch((error: any) => {
             console.log('[FirebaseService] Error:', error);

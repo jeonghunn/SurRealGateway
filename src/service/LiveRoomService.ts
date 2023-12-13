@@ -16,33 +16,44 @@ const config = require('../config/config');
 export class LiveRoomService {
 
     public rooms: any = new Map();
+    public spaces: any = new Map();
     private chatService: ChatService = new ChatService();
     private firebaseService: FirebaseService = new FirebaseService();
+    private isLocked: number = 0;
+
+    public getLiveListInstance(isSpace: boolean): any {
+        return isSpace ? this.spaces : this.rooms;
+    }
+
 
     public join(
-        id :number,
+        id: number | string,
         userId: number,
         socket: any,
+        isSpace: boolean = false,
         ): void {
-        let liveRoom: any = this.rooms.get(id);
+        this.isLocked++;
+        
 
-        if(!liveRoom) {
-            liveRoom = this.create(id);
+        let currentRoom: any = this.getLiveListInstance(isSpace).get(id);
+
+        if(!currentRoom) {
+            currentRoom = this.create(id, isSpace);
         }
 
-        console.log('LIVEROOM', liveRoom);
-
-        liveRoom.push(
+        currentRoom.push(
             {
                 id,
                 userId,
                 socket,
             }
         );
+
+        this.isLocked--;
     }
 
-    public create(id: number): any[] {
-        return this.rooms.set(id, []).get(id);
+    public create(id: number | string, isSpace: boolean = false): any[] {
+        return this.getLiveListInstance(isSpace).set(id, []).get(id);
     }
 
     public getUUID(): string {
@@ -64,7 +75,7 @@ export class LiveRoomService {
                 message.id = chatId;
                 message.category = message.category || ChatCategory.MESSAGE;
 
-                this.sendSocketMessageToRoom(id, JSON.stringify(message), topicId);
+                this.sendSocketMessageToRoom(id, JSON.stringify(message), false);
 
                 const chat: Chat = new Chat();
 
@@ -82,7 +93,7 @@ export class LiveRoomService {
                 this.sendNotification(room.group_id, room, message);
                 break;
             case CommunicationType.LIVE:
-                this.sendSocketMessageToRoom(id, message.content);
+                this.sendSocketMessageToRoom(id, message.content, true);
                 console.log("Live Message", message.content);
                 break;
         }
@@ -99,6 +110,9 @@ export class LiveRoomService {
         let body: string = `${message.user?.name!!}\n${message.content}`;
         let url: string = config.frontUrl + `/group/${groupId}/room/${room?.id}`;
 
+        if (message?.topic_id) {
+            url += `/topic/${message.topic_id}`;
+        }
 
         if (room?.group?.target_id)  {
             title = message.user?.name!!;
@@ -109,22 +123,37 @@ export class LiveRoomService {
     }
 
     public sendSocketMessageToRoom(
-        id: number,
+        id: number | string,
         content: any,
-        topicId: number | null = null,
+        isSpace: boolean = false,
         ): void {
-        this.rooms?.get(id).forEach((user: any) => {
-            user?.socket?.send(content);
+
+        this.getLiveListInstance(isSpace)?.get(id)?.forEach((user: any) => {
+            this.sendSocketMessageToUser(user, content);
         });
 
     }
 
-    public close(id: number, userId: number, socket: any): void {
-        console.log(`Live Left: ID: ${id}, User: ${userId}`);
+    public sendSocketMessageToUser(user: any, content: any, retry: number = 0): void {
+        user?.socket?.send(content);
+    }
 
-       this.rooms?.get(id)?.splice(this.rooms?.get(id).findIndex((liveUser: any) => {
-            return (liveUser.userId === userId && liveUser.socket === socket);
-        }), 1);
+    public close(
+        id: number,
+        userId: number,
+        socket: any,
+        isSpace: boolean = false,
+        ): void {
+        console.log(`Live Left (${isSpace ? 'Space' : 'Chat'}): ID: ${id}, User: ${userId}`);
+
+        const currentRoom: any = this.getLiveListInstance(isSpace).get(id);
+
+        if (currentRoom && this.isLocked === 0) {
+            console.log('Cleaning Dead Sockets');
+            this.getLiveListInstance(isSpace).set(id, currentRoom.filter((user: any) => {
+                return user?.socket?.readyState === 1;
+            }));
+        }
     }
 
 
