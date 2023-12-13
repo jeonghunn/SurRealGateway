@@ -104,10 +104,9 @@ router.post(
         expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
         util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
         (req: any, res: Response, next: NextFunction) => {
-        const userService: UserService = new UserService();
-        const chatService: ChatService = new ChatService();
         const topicService: TopicService = new TopicService();
         const spaceService: SpaceService = new SpaceService();
+        const roomService: RoomService = new RoomService();
         const errors: any = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({errors: errors.array()});
@@ -116,7 +115,7 @@ router.post(
         const userId: number = parseInt(req.auth.id);
         const topicId: number | null = parseInt(req.body.topic_id, 10) || null;
         const roomId: number = parseInt(req.params.room_id, 10);
-        const groupId: number = parseInt(req.params.room_id, 10);
+        const groupId: number = parseInt(req.params.group_id, 10);
         const spaceAppName: string | null = req.body.space || null;
 
         let spaceCreationPromise: Promise<Space | null> = spaceService.add(
@@ -127,36 +126,49 @@ router.post(
             null,    
         );
 
-        return spaceCreationPromise.then((spaceResult: Space) => {
-            if (!spaceResult?.dataValues) {
-                return res.status(404).json({errors: [{msg: 'Space not found'}]});
+        return roomService.get(groupId, roomId).then((room: Room) => {
+            if (!room) {
+                return res.status(404).json({errors: [{msg: 'Room not found'}]});
             }
 
-            let topicCreationPromise: Promise<Topic | null> = topicService.create(
-                req.body.name,
-                roomId,
-                topicId,
-                req.body.category,
-                null,
-                userId,
-                req.body.meta,
-                spaceResult?.dataValues?.id,
-                );
-
-            const topicPromises: Promise<any>[] = [];
-            
-            topicPromises.push(topicId ? topicService.get(topicId) : Promise.resolve(null));
-            topicPromises.push(topicCreationPromise);
-
-            return Promise.all(topicPromises).then((topics: Topic[]) => {
-                const parentTopic: Topic | null = topics[0];
-                const newTopic: Topic | null = topics[1];
-
-                if (topicId && !parentTopic) {
-                    return res.status(404).json({errors: [{msg: 'Topic not found'}]});
+            return spaceCreationPromise.then((spaceResult: Space) => {
+                if (!spaceResult?.dataValues) {
+                    return res.status(404).json({errors: [{msg: 'Space not found'}]});
                 }
-
-                return res.status(200).json(newTopic);
+    
+                let topicCreationPromise: Promise<Topic | null> = topicService.add(
+                    liveRoomService,
+                    req.body.name,
+                    room,       
+                    topicId,
+                    req.body.category,
+                    null,
+                    userId,
+                    req.body.meta,
+                    spaceResult?.dataValues?.id,
+                    );
+    
+                const topicPromises: Promise<any>[] = [];
+                
+                topicPromises.push(topicId ? topicService.get(topicId) : Promise.resolve(null));
+                topicPromises.push(topicCreationPromise);
+    
+                return Promise.all(topicPromises).then((topics: Topic[]) => {
+                    console.log("topics", topics);
+                    const parentTopic: Topic | null = topics[0];
+                    const newTopic: Topic | null = topics[1];
+    
+                    if (topicId && !parentTopic) {
+                        return res.status(404).json({errors: [{msg: 'Topic not found'}]});
+                    }
+    
+                    return res.status(200).json(
+                        {
+                            space: spaceResult?.dataValues,
+                            topic: newTopic,
+                        }
+                    );
+                });
             });
         });
     

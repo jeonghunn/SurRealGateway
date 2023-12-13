@@ -12,6 +12,7 @@ import { Topic } from "../model/Topic";
 import { ChatService } from "./ChatService";
 import { LiveRoomService } from "./LiveRoomService";
 import { Room } from "../model/Room";
+import { Space } from "../model/Space";
 
 export class TopicService {
 
@@ -104,7 +105,21 @@ export class TopicService {
     }
 
     public get(id: number): Promise<Topic | null> {
-        return Topic.findByPk(id).catch((e) => {
+        return Topic.findOne({
+            where: {
+                status: Status.NORMAL,
+                id,
+            },
+            include: [
+                {
+                    model: Space,
+                    as: 'space',
+                    required: false,
+                    attributes: ['id', 'key'],
+
+                },
+            ],
+        }).catch((e) => {
             console.log('Error: get from TopicService', e);
             return new Promise((resolve, reject) => {
                 reject(e);

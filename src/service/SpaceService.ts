@@ -2,6 +2,7 @@ import {
     ChatCategory,
     CommunicationType,
     LiveMessage,
+    SpaceStatus,
     Status,
     UserStatus,
 } from "../core/type";
@@ -30,7 +31,8 @@ export class SpaceService {
         groupId: number,
         version: number,
         meta: string | null = null,
-        status: Status = Status.NORMAL,
+        status: SpaceStatus = SpaceStatus.NORMAL,
+        topic_id: number | null = null,
         ): Promise<Space> {
             return Space.create({
                 key,
@@ -43,6 +45,7 @@ export class SpaceService {
                 version,
                 meta,
                 status,
+                topic_id,
             }).catch((e) => {
                 console.log('Error: create from SpaceService', e);
                 return null;
@@ -53,25 +56,75 @@ export class SpaceService {
         return Space.findByPk(id);
     }
 
+    public getByKey(key: string): Promise<Space | null> {
+        return Space.findOne({
+            where: {
+                key,
+                status: Status.NORMAL,
+            },
+            order: [
+                ['version', 'DESC'],
+            ],
+            limit: 1,
+        });
+    }
+
+    public getByCategory(
+        roomId: number,
+        topicId: number,
+        category: string,
+        ): Promise<Space | null> {
+        return Space.findOne({
+            where: {
+                room_id: roomId,
+                topic_id: topicId,
+                category,
+                status: Status.NORMAL,
+            },
+            order: [
+                ['version', 'DESC'],
+            ],
+            limit: 1,
+        });
+    }
+
     public add(
         category: string,
         userId: number,
         roomId: number,
         groupId: number,
         meta: string | null = null,
-        status: Status = Status.NORMAL,
+        status: SpaceStatus = SpaceStatus.NORMAL,
+        title: string = '',
+        content: string | null = null,
+        topicId: number | null = null,
         ): Promise<Space | null> {
         return this.create(
             v4().toString(),
             category,
-            null,
-            null,
+            title,
+            content,
             userId,
             roomId,
             groupId,
             1,
             meta,
             status,
+            topicId,
+        );
+    }
+
+    public disableOldVersions(key: string): Promise<[ count: number ]> {
+        return Space.update(
+            {
+                status: SpaceStatus.DEACTIVATED,
+            },
+            {
+                where: {
+                    key,
+                    status: SpaceStatus.NORMAL,
+                },
+            },
         );
     }
 }

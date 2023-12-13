@@ -45,7 +45,7 @@ export class Space extends Model {
     @ForeignKey(() => User)
     @Column({
         type: DataType.BIGINT.UNSIGNED,
-        allowNull: false,
+        allowNull: true,
     })
     user_id!: number;
 
@@ -56,6 +56,12 @@ export class Space extends Model {
         allowNull: false,
     })
     room_id!: number;
+
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: true,
+    })
+    topic_id!: number;
 
     @Column(DataType.INTEGER)
     status!: SpaceStatus;

@@ -21,23 +21,24 @@ export class LiveRoomService {
     private firebaseService: FirebaseService = new FirebaseService();
     private isLocked: number = 0;
 
-    public getRoomListInstance(isSpace: boolean): any {
+    public getLiveListInstance(isSpace: boolean): any {
         return isSpace ? this.spaces : this.rooms;
     }
 
 
     public join(
-        id :number,
+        id: number | string,
         userId: number,
         socket: any,
         isSpace: boolean = false,
         ): void {
         this.isLocked++;
         
-        let currentRoom: any = this.getRoomListInstance(isSpace).get(id);
+
+        let currentRoom: any = this.getLiveListInstance(isSpace).get(id);
 
         if(!currentRoom) {
-            currentRoom = this.create(id);
+            currentRoom = this.create(id, isSpace);
         }
 
         currentRoom.push(
@@ -51,8 +52,8 @@ export class LiveRoomService {
         this.isLocked--;
     }
 
-    public create(id: number, isSpace: boolean = false): any[] {
-        return this.getRoomListInstance(isSpace).set(id, []).get(id);
+    public create(id: number | string, isSpace: boolean = false): any[] {
+        return this.getLiveListInstance(isSpace).set(id, []).get(id);
     }
 
     public getUUID(): string {
@@ -122,26 +123,19 @@ export class LiveRoomService {
     }
 
     public sendSocketMessageToRoom(
-        id: number,
+        id: number | string,
         content: any,
         isSpace: boolean = false,
         ): void {
-        this.getRoomListInstance(isSpace)?.get(id).forEach((user: any) => {
-            let isSuccess: boolean = false;
 
+        this.getLiveListInstance(isSpace)?.get(id)?.forEach((user: any) => {
+            this.sendSocketMessageToUser(user, content);
         });
 
     }
 
     public sendSocketMessageToUser(user: any, content: any, retry: number = 0): void {
-        if (retry > 10) {
-            console.log('Error: sendSocketMessageToUser TOO MANY RETRIES', user, content);
-        }
-
-        user?.socket?.send(content).catch((e: any) => {
-            console.log('Error: sendSocketMessageToUser', e);
-            this.sendSocketMessageToUser(user, content, retry + 1);
-        });
+        user?.socket?.send(content);
     }
 
     public close(
@@ -152,11 +146,11 @@ export class LiveRoomService {
         ): void {
         console.log(`Live Left (${isSpace ? 'Space' : 'Chat'}): ID: ${id}, User: ${userId}`);
 
-        const currentRoom: any = this.getRoomListInstance(isSpace).get(id);
+        const currentRoom: any = this.getLiveListInstance(isSpace).get(id);
 
-        if (this.isLocked === 0) {
+        if (currentRoom && this.isLocked === 0) {
             console.log('Cleaning Dead Sockets');
-            currentRoom?.set(id, currentRoom?.get(id)?.filter((user: any) => {
+            this.getLiveListInstance(isSpace).set(id, currentRoom.filter((user: any) => {
                 return user?.socket?.readyState === 1;
             }));
         }

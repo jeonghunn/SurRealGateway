@@ -14,12 +14,14 @@ import {
 import {
     AttendeePermission,
     AttendeeType,
+    SpaceStatus,
 } from "../core/type";
 import { AttendeeService } from "../service/AttendeeService";
 import { ChatService } from "../service/ChatService";
 import { Chat } from "../model/Chat";
 import { ClientService } from "../service/ClientService";
 import { FirebaseService } from "../service/FirebaseService";
+import { SpaceService } from "../service/SpaceService";
 
 const config = require('../config/config');
 const express = require('express');
@@ -141,8 +143,9 @@ router.get(
             query('limit').isInt(),
         ]),
         
-        async (request: any, response: Response, next: NextFunction) => {
+        (request: any, response: Response, next: NextFunction) => {
             const chatService: ChatService = new ChatService();
+            const spaceService: SpaceService = new SpaceService();
             const aiService: AiService = new AiService();
 
             const id: number = parseInt(request.params.id);
@@ -152,24 +155,43 @@ router.get(
             const future: boolean = parseInt(request.query.future) === 1;
             const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
     
-            try {
-                const chats: Chat[] = await chatService.getList(id, topicId, date, offset, limit, future);
-                const chatContents: string[] = chats.map(chat => `${chat?.user?.name}: ${chat.content} `);
-                const aiResponse: string = await aiService.getChatGPTAnswer(
-                   chatContents.reverse().join('\n')
-                    );
+            spaceService.getByCategory(id, topicId, 'summary').then((space: any) => {
+                if (space) {
+                    return response.status(200).json({
+                        spaceKey: space.key,
+                    });
+                }
+            
+                return chatService.getList(id, topicId, date, offset, limit, future).then((chats: Chat[]) => {
+                    const chatContents: string[] = chats.map(chat => `${chat?.user?.name}: ${chat.content} `);
+                    return aiService.getChatGPTAnswer(
+                       chatContents.reverse().join('\n')
+                    ).then((aiResponse: string) => {
+                        const title: string = aiResponse.split('\n')[0];
+                        const content: string = aiResponse.split('\n').slice(1).join('\n');
 
-                response.status(200).json({
-                    response: aiResponse,
-                });
+                        return spaceService.add(
+                            'summary',
+                            null,
+                            id,
+                            null,
+                            null,
+                            SpaceStatus.NORMAL,
+                            title,
+                            content,
+                            topicId,
+                        ).then((space: any) => {
+                            return response.status(200).json({
+                                spaceKey: space.key,
+                            });
+                        });
 
-            } catch (error) {
-                console.error('[Room] AI API Error: ', error);
-                return  response.status(500).json({
-                    error: 'Unexpected Error',
+                    });
+
                 });
-            }
         });
+
+    });
     
 
 router.get(
