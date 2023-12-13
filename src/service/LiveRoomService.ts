@@ -16,26 +16,32 @@ const config = require('../config/config');
 export class LiveRoomService {
 
     public rooms: any = new Map();
+    public spaces: any = new Map();
     private chatService: ChatService = new ChatService();
     private firebaseService: FirebaseService = new FirebaseService();
-    private isLocked: boolean = false;
+    private isLocked: number = 0;
+
+    public getLiveListInstance(isSpace: boolean): any {
+        return isSpace ? this.spaces : this.rooms;
+    }
+
 
     public join(
-        id :number,
+        id: number | string,
         userId: number,
         socket: any,
+        isSpace: boolean = false,
         ): void {
+        this.isLocked++;
         
-        this.isLocked = true;
-        let liveRoom: any = this.rooms.get(id);
 
-        if(!liveRoom) {
-            liveRoom = this.create(id);
+        let currentRoom: any = this.getLiveListInstance(isSpace).get(id);
+
+        if(!currentRoom) {
+            currentRoom = this.create(id, isSpace);
         }
 
-        console.log('LIVEROOM', liveRoom);
-
-        liveRoom.push(
+        currentRoom.push(
             {
                 id,
                 userId,
@@ -43,11 +49,11 @@ export class LiveRoomService {
             }
         );
 
-        this.isLocked = false;
+        this.isLocked--;
     }
 
-    public create(id: number): any[] {
-        return this.rooms.set(id, []).get(id);
+    public create(id: number | string, isSpace: boolean = false): any[] {
+        return this.getLiveListInstance(isSpace).set(id, []).get(id);
     }
 
     public getUUID(): string {
@@ -69,7 +75,7 @@ export class LiveRoomService {
                 message.id = chatId;
                 message.category = message.category || ChatCategory.MESSAGE;
 
-                this.sendSocketMessageToRoom(id, JSON.stringify(message), topicId);
+                this.sendSocketMessageToRoom(id, JSON.stringify(message), false);
 
                 const chat: Chat = new Chat();
 
@@ -87,7 +93,7 @@ export class LiveRoomService {
                 this.sendNotification(room.group_id, room, message);
                 break;
             case CommunicationType.LIVE:
-                this.sendSocketMessageToRoom(id, message.content);
+                this.sendSocketMessageToRoom(id, message.content, true);
                 console.log("Live Message", message.content);
                 break;
         }
@@ -117,22 +123,34 @@ export class LiveRoomService {
     }
 
     public sendSocketMessageToRoom(
-        id: number,
+        id: number | string,
         content: any,
-        topicId: number | null = null,
+        isSpace: boolean = false,
         ): void {
-        this.rooms?.get(id).forEach((user: any) => {
-            user?.socket?.send(content);
+
+        this.getLiveListInstance(isSpace)?.get(id)?.forEach((user: any) => {
+            this.sendSocketMessageToUser(user, content);
         });
 
     }
 
-    public close(id: number, userId: number, socket: any): void {
-        console.log(`Live Left: ID: ${id}, User: ${userId}`);
+    public sendSocketMessageToUser(user: any, content: any, retry: number = 0): void {
+        user?.socket?.send(content);
+    }
 
-        if (!this.isLocked) {
+    public close(
+        id: number,
+        userId: number,
+        socket: any,
+        isSpace: boolean = false,
+        ): void {
+        console.log(`Live Left (${isSpace ? 'Space' : 'Chat'}): ID: ${id}, User: ${userId}`);
+
+        const currentRoom: any = this.getLiveListInstance(isSpace).get(id);
+
+        if (currentRoom && this.isLocked === 0) {
             console.log('Cleaning Dead Sockets');
-            this.rooms?.set(id, this.rooms?.get(id)?.filter((user: any) => {
+            this.getLiveListInstance(isSpace).set(id, currentRoom.filter((user: any) => {
                 return user?.socket?.readyState === 1;
             }));
         }

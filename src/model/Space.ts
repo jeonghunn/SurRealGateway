@@ -8,22 +8,32 @@ import {
     Model,
     PrimaryKey,
     Table,
+    Unique,
     UpdatedAt,
 } from "sequelize-typescript";
 import {
+    SpaceStatus,
     Status,
 } from "../core/type";
 import { User } from "./User";
-import { Group } from "./Group";
 import { Room } from "./Room";
-import {Attach} from "./Attach";
 
 @Table
-export class Summary extends Model {
+export class Space extends Model {
     @AutoIncrement
     @PrimaryKey
     @Column(DataType.BIGINT.UNSIGNED)
     id!: number;
+
+    @Unique('space_key_version_unique')
+    @Column(DataType.UUIDV4)
+    key!: string;
+
+    @Column({
+        type: DataType.STRING,
+        defaultValue: 0,
+    })
+    category!: string;
 
     @Column(DataType.TEXT)
     title!: string;
@@ -35,7 +45,7 @@ export class Summary extends Model {
     @ForeignKey(() => User)
     @Column({
         type: DataType.BIGINT.UNSIGNED,
-        allowNull: false,
+        allowNull: true,
     })
     user_id!: number;
 
@@ -47,8 +57,21 @@ export class Summary extends Model {
     })
     room_id!: number;
 
+    @Column({
+        type: DataType.BIGINT.UNSIGNED,
+        allowNull: true,
+    })
+    topic_id!: number;
+
     @Column(DataType.INTEGER)
-    status!: Status;
+    status!: SpaceStatus;
+
+    @Unique('space_key_version_unique')
+    @Column(DataType.INTEGER)
+    version!: number;
+
+    @Column(DataType.JSON)
+    meta?: any;
 
     @CreatedAt
     createdAt!: Date;
