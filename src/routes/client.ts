@@ -44,28 +44,32 @@ router.post(
         return clientService.get(request.body.key).then((currentClient: Client | null) => {
 
             if (currentClient && currentClient.token === request.body.token) {
+
+                firebaseService.registerAttendee(
+                    attendeeService,
+                    userId,
+                    currentClient,
+                    null,
+                );
+
                return response.json(currentClient);
             }
 
             return clientService.add(
-                v4().toString(),
+                currentClient ? request.body.key : v4().toString(),
                 userId,
                 ipAddress,
                 userAgent,
                 request.body.token,
             ).then((result: [Client, boolean]) => {
                 const client: Client = result[0];
-    
-                attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: any) => {
-                    attendeeIds.forEach((attendeeId: any) => {
 
-                        if (currentClient) {
-                            firebaseService.unsubscribeFromGroup(attendeeId, currentClient.token);
-                        }
-                        
-                        firebaseService.subscribeToGroup(attendeeId, [client.token]);
-                    });
-                });
+                firebaseService.registerAttendee(
+                    attendeeService,
+                    userId,
+                    client,
+                    currentClient,
+                );
 
                 return response.json(client);
                 
