@@ -93,6 +93,9 @@ const util: Util = new Util();
                 roomId,
                 groupId,
                 basedVersion + 1,
+                space.meta,
+                space.status,
+                space.topic_id,
             ).then((result: Space) => {
 
                 const liveMessage: LiveMessage = new LiveMessage();
