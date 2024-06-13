@@ -65,7 +65,7 @@ export class FirebaseService {
         currentClient: Client | null,
     ): Promise<void> {
       attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: any) => {
-        attendeeIds.forEach((attendeeId: any) => {
+        attendeeIds?.forEach((attendeeId: any) => {
 
             if (currentClient) {
                 this.unsubscribeFromGroup(attendeeId, currentClient.token);
