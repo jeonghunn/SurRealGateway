@@ -7,7 +7,12 @@ import { Util } from "../core/util";
 import {AttachService} from "../service/AttachService";
 import {RoomService} from "../service/RoomService";
 import {upload} from "../app";
-import {AttendeePermission, AttendeeType, Status} from "../core/type";
+import {
+    AttachStorage,
+    AttendeePermission,
+    Status,
+} from "../core/type";
+import { storage } from "googleapis/build/src/apis/storage";
 
 const config = require('../config/config');
 const express = require('express');
@@ -50,6 +55,7 @@ router.post(
             mimetype: request?.file?.mimetype,
             status: Status.NORMAL,
             type: attachService.getFileType(fileNameAndExtension.ext, request.file?.mimetype),
+            storage: AttachStorage.S3,
             size: request?.file?.size,
             ip_address: util.getIPAddress(request),
         }).then((attach: any) => { 
@@ -61,8 +67,9 @@ router.post(
                 mimetype: attach.mimetype,
                 type: attach.type,
                 size: attach.size,
+                storage: attach.storage,
                 status: attach.status,
-                url: attachService.getUrl(attach),
+                urls: attachService.getUrls(attach),
             });
         });
 
@@ -79,8 +86,6 @@ router.get(
         const height: number = parseInt(request.query.height);
         const prefer: string = request.query.prefer;
 
-        console.log('prefer', prefer);
-
 
         return attachService.get(binaryName, width, height).then((attach: any) => {
             if (!attach) {
@@ -88,7 +93,7 @@ router.get(
             }
 
             
-            const filePath: string = attachService.getPath(attach, width, height, prefer);
+            const filePath: string = attachService.getLocalPath(attach, width, height, prefer);
             let extension: string = attach.extension;
             let mimetype: string = attach.mimetype;
 
@@ -128,7 +133,7 @@ router.get(
                 type: attach.type,
                 size: attach.size,
                 status: attach.status,
-                url: attachService.getUrl(attach),
+                urls: attachService.getUrls(attach),
             });
         });
 

@@ -15,6 +15,7 @@ import {
 import {
     Status,
     FileType,
+    AttachStorage,
 } from "../core/type";
 import { User } from "./User";
 import { Room } from "./Room";
@@ -66,6 +67,10 @@ export class Attach extends Model {
 
     @Column(DataType.TINYINT)
     status!: Status;
+
+    @Length({ max: 20 })
+    @Column(DataType.TEXT)
+    storage!: AttachStorage;
 
     @Column(DataType.TINYINT)
     type!: FileType;

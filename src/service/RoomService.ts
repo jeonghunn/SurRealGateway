@@ -1,5 +1,6 @@
 import { Room } from "../model/Room";
 import {
+    AttachStorage,
     AttendeePermission,
     AttendeeType,
     AuthMessage,
@@ -168,7 +169,7 @@ export class RoomService {
 
         message?.meta?.attaches?.forEach((attach: any) => {
             attaches.push({
-                url: attachService.getUrl({
+                urls: attachService.getUrls({
                     binary_name: attach.binary_name,
                 } as Attach),
                 binary_name: attach.binary_name,
