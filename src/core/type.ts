@@ -32,6 +32,7 @@ export enum AttachStatus {
     NORMAL,
     PROCESSING,
     REMOVED,
+    UNPROCESSED,
 }
 
 export enum PrivacyType {
@@ -51,6 +52,11 @@ export enum UserStatus {
     NORMAL,
     REMOVED,
     DEACTIVATED,
+}
+
+export enum AttachStorage {
+    LOCAL='LOCAL',
+    S3='S3',
 }
 
 export enum UserPermission {

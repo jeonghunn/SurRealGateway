@@ -16,6 +16,7 @@ export class ChatService {
         limit: number = 15,
         isFuture: boolean = false,
         ): Promise<Chat[]> {
+
         return Chat.findAll(
             {
                 attributes: [

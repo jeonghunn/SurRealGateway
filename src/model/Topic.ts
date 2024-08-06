@@ -61,7 +61,7 @@ export class Topic extends Model {
     @ForeignKey(() => Space)
     @Column({
         type: DataType.BIGINT.UNSIGNED,
-        allowNull: false,
+        allowNull: true,
     })
     space_id!: number;
 

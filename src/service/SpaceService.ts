@@ -64,6 +64,7 @@ export class SpaceService {
             },
             order: [
                 ['version', 'DESC'],
+                ['id', 'DESC'],
             ],
             limit: 1,
         });
@@ -82,7 +83,7 @@ export class SpaceService {
                 status: Status.NORMAL,
             },
             order: [
-                ['version', 'DESC'],
+                ['updatedAt', 'DESC'],
             ],
             limit: 1,
         });

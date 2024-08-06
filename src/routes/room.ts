@@ -114,7 +114,7 @@ router.get(
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
         const future: boolean = parseInt(request.query.future) === 1;
-        const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
+        const date: Date = request.query.date ? new Date(parseFloat(request.query.date) * 1000) : new Date();
         
         chatService.getList(
             id,
@@ -141,6 +141,7 @@ router.get(
             param('group_id').isInt(),
             query('offset').isInt(),
             query('limit').isInt(),
+            query('force').isBoolean().optional({ nullable: true }),
         ]),
         
         (request: any, response: Response, next: NextFunction) => {
@@ -154,8 +155,9 @@ router.get(
             const limit: number = parseInt(request.query.limit);
             const future: boolean = parseInt(request.query.future) === 1;
             const date: Date = request.query.date ? new Date(parseInt(request.query.date) * 1000) : new Date();
-    
-            spaceService.getByCategory(id, topicId, 'summary').then((space: any) => {
+            const isForce: boolean = request.query.force === 'true';
+
+            return spaceService.getByCategory(isForce ? 0 : id, topicId, 'summary').then((space: any) => {
                 if (space) {
                     return response.status(200).json({
                         spaceKey: space.key,

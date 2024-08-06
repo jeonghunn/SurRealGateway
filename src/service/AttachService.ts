@@ -1,6 +1,7 @@
 import {Attendee} from "../model/Attendee";
 import {
     AttachStatus,
+    AttachStorage,
     AttendeePermission,
     AttendeeType,
     FileType,
@@ -11,6 +12,8 @@ import {Group} from "../model/Group";
 import {RoomService} from "./RoomService";
 import {Room} from "../model/Room";
 import {Attach} from "../model/Attach";
+import { CdnService } from "./CdnService";
+import { storage } from "googleapis/build/src/apis/storage";
 
 const config = require('../config/config');
 const path = require('path');
@@ -20,8 +23,15 @@ const ffmpegCommand = require('fluent-ffmpeg');
 
 export class AttachService {
 
+    public cdnService: CdnService = new CdnService();
+
     public create(meta: any): Promise<Attach> {
-        const isConvertNeeded: boolean = meta.type === FileType.VIDEO && !this.isHtmlVideo(meta.extension);
+        let isConvertNeeded: boolean = false;
+
+        if (meta.type === FileType.VIDEO) {
+            meta.status = AttachStatus.UNPROCESSED;
+            isConvertNeeded = !this.isHtmlVideo(meta.extension);
+        }
 
         if(isConvertNeeded) {
             meta.status = AttachStatus.PROCESSING;
@@ -32,11 +42,25 @@ export class AttachService {
                 this.convertVideo(attach);
             }
 
+            this.createThumbnailIfNotExists(attach, 160, 160);
+
+
+            this.cdnService.upload(attach.binary_name, this.getDefaultPath(attach)).then((result: any) => {
+                console.log('[AttachService] : Upload to CDN completed. ', result);
+            }).catch((err: any) => {
+                console.log('[AttachService] : Upload to CDN failed. ', err);
+                attach.storage = AttachStorage.LOCAL;
+                attach.save();
+            });
+
             return attach;
         });
     }
 
     public createThumbnail(binaryName: string, width: number, height: number): Promise<any | null> {
+
+        console.log('[Thumbnail] : Creating thumbnail... ', `${width}x${height}`);
+
         return imageThumbnail(
             path.join(config.attach.path, binaryName),
             {
@@ -47,15 +71,19 @@ export class AttachService {
                 withMetaData: true,
             },
             ).then((thumbnail: any) => {
-            return fs.writeFile(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, binaryName), thumbnail, (err: any) => {
-                if (err) {
-                    console.log('[Thumbnail] : Thumbnail creation has been failed. ', err);
-                    return null;
-                }
+            // return fs.writeFile(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, binaryName), thumbnail, (err: any) => {
+            //     if (err) {
+            //         console.log('[Thumbnail] : Thumbnail creation has been failed. ', err);
+            //         return null;
+            //     }
 
-                return thumbnail;
+            //     return thumbnail;
 
-            });
+            // });
+
+            console.log('[Thumbnail] : Thumbnail created. ', `${width}x${height}`);
+
+            return this.cdnService.uploadBuffer(path.join('thumbnail', `${width}x${height}`, binaryName), thumbnail);
         }).catch(() => {
             console.log('[Thumbnail] : Thumbnail not created. ');
         });
@@ -74,21 +102,28 @@ export class AttachService {
         ): string {
         if(attach?.type === FileType.IMAGE) {
             if(width && height) {
-                return path.join(config.attach.path, 'thumbnail', `${width}x${height}`, attach.binary_name);
+                return path.join('thumbnail', `${width}x${height}`, attach.binary_name);
             }
         } else if(attach?.type === FileType.VIDEO && prefer === 'video/mp4' && !this.isHtmlVideo(attach.extension)) {
-            return path.join(config.attach.path, 'video', 'mp4', attach.binary_name);
+            return path.join('video', 'mp4', attach.binary_name);
         }
 
-        return this.getDefaultPath(attach);
+        return attach.binary_name;
 
+    }
+
+    public getLocalPath(
+        attach: Attach,
+        width: number = null,
+        height: number = null,
+        prefer: string = null,
+    ) {
+        return path.join(config.attach.path, this.getPath(attach, width, height, prefer));
     }
 
     public getDefaultPath(attach: Attach): string {
         return path.join(config.attach.path, attach.binary_name);
     }
-
-
 
     public get(
         binaryName: string,
@@ -104,24 +139,32 @@ export class AttachService {
             console.log('[Error] : get from AttachService', result);
             return null;
         }).then((attach: Attach | null) => {
-
-            if (attach?.type === FileType.IMAGE && width && height) {
-                fs.access(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, binaryName), fs.F_OK, (err: any) => {
-
-                    if (err) {
-                        console.log('[Thumbnail] : Thumbnail not found. Creating thumbnail... ', `${width}x${height}`);
-                        return this.createThumbnail(binaryName, width, height).then(() => {
-                            return attach;
-                        });
-                    }
-
-                    return attach;
-                    
-                });
+            if (attach) {
+                return this.createThumbnailIfNotExists(attach, width, height);
             }
 
-            return attach;
+            return null;
         });
+    }
+
+    public createThumbnailIfNotExists(attach: Attach, width: number, height: number): Promise<any | null> {
+        if (attach?.type === FileType.IMAGE && width && height) {
+            fs.access(path.join(config.attach.path, 'thumbnail', `${width}x${height}`, attach.binary_name), fs.F_OK, (err: any) => {
+
+                if (err) {
+                    console.log('[Thumbnail] : Thumbnail not found. Creating thumbnail... ', `${width}x${height}`);
+                    return this.createThumbnail(attach.binary_name, width, height).then(() => {
+                        return attach;
+                    });
+                }
+
+                return attach;
+                
+            });
+        }
+
+        return Promise.resolve(attach);
+
     }
 
     public isImage(extension: string): boolean {
@@ -150,9 +193,28 @@ export class AttachService {
         return path.parse(name);
     }
 
-    public getUrl(attach: Attach): string {
+    public getUrls(attach: Attach): any {
+        let origin: string | null = null;
+        let thumbnail: string | null = null;
+        let converted: string | null = null;
 
-        return config.attach.cdnUrl + attach.binary_name;
+        switch (attach.storage) {
+            case AttachStorage.LOCAL:
+                origin = config.attach.cdnUrl + attach.binary_name;
+                break;
+            default:
+                // Amazon S3
+                origin = this.cdnService.getLink(attach.binary_name);
+                thumbnail = this.cdnService.getLink(`thumbnail/160x160/${attach.binary_name}`);
+                converted = this.cdnService.getLink(`video/mp4/${attach.binary_name}`);
+                break;
+        }
+
+        return {
+            origin,
+            thumbnail,
+            converted,
+        }
     }
 
     public saveFile(file: any): Promise<boolean> {
@@ -178,24 +240,35 @@ export class AttachService {
 
     public convertVideo(attach: Attach): Promise<any> {
         return new Promise<any>(() => {
-
-            var command = ffmpegCommand(this.getDefaultPath(attach))
+            let command: any = ffmpegCommand(this.getLocalPath(attach))
                             // .audioCodec('libfaac')
                             // .videoCodec('libx264')
+                            //limit cpu usage
+                          //  .addOption('-threads', '1')
                             .format('mp4');
 
-            command.save(this.getPath(attach, null, null, 'video/mp4'));
+            let localSavePath: string = this.getLocalPath(attach, null, null, 'video/mp4');
+
+            command.save(localSavePath);
             command.on('end', () => {
                 console.log('[AttachService] Video Converter Completed', attach.binary_name);
-                attach.update({
-                    status: AttachStatus.NORMAL,
+
+                this.cdnService.upload(
+                    this.getPath(attach, null, null, 'video/mp4'),
+                    localSavePath,
+                ).then(() => {
+                    attach.update({
+                        status: AttachStatus.NORMAL,
+                    });
+                }).catch((err: any) => {
+                    console.log('[AttachService] Failed to upload to CDN (Converted Video) : ' + err);
                 });
                 
             });
             command.on('error', (err: any) => {
                 console.log('[AttachService] Video Converter Error : ' + err);
                 attach.update({
-                    status: AttachStatus.NORMAL,
+                    status: AttachStatus.UNPROCESSED,
                 });
             });
 

@@ -1,6 +1,9 @@
 
 import { google } from 'googleapis';
 import { getMessaging } from 'firebase-admin/messaging';
+import { AttendeeService } from './AttendeeService';
+import { Client } from '../model/Client';
+import { AttendeeType } from '../core/type';
 
 const config = require('../config/config');
 const request = require('request');
@@ -53,6 +56,24 @@ export class FirebaseService {
         message: any = null,
         ): Promise<any> {
         return this.sendPushToTopic(this.getTopicName(groupId), title, body, url, message);
+    }
+
+    public async registerAttendee(
+        attendeeService: AttendeeService,
+        userId: number,
+        client: Client,
+        currentClient: Client | null,
+    ): Promise<void> {
+      attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: any) => {
+        attendeeIds?.forEach((attendeeId: any) => {
+
+            if (currentClient) {
+                this.unsubscribeFromGroup(attendeeId, currentClient.token);
+            }
+            
+            this.subscribeToGroup(attendeeId, [client.token]);
+        });
+    });
     }
 
     public sendPushToTopic(
