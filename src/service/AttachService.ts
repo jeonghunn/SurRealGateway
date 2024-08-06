@@ -125,8 +125,6 @@ export class AttachService {
         return path.join(config.attach.path, attach.binary_name);
     }
 
-
-
     public get(
         binaryName: string,
         width: number = null,
