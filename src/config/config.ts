@@ -1,6 +1,7 @@
 module.exports = (() => {
     return {
         serverDomain: 'surreal.io',
+        environment: 'development',
         jwt: {
             algorithms: ['HS256'],
             secret: 'TEST_SERVER_SECRET',
