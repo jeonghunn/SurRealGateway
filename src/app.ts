@@ -39,8 +39,6 @@ var groupRouter = require('./routes/group');
 var attachRouter = require('./routes/attach');
 var clientRouter = require('./routes/client');
 
-const util: Util = new Util();
-
 var app = express();
 
 app.use(logger('dev'));
