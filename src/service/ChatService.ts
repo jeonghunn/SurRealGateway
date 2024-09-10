@@ -1,10 +1,13 @@
 import {
+    LiveMessage,
     Status,
     UserStatus,
 } from "../core/type";
 import { Chat } from "../model/Chat";
 import { Op } from "sequelize";
 import { User } from "../model/User";
+import { AttachService } from "./AttachService";
+import { Attach } from "../model/Attach";
 
 export class ChatService {
 

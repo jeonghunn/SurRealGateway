@@ -19,7 +19,7 @@ export class FirebaseService {
         });
     }
     
-    public subscribeToGroup(groupId: number, tokens: string[]): Promise<any> {
+    public subscribeToGroup(groupId: string, tokens: string[]): Promise<any> {
         if (!tokens || tokens.length === 0) {
             return Promise.resolve();
         }
@@ -28,7 +28,7 @@ export class FirebaseService {
         return this.subscribeToTopic(tokens, this.getTopicName(groupId));
     }
 
-    public unsubscribeFromGroup(groupId: number, token: string): Promise<any> {
+    public unsubscribeFromGroup(groupId: string, token: string): Promise<any> {
         if(!token) {
             return Promise.resolve();
         }
@@ -44,12 +44,12 @@ export class FirebaseService {
         });
     }
 
-    public getTopicName(groupId: number): string {
+    public getTopicName(groupId: string): string {
         return `group_${groupId}`;
     }
 
     public sendNotificationToTopic(
-        groupId: number,
+        groupId: string,
         title: string,
         body: string,
         url: string,

@@ -43,14 +43,14 @@ router.get(
 router.get(
     '/:id',
     util.validate([
-        param('id').isInt(),
+        param('id').isString(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
         const groupService: GroupService = new GroupService();
 
-        const id: number = parseInt(request.params.id);
+        const id: string = request.params.id;
 
         groupService.get(id).then((group: Group | null) => {
             response.status(200).json({

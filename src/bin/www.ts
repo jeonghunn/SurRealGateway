@@ -20,6 +20,7 @@ import { Room } from "../model/Room";
 import { Group } from "../model/Group";
 import { GroupService } from "../service/GroupService";
 import { Topic } from "../model/Topic";
+import { ChatService } from "../service/ChatService";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -49,6 +50,7 @@ const wsServer = new webSocket.Server({ server });
 export const liveRoomService: LiveRoomService = new LiveRoomService();
 const roomService: RoomService = new RoomService();
 const attendeeService: AttendeeService = new AttendeeService();
+const chatService: ChatService = new ChatService();
 const attachService: AttachService = new AttachService();
 const groupService: GroupService = new GroupService();
 
@@ -113,7 +115,12 @@ wsServer.on('connection', (socket: any, request: any) => {
     }
 
     try {
-      const liveMessage: LiveMessage | undefined = roomService.parseMessage(attachService, message, me);
+      const liveMessage: LiveMessage | undefined = roomService.parseMessage(
+        chatService,
+        attachService,
+        message,
+        me,
+      );
 
       if (!liveMessage) {
         console.log("Live Message : Invalid Live Message By User", me?.id);

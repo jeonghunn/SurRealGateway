@@ -101,7 +101,7 @@ export class LiveRoomService {
     }
 
     public sendNotification(
-        groupId: number,
+        groupId: string,
         room: Room,
         message: LiveMessage,
     ): void {

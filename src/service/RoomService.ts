@@ -5,6 +5,7 @@ import {
     AttendeeType,
     AuthMessage,
     CommunicationType,
+    Live,
     LiveMessage,
     SimpleUser,
     Status,
@@ -18,12 +19,13 @@ import { Attach } from "../model/Attach";
 import { Group } from "../model/Group";
 import { ClientService } from "./ClientService";
 import { FirebaseService } from "./FirebaseService";
+import { ChatService } from "./ChatService";
 
 const config = require('../config/config');
 
 export class RoomService {
 
-    public get(groupId: number, id: number, isSecure: boolean = true): Promise<Room | null> {
+    public get(groupId: string, id: number, isSecure: boolean = true): Promise<Room | null> {
 
         const exclude: string[] = isSecure ? ['ip_address'] : [];
 
@@ -68,7 +70,7 @@ export class RoomService {
 
     public create(
         user_id: number,
-        group_id: number,
+        group_id: string,
         letter?: string,
         name?: string,
         description?: string,
@@ -109,7 +111,7 @@ export class RoomService {
 
 
     public getList(
-        group_id: number,
+        group_id: string,
         before: Date,
         offset: number = 0,
         limit: number = 15,

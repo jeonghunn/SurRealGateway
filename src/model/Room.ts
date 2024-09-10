@@ -45,11 +45,13 @@ export class Room extends Model {
 
     @Index
     @ForeignKey(() => Group)
+    @Length({min: 0, max: 11})
     @Column({
-        type: DataType.BIGINT.UNSIGNED,
+        type: DataType.STRING,
         allowNull: false,
+        
     })
-    group_id!: number;
+    group_id!: string;
 
     @BelongsTo(() => Group, 'group_id')
     group! : Group;

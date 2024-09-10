@@ -16,7 +16,7 @@ export class AttendeeService {
     public get(
         type: AttendeeType,
         user_id: number,
-        target_id: number,
+        target_id: number | string,
     ): Promise<Attendee | null> {
 
         return Attendee.findOne({
@@ -34,7 +34,7 @@ export class AttendeeService {
     public create(
         type: AttendeeType,
         user_id: number,
-        target_id: number,
+        target_id: string | number,
         permission: AttendeePermission = AttendeePermission.MEMBER,
     ): Promise<Attendee> {
 
@@ -63,7 +63,7 @@ export class AttendeeService {
     public add(
         type: AttendeeType,
         userId: number,
-        targetId: number,
+        targetId: string | number,
         permission: AttendeePermission = AttendeePermission.MEMBER,
         firebaseService: FirebaseService = null,
         clientService: ClientService = null,
@@ -77,7 +77,7 @@ export class AttendeeService {
         ).then((attendee: Attendee | null) => {
             if (attendee && firebaseService) {
                 clientService.getByUser(userId).then((clients: Client[]) => {
-                    firebaseService.subscribeToGroup(targetId, clients.map(x => x.token));
+                    firebaseService.subscribeToGroup(targetId as string, clients.map(x => x.token));
                 });
             }
 
@@ -86,7 +86,7 @@ export class AttendeeService {
 
     }
 
-    public async getList(type: AttendeeType, userId: number): Promise<number[] | null> {
+    public async getList(type: AttendeeType, userId: number): Promise<(string | number)[] | null> {
         return Attendee.findAll({
             raw: true,
             attributes: ['target_id'],
