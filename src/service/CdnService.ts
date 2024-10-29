@@ -9,6 +9,7 @@ const config = require('../config/config');
 
 export class CdnService {
 
+    private pathPrefix: string = config.environment?.length > 0 ? `${config.environment}/` : '';
     private s3 = new S3(config.aws.credentials);
 
     public upload(
@@ -37,8 +38,7 @@ export class CdnService {
 
 
     public getLink(keyValue: string): string {
-        //this.s3.getSignedUrl();
-        return `https://${config.aws?.bucket}.s3.${config.aws?.credentials?.region}.amazonaws.com/${keyValue}`;
+        return `https://${config.aws?.bucket}.s3.${config.aws?.credentials?.region}.amazonaws.com/${this.pathPrefix}${keyValue}`;
     }
 
     public uploadBuffer(
@@ -48,7 +48,7 @@ export class CdnService {
 
         return this.s3.putObject({
             Bucket: config.aws.bucket,
-            Key: binaryName,
+            Key: `${this.pathPrefix}${binaryName}`,
             Body: buffer,
         }).then((result: PutObjectCommandOutput) => {
             return result;
@@ -63,7 +63,7 @@ export class CdnService {
     public delete(keyValue: string): Promise<any> {
         return this.s3.deleteObject({
             Bucket: config.aws.bucket,
-            Key: keyValue,
+            Key: `${this.pathPrefix}${keyValue}`,
         }).then(() => {
             return true;
         }).catch((err: any) => {
@@ -75,7 +75,7 @@ export class CdnService {
     public isFileExist(keyValue: string): Promise<boolean> {
         return this.s3.headObject({
             Bucket: config.aws.bucket,
-            Key: keyValue,
+            Key: `${this.pathPrefix}${keyValue}`,
         }).then(() => {
             return true;
         }).catch(() => {

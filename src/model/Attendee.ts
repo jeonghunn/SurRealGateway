@@ -33,10 +33,10 @@ export class Attendee extends Model {
 
     @Index
     @Column({
-        type: DataType.INTEGER.UNSIGNED,
+        type: DataType.STRING,
         allowNull: false,
     })
-    target_id!: number;
+    target_id!: string;
 
     @Column(DataType.TINYINT)
     status!: Status;

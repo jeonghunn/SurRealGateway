@@ -43,7 +43,7 @@ export class Util {
             const attendeeService: AttendeeService = new AttendeeService();
             const groupService: GroupService = new GroupService();
             const userId: number | null = parseInt(request.auth?.id);
-            const targetId: number = parseInt(request.params.group_id || request.params.id);
+            const targetId: string = request.params.group_id || request.params.id;
 
             if (!userId) {
                 return response.status(401).json({
@@ -92,5 +92,18 @@ export class Util {
         return request.headers['user-agent'];
     }
 
+    public getRandomString(length: number): string {
+        const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result: string = '';
+        const charactersLength: number = characters.length;
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+
 }
+
+export const util: Util = new Util(); 
 

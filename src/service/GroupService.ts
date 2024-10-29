@@ -13,20 +13,42 @@ import { RoomService } from "./RoomService";
 import { Room } from "../model/Room";
 import { FirebaseService } from "./FirebaseService";
 import { ClientService } from "./ClientService";
+import { util } from "../core/util";
 
 export class GroupService {
 
     public create(meta: any): Promise<Group> {
         const roomService: RoomService = new RoomService();
-
-        return Group.create(meta).then((group: Group) => {
-            return roomService.create(meta.user_id, group.id).then((room: Room) => {
-                return group;
+        
+        return this.getNotDuplicatedId().then((id: string) => {
+            console.log('GroupService: create: id: ', id);
+            meta.id = id;
+            return Group.create(meta).then((group: Group) => {
+                return roomService.create(meta.user_id, group.id).then((room: Room) => {
+                    return group;
+                });
             });
         });
     }
 
-    public get(id: number): Promise<Group | null> {
+    public getNotDuplicatedId(length: number = 6): Promise<string> {
+        const id: string = util.getRandomString(length);
+
+        return Group.findOne({
+            where: {
+                id,
+            }
+        }).then((group: Group | null) => {
+            if (group) {
+                return this.getNotDuplicatedId(length + 1);
+            }
+
+            return id;
+        });
+        
+    }
+
+    public get(id: string): Promise<Group | null> {
         return Group.findOne({
                 where: {
                     status: Status.NORMAL,
@@ -58,7 +80,7 @@ export class GroupService {
         )
     }
 
-    public getListById(ids: number[], attributes: string[]): Promise<Group[]> {
+    public getListById(ids: string[], attributes: string[]): Promise<Group[]> {
         return Group.findAll(
             {
                 attributes,
@@ -166,12 +188,12 @@ export class GroupService {
 
     public getGroupList(userId: number, attributes: string[]): Promise<Group[] | null> {
         const attendeeService: AttendeeService = new AttendeeService();
-        return attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: number[] | null) => {
+        return attendeeService.getList(AttendeeType.GROUP, userId).then((attendeeIds: (string | number)[] | null) => {
             if (!attendeeIds) {
                 return null;
             }
 
-            return this.getListById(attendeeIds, attributes);
+            return this.getListById(attendeeIds as string[], attributes);
         });
     }
 

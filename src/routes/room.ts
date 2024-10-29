@@ -5,7 +5,6 @@ import {
 import { RoomService } from "../service/RoomService";
 import { AiService } from "../service/AiService";
 import { expressjwt } from "express-jwt";
-import { Util } from "../core/util";
 import { Room } from "../model/Room";
 import {
     param,
@@ -22,26 +21,27 @@ import { Chat } from "../model/Chat";
 import { ClientService } from "../service/ClientService";
 import { FirebaseService } from "../service/FirebaseService";
 import { SpaceService } from "../service/SpaceService";
+import { AttachService } from "../service/AttachService";
+import { util } from "../core/util";
 
 const config = require('../config/config');
 const express = require('express');
 const topicRouter = require('./topic');
 const spaceRouter = require('./space');
 const router = express.Router({ mergeParams: true });
-const util: Util = new Util();
 const roomService: RoomService = new RoomService();
 
 router.post(
     '/',
     util.validate([
-        param('group_id').isInt(),
+        param('group_id').isString(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
 
         const ipAddress: string = util.getIPAddress(request);
-        const groupId: number = request.params.group_id;
+        const groupId: string = request.params.group_id;
         const userId: number = parseInt(request.auth.id);
 
         roomService.create(
@@ -63,7 +63,7 @@ router.get(
     '/:id',
     util.validate([
         param('id').isInt(),
-        param('group_id').isInt(),
+        param('group_id').isString(),
     ]),
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
@@ -74,7 +74,7 @@ router.get(
         const firebaseService: FirebaseService = new FirebaseService();
 
         const id: number = parseInt(request.params.id);
-        const groupId: number = parseInt(request.params.group_id)
+        const groupId: string = request.params.group_id;
         const userId: number = parseInt(request.auth.id);
 
         roomService.get(groupId, id).then((room: Room | null) => {
@@ -99,7 +99,7 @@ router.get(
     '/:id/chat',
     util.validate([
         param('id').isInt(),
-        param('group_id').isInt(),
+        param('group_id').isString(),
         query('topic_id').isInt().optional({ nullable: true }),
         query('offset').isInt(),
         query('limit').isInt(),
@@ -134,11 +134,10 @@ router.get(
 
     });
 
-
 router.get(
         '/:id/summary',
         util.validate([
-            param('group_id').isInt(),
+            param('group_id').isString(),
             query('offset').isInt(),
             query('limit').isInt(),
             query('force').isBoolean().optional({ nullable: true }),
@@ -199,7 +198,7 @@ router.get(
 router.get(
     '/',
     util.validate([
-        param('group_id').isInt(),
+        param('group_id').isString(),
         query('offset').isInt(),
         query('limit').isInt(),
     ]),
@@ -207,7 +206,7 @@ router.get(
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
 
-        const groupId: number = parseInt(request.params.group_id);
+        const groupId: string = request.params.group_id;
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
         const before: Date = request.query.before ? new Date(parseInt(request.query.before) * 1000) : new Date();

@@ -1,6 +1,5 @@
 import {
     AllowNull,
-    AutoIncrement,
     BelongsTo,
     Column,
     CreatedAt,
@@ -13,15 +12,15 @@ import {
     Table,
     UpdatedAt,
 } from "sequelize-typescript";
-import {RoomStatus, Status} from "../core/type";
+import { Status } from "../core/type";
 import { User } from "./User";
 
 @Table
 export class Group extends Model {
-    @AutoIncrement
     @PrimaryKey
-    @Column(DataType.INTEGER.UNSIGNED)
-    id!: number;
+    @Length({ max: 11 })
+    @Column(DataType.STRING)
+    id!: string;
 
     @AllowNull
     @Length({ max: 30 })

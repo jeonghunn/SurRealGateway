@@ -28,7 +28,7 @@ const util: Util = new Util();
         '/:key',
         util.validate([
             param('key').isString(),
-            param('group_id').isInt(),
+            param('group_id').isString(),
             param('room_id').isInt(),
         ]),
         expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
@@ -53,7 +53,7 @@ const util: Util = new Util();
     router.post(
         '/:key',
         util.validate([
-            param('group_id').isInt(),
+            param('group_id').isString(),
             param('room_id').isInt(),
             body('based_version').isInt(),
             param('key').isString(),
@@ -72,7 +72,7 @@ const util: Util = new Util();
         const userId: number = parseInt(req.auth.id);
         const key: string = req.params.key;
         const roomId: number = parseInt(req.params.room_id, 10);
-        const groupId: number = parseInt(req.params.room_id, 10);
+        const groupId: string = req.params.room_id;
         const basedVersion: number = parseInt(req.body.based_version, 10);
 
         return spaceService.getByKey(key).then((space: Space) => {

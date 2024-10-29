@@ -40,7 +40,7 @@ const util: Util = new Util();
 router.post(
     '/chat/:chat_id',
     util.validate([
-        param('group_id').isInt(),
+        param('group_id').isString(),
         param('room_id').isInt(),
         param('chat_id').isString(),
     ]),
@@ -55,7 +55,7 @@ router.post(
         return res.status(400).json({errors: errors.array()});
     }
     
-    const groupId: number = parseInt(req.params.group_id, 10);
+    const groupId: string = req.params.group_id;
     const userId: number = parseInt(req.auth.id);
     const chatId: string = req?.params?.chat_id;
 
@@ -96,7 +96,7 @@ router.post(
     router.post(
         '/',
         util.validate([
-            param('group_id').isInt(),
+            param('group_id').isString(),
             param('room_id').isInt(),
             body('topic_id').isInt().optional({ nullable: true }),
             body('space').isString(),
@@ -115,7 +115,7 @@ router.post(
         const userId: number = parseInt(req.auth.id);
         const topicId: number | null = parseInt(req.body.topic_id, 10) || null;
         const roomId: number = parseInt(req.params.room_id, 10);
-        const groupId: number = parseInt(req.params.group_id, 10);
+        const groupId: string = req.params.group_id;
         const spaceAppName: string | null = req.body.space || null;
 
         let spaceCreationPromise: Promise<Space | null> = spaceService.add(
@@ -178,7 +178,7 @@ router.post(
         '/:id',
         util.validate([
             param('id').isInt(),
-            param('group_id').isInt(),
+            param('group_id').isString(),
             param('room_id').isInt(),
         ]),
         expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
