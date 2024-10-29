@@ -134,7 +134,6 @@ router.get(
 
     });
 
-
 router.get(
         '/:id/summary',
         util.validate([

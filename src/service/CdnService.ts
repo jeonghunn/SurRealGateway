@@ -38,7 +38,6 @@ export class CdnService {
 
 
     public getLink(keyValue: string): string {
-
         return `https://${config.aws?.bucket}.s3.${config.aws?.credentials?.region}.amazonaws.com/${this.pathPrefix}${keyValue}`;
     }
 
