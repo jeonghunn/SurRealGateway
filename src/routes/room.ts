@@ -5,7 +5,6 @@ import {
 import { RoomService } from "../service/RoomService";
 import { AiService } from "../service/AiService";
 import { expressjwt } from "express-jwt";
-import { Util } from "../core/util";
 import { Room } from "../model/Room";
 import {
     param,
@@ -23,13 +22,13 @@ import { ClientService } from "../service/ClientService";
 import { FirebaseService } from "../service/FirebaseService";
 import { SpaceService } from "../service/SpaceService";
 import { AttachService } from "../service/AttachService";
+import { util } from "../core/util";
 
 const config = require('../config/config');
 const express = require('express');
 const topicRouter = require('./topic');
 const spaceRouter = require('./space');
 const router = express.Router({ mergeParams: true });
-const util: Util = new Util();
 const roomService: RoomService = new RoomService();
 
 router.post(

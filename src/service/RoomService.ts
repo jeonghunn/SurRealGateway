@@ -156,11 +156,11 @@ export class RoomService {
     }
 
     public getChatMessage(
+        chatService: ChatService,
         attachService: AttachService,
         me: SimpleUser,
         message: LiveMessage,
         ): LiveMessage {
-        const attaches: any[] = [];
                 
         message.createdAt = new Date();
 
@@ -169,32 +169,15 @@ export class RoomService {
         user.id = me.id!;
         user.color = me.color!;
 
-        message?.meta?.attaches?.forEach((attach: any) => {
-            attaches.push({
-                urls: attachService.getUrls({
-                    binary_name: attach.binary_name,
-                } as Attach),
-                binary_name: attach.binary_name,
-                type: attach.type,
-                name: attach.name,
-                extension: attach.extension,
-                mimetype: attach.mimetype,
-                size: attach.size,
-                status: attach.status,
-            });
-
-        });
-
         message.user = user;
 
-        if(message?.meta?.attaches) {
-            message.meta.attaches = attaches;
-        }
+        message.meta = chatService.getRefreshedMeta(attachService, message.meta);
         
         return message;
     }
 
     public getFormattedMessage(
+        chatService: ChatService,
         attachService: AttachService,
         content: any,
         me: SimpleUser,
@@ -203,7 +186,12 @@ export class RoomService {
 
         switch (message.T) {
             case CommunicationType.CHAT:
-                return this.getChatMessage(attachService, me, message);
+                return this.getChatMessage(
+                    chatService,
+                    attachService,
+                    me,
+                    message,
+                );
             case CommunicationType.TOPIC:
                 return message;
             default:
@@ -212,6 +200,7 @@ export class RoomService {
     }
 
     public parseMessage(
+        chatService: ChatService,
         attachService: AttachService,
         content: any,
         me: SimpleUser,
@@ -219,7 +208,12 @@ export class RoomService {
 
         switch (content[0]) {
             case 123:
-                return this.getFormattedMessage(attachService, content, me);
+                return this.getFormattedMessage(
+                    chatService,
+                    attachService,
+                    content,
+                    me,
+                );
             default:
 
                 const liveMessage: LiveMessage = new LiveMessage();

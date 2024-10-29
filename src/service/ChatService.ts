@@ -59,6 +59,37 @@ export class ChatService {
         )
     }
 
+
+    public getRefreshedMeta(
+        attachService: AttachService,
+        meta: any,
+    ): any {
+        const attaches: any[] = [];
+        
+        meta?.attaches?.forEach((attach: any) => {
+            attaches.push({
+                urls: attachService.getUrls({
+                    binary_name: attach.binary_name,
+                } as Attach),
+                binary_name: attach.binary_name,
+                type: attach.type,
+                name: attach.name,
+                extension: attach.extension,
+                mimetype: attach.mimetype,
+                size: attach.size,
+                status: attach.status,
+            });
+
+        });
+
+        if(meta?.attaches) {
+            meta.attaches = attaches;
+        }
+
+        return meta;
+    }
+
+
     public get(id: string): Promise<Chat | null> {
         return Chat.findByPk(id);
     }
