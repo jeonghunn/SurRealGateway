@@ -57,7 +57,7 @@ export class Attach extends Model {
     @Column(DataType.TEXT)
     binary_name!: string;
 
-    @Length({ max: 30 })
+    @Length({ max: 128 })
     @Column(DataType.TEXT)
     mimetype!: string;
 
