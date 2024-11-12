@@ -54,6 +54,9 @@ export class AttachService {
             });
 
             return attach;
+        }).catch((err: any) => {
+            console.log('[AttachService] : Create failed. ', err);
+            return null;
         });
     }
 
