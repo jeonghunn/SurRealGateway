@@ -21,7 +21,6 @@ import { Chat } from "../model/Chat";
 import { ClientService } from "../service/ClientService";
 import { FirebaseService } from "../service/FirebaseService";
 import { SpaceService } from "../service/SpaceService";
-import { AttachService } from "../service/AttachService";
 import { util } from "../core/util";
 
 const config = require('../config/config');
@@ -29,7 +28,6 @@ const express = require('express');
 const topicRouter = require('./topic');
 const spaceRouter = require('./space');
 const router = express.Router({ mergeParams: true });
-const roomService: RoomService = new RoomService();
 
 router.post(
     '/',
@@ -39,6 +37,8 @@ router.post(
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
+
+        const roomService: RoomService = new RoomService();
 
         const ipAddress: string = util.getIPAddress(request);
         const groupId: string = request.params.group_id;
@@ -68,10 +68,10 @@ router.get(
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
-        const roomService: RoomService = new RoomService();
         const attendeeService: AttendeeService = new AttendeeService();
         const clientService: ClientService = new ClientService();
         const firebaseService: FirebaseService = new FirebaseService();
+        const roomService: RoomService = new RoomService();
 
         const id: number = parseInt(request.params.id);
         const groupId: string = request.params.group_id;
@@ -205,6 +205,8 @@ router.get(
     expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
     util.requirePermission(AttendeeType.GROUP, AttendeePermission.MEMBER),
     (request: any, response: Response, next: NextFunction) => {
+
+        const roomService: RoomService = new RoomService();
 
         const groupId: string = request.params.group_id;
         const offset: number = parseInt(request.query.offset);

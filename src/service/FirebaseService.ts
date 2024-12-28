@@ -1,6 +1,6 @@
 
 import { google } from 'googleapis';
-import { getMessaging } from 'firebase-admin/messaging';
+import { getMessaging, MulticastMessage } from 'firebase-admin/messaging';
 import { AttendeeService } from './AttendeeService';
 import { Client } from '../model/Client';
 import { AttendeeType } from '../core/type';
@@ -10,6 +10,10 @@ const request = require('request');
 
 
 export class FirebaseService {
+
+    private readonly APP_NAME: string = 'surreal-b57e6';
+    private readonly PUSH_API_URL: string = `https://fcm.googleapis.com/v1/projects/${this.APP_NAME}/messages:send`;
+    private readonly AUTH_MESSAGING_API_URL: string = 'https://www.googleapis.com/auth/firebase.messaging';
 
 
     public subscribeToTopic(tokens: string[], topic: string): Promise<any> {
@@ -97,22 +101,27 @@ export class FirebaseService {
                 }
             }
         }).then((response: any) => {
+            if (!response[0]?.success) {
+                console.log('[FirebaseService] Error:', response.success);
+                return response;
+            }
+            
             console.log('Successfully sent message:', response);
             return response;
         }).catch((error: any) => {
             console.log('[FirebaseService] Error:', error);
-            return null;
+            return {};
         });
     }
 
     public getAccessToken(): Promise<string> {
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
           const key = config.google;
           const jwtClient = new google.auth.JWT(
             key.client_email,
             null,
             key.private_key,
-            'https://www.googleapis.com/auth/firebase.messaging',
+            this.AUTH_MESSAGING_API_URL,
             null
           );
           jwtClient.authorize((err: any, tokens: any) =>{
@@ -125,46 +134,86 @@ export class FirebaseService {
         });
     }
 
-    public sendNotification(token: string, title: string, body: string, data: any): Promise<any> {
-        return this.getAccessToken().then((accessToken: string) => {
-            const message = {
-                message: {
-                  notification: {
-                    title,
-                    body,
-                  },
-                  data,
-                  token,
-                  webpush: {
-                    fcm_options: {
-                      link: "https://dummypage.com"
-                    }
-                  }
-                },
-              };
-            const url = 'https://fcm.googleapis.com/v1/projects/surreal-b57e6/messages:send';
-            const options = {
-                method: 'POST',
-                uri: url,
-                body: message,
-                json: true,
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              };
-            
-            return request.post(options, (err: any, httpResponse: any, body: any) => {
-                if (err) {
-                  console.error('Error while sending: ', err);
-                  return;
+    public sendPush(
+        token: string,
+        title: string,
+        body: string,
+        url: string,
+        message: any = null,
+        ): Promise<any> {
+        return getMessaging().send({
+            data: {
+                title,
+                body,
+                url,
+                user_id: message?.user?.id?.toString()!!,
+            },
+            token,
+            webpush: {
+                fcmOptions: {
+                    link: url,
                 }
-                console.log('Sent, http code: ', httpResponse.statusCode);
-                console.log(body);
-              }
-            );
-          });
-    }
+            }
+        }).then((response: any) => {
+
+            if (!response[0]?.success) {
+                console.log('[FirebaseService] Error:', response.success);
+                return response;
+            }
+            
+            console.log('Successfully sent message:', response);
+            return response;
+
+
+        }).catch((error: any) => {
+            console.log('[FirebaseService] Error:', error);
+            return {};
+        });
+
+      }
+
+      public sendPushMultiple(
+        tokens: string[],
+        title: string,
+        body: string,
+        url: string,
+        message: any = null,
+        ): Promise<any> {
+        
+        if (!tokens || tokens.length === 0) {
+            return Promise.resolve();
+        }
+
+        return getMessaging().sendEachForMulticast({
+            data: {
+                title,
+                body,
+                url,
+                user_id: message?.user?.id?.toString()!!,
+            },
+            tokens,
+            webpush: {
+                fcmOptions: {
+                    link: url,
+                }
+            }
+        }).then((response: any) => {
+
+            if (!response?.responses[0].success) {
+                console.log('[FirebaseService] Error:', response?.responses[0].error);
+                return response;
+            }
+            
+            console.log('Successfully sent message:', response);
+            return response;
+        }).catch((error: any) => {
+            console.log('[FirebaseService] Error:', error);
+            return {};
+        });
+
+      }
+      
+       
 
 
 }

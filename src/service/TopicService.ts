@@ -13,6 +13,7 @@ import { ChatService } from "./ChatService";
 import { LiveRoomService } from "./LiveRoomService";
 import { Room } from "../model/Room";
 import { Space } from "../model/Space";
+import { ClientService } from "./ClientService";
 
 export class TopicService {
 
@@ -55,6 +56,7 @@ export class TopicService {
 
     public add(
         liveRoomService: LiveRoomService,
+        clientService: ClientService,
         name: string,
         room: Room,
         parentId: number,
@@ -95,7 +97,7 @@ export class TopicService {
                 }
 
             };
-            liveRoomService.send(room?.id!!, liveMessage, room, parentId);
+            liveRoomService.send(clientService, room?.id!!, liveMessage, room, parentId);
 
             return topic;
         }).catch((error: any) => {

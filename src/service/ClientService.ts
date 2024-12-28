@@ -5,11 +5,12 @@ import {
     Status,
     UserStatus,
 } from "../core/type";
-import {Op} from "sequelize";
-import { AttendeeService } from "./AttendeeService";
-import { User } from "../model/User";
-import { Room } from "../model/Room";
+import {
+    col,
+    Op,
+} from "sequelize";
 import { Client } from "../model/Client";
+import { Attendee } from "../model/Attendee";
 
 export class ClientService {
 
@@ -29,6 +30,36 @@ export class ClientService {
             }
         )
     }
+
+    public getAttendeeTokens(targetId: string, excludedUserId: number = null): Promise<string[]> {
+
+        return Client.findAll({
+            where: {
+                status: Status.NORMAL,
+            },
+            include: [
+                {
+                    model: Attendee,
+                    as: 'attendee',
+                    required: true,
+                    on: {
+                        user_id: { [Op.eq]: col('Client.user_id') },
+                    },
+                    where: {
+                        target_id: targetId,
+                        user_id: {
+                            [Op.not]: excludedUserId,
+                        },
+                    },
+                },
+            ],
+        }).then((clients: Client[]) => {
+            return clients.map((client: Client) => {
+                return client.token;
+            });
+        });
+    }
+
 
     public getOSAndBrowser(userAgent: string): { os: string, browser: string } {
         let os = 'Unknown';
