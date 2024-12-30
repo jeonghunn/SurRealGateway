@@ -102,7 +102,7 @@ router.post(
                 user.color,
                 );
 
-            response.cookie('Authorization', `Bearer ${token}`, userService.authCookieOptions);
+            response.cookie('Authorization', encodeURIComponent(`Bearer ${token}`), userService.authCookieOptions);
 
             return response.json({
                 user_id: user.id,

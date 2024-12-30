@@ -34,8 +34,6 @@ router.post(
     (request: any, response: Response, next: NextFunction) => {
 
         const clientService: ClientService = new ClientService();
-        const firebaseService: FirebaseService = new FirebaseService();
-        const attendeeService: AttendeeService = new AttendeeService();
 
         const ipAddress: string = util.getIPAddress(request);
         const userAgent: string = util.getUserAgent(request);
@@ -44,15 +42,7 @@ router.post(
         return clientService.get(request.body.key).then((currentClient: Client | null) => {
 
             if (currentClient && currentClient.token === request.body.token) {
-
-                firebaseService.registerAttendee(
-                    attendeeService,
-                    userId,
-                    currentClient,
-                    null,
-                );
-
-               return response.json(currentClient);
+                return response.json(currentClient);
             }
 
             return clientService.add(
@@ -63,13 +53,6 @@ router.post(
                 request.body.token,
             ).then((result: [Client, boolean]) => {
                 const client: Client = result[0];
-
-                firebaseService.registerAttendee(
-                    attendeeService,
-                    userId,
-                    client,
-                    currentClient,
-                );
 
                 return response.json(client);
                 

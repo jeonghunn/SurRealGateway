@@ -7,6 +7,7 @@ import {
     DataType,
     Default,
     ForeignKey,
+    HasOne,
     Index,
     Length,
     Model,
@@ -17,6 +18,7 @@ import {
 } from "sequelize-typescript";
 import { Status } from "../core/type";
 import { User } from "./User";
+import { Attendee } from "./Attendee";
 
 @Table
 export class Client extends Model {
@@ -70,6 +72,8 @@ export class Client extends Model {
     @Index
     token!: string;
 
+    @HasOne(() => Attendee, 'user_id')
+    attendee!: Attendee;
 
 }
 

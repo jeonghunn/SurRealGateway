@@ -2,7 +2,6 @@ import {
     NextFunction,
     Response,
 } from "express";
-import { UserService } from "../service/UserService";
 import {
     body,
     param,
@@ -16,21 +15,19 @@ import { Relation } from "../model/Relation";
 import {
     AttendeePermission,
     AttendeeType,
-    RelationCategory,
-    RelationStatus,
 } from "../core/type";
 import {GroupService} from "../service/GroupService";
 import { ChatService } from "../service/ChatService";
 import { Chat } from "../model/Chat";
 import { TopicService } from "../service/TopicService";
 import { Topic } from "../model/Topic";
-import { LiveRoomService } from "../service/LiveRoomService";
 import { liveRoomService } from "../bin/www";
 import { RoomService } from "../service/RoomService";
 import { Room } from "../model/Room";
 import { SpaceService } from "../service/SpaceService";
 import { v4 } from "uuid";
 import { Space } from "../model/Space";
+import { ClientService } from "../service/ClientService";
 
 const config = require('../config/config');
 const express = require('express');
@@ -50,6 +47,7 @@ router.post(
     const roomService: RoomService = new RoomService();
     const chatService: ChatService = new ChatService();
     const topicService: TopicService = new TopicService();
+    const clientService: ClientService = new ClientService();
     const errors: any = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({errors: errors.array()});
@@ -74,6 +72,7 @@ router.post(
             roomService.get(groupId, roomId).then((room: Room) => {
                 return topicService.add(
                     liveRoomService,
+                    clientService,
                     req.body.name,
                     room,
                     chat.topic_id,
@@ -107,6 +106,8 @@ router.post(
         const topicService: TopicService = new TopicService();
         const spaceService: SpaceService = new SpaceService();
         const roomService: RoomService = new RoomService();
+        const clientService: ClientService = new ClientService();
+
         const errors: any = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({errors: errors.array()});
@@ -138,6 +139,7 @@ router.post(
     
                 let topicCreationPromise: Promise<Topic | null> = topicService.add(
                     liveRoomService,
+                    clientService,
                     req.body.name,
                     room,       
                     topicId,
