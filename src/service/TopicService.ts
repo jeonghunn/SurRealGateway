@@ -89,6 +89,7 @@ export class TopicService {
                 id: topic?.chat_id!!,
                 category: ChatCategory.TOPIC_PREVIEW,
                 T: CommunicationType.CHAT,
+                createdAt: new Date(),
                 user,
                 content: topic?.name!!,
                 topic_id: parentId,
