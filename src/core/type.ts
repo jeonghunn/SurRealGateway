@@ -103,6 +103,7 @@ export enum CommunicationType {
 export class Communication {
     public T: CommunicationType | undefined;
     public createdAt?: Date;
+    public ticket_id?: string;
 }
 
 export class CommunicationResult extends Communication {
