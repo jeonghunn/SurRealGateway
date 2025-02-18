@@ -5,7 +5,6 @@ import {
     CreatedAt,
     DataType,
     ForeignKey,
-    HasMany,
     Index,
     Length,
     Model,
@@ -14,7 +13,6 @@ import {
     UpdatedAt,
 } from "sequelize-typescript";
 import {
-    ChatType,
     Status,
 } from "../core/type";
 import { User } from "./User";

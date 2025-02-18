@@ -59,7 +59,7 @@ router.post(
 
     return chatService.get(chatId).then((chat: Chat) => {
         const roomId: number = chat ? parseInt(req.params.room_id, 10): 0;
-        console.log("chat", chat);
+
         if (!chat || chat.room_id !== roomId) {
             return res.status(404).json({errors: [{msg: 'Chat not found'}]});
         }
@@ -156,7 +156,6 @@ router.post(
                 topicPromises.push(topicCreationPromise);
     
                 return Promise.all(topicPromises).then((topics: Topic[]) => {
-                    console.log("topics", topics);
                     const parentTopic: Topic | null = topics[0];
                     const newTopic: Topic | null = topics[1];
     
