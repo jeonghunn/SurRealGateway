@@ -77,7 +77,7 @@ router.post(
                     room,
                     chat.topic_id,
                     req.body.category,
-                    chat.id,
+                    chat,
                     userId,
                     req.body.meta,
                     ).then((topic: Topic) => {
@@ -97,7 +97,7 @@ router.post(
         util.validate([
             param('group_id').isString(),
             param('room_id').isInt(),
-            body('topic_id').isInt().optional({ nullable: true }),
+            body('topic_id').isString().optional({ nullable: true }),
             body('space').isString(),
         ]),
         expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
@@ -114,7 +114,7 @@ router.post(
         }
         
         const userId: number = parseInt(req.auth.id);
-        const topicId: number | null = parseInt(req.body.topic_id, 10) || null;
+        const topicId: string | null = req.body.topic_id;
         const roomId: number = parseInt(req.params.room_id, 10);
         const groupId: string = req.params.group_id;
         const spaceAppName: string | null = req.body.space || null;
@@ -188,7 +188,7 @@ router.post(
         (req: any, res: Response, next: NextFunction) => {
 
             const topicService: TopicService = new TopicService();
-            const id: number = parseInt(req.params.id, 10);
+            const id: string = req?.params?.id || null;
 
             return topicService.get(id).then((topic: Topic) => {
                 if (!topic) {

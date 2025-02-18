@@ -25,10 +25,10 @@ import { Space } from "./Space";
 
 @Table
 export class Topic extends Model {
-    @AutoIncrement
     @PrimaryKey
-    @Column(DataType.BIGINT.UNSIGNED)
-    id!: number;
+    @Length({max: 36})
+    @Column(DataType.TEXT)
+    id!: string;
 
     @Length({max: 140})
     @Column(DataType.TEXT)
@@ -45,10 +45,10 @@ export class Topic extends Model {
     @Index
     @ForeignKey(() => Chat)
     @Column({
-        type: DataType.BIGINT.UNSIGNED,
+        type: DataType.TEXT,
         allowNull: true,
     })
-    chat_id!: number;
+    chat_id!: string;
 
     @Index
     @ForeignKey(() => Room)

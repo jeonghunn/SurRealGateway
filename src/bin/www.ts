@@ -22,6 +22,7 @@ import { GroupService } from "../service/GroupService";
 import { Topic } from "../model/Topic";
 import { ChatService } from "../service/ChatService";
 import { ClientService } from "../service/ClientService";
+import { TopicService } from "../service/TopicService";
 
 var app = require('../app');
 var debug = require('debug')('surrealgateway:server');
@@ -54,6 +55,7 @@ const attendeeService: AttendeeService = new AttendeeService();
 const chatService: ChatService = new ChatService();
 const attachService: AttachService = new AttachService();
 const clientService: ClientService = new ClientService();
+const topicService: TopicService = new TopicService();
 
 wsServer.on('connection', (socket: any, request: any) => {
 
@@ -133,7 +135,14 @@ wsServer.on('connection', (socket: any, request: any) => {
         return;
       }
 
-      liveRoomService.send(clientService, roomId, liveMessage, room, liveMessage?.topic_id);
+      liveRoomService.send(
+        clientService,
+        topicService,
+        roomId,
+        liveMessage,
+        room,
+        liveMessage?.topic_id,
+      );
 
     } catch (e: any) {
       console.log("ERROR", e);

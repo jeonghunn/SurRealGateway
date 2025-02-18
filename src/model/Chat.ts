@@ -53,9 +53,9 @@ export class Chat extends Model {
     @Index
     @ForeignKey(() => Topic)
     @Column({
-        type: DataType.BIGINT.UNSIGNED,
+        type: DataType.TEXT,
     })
-    topic_id!: number;
+    topic_id!: string;
 
     @Index
     @ForeignKey(() => Room)

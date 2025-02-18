@@ -20,33 +20,17 @@ export class GroupService {
     public create(meta: any): Promise<Group> {
         const roomService: RoomService = new RoomService();
         
-        return this.getNotDuplicatedId().then((id: string) => {
+        return util.getNotDuplicatedId(Group).then((id: string) => {
             console.log('GroupService: create: id: ', id);
             meta.id = id;
-            return Group.create(meta).then((group: Group) => {
-                return roomService.create(meta.user_id, group.id).then((room: Room) => {
-                    return group;
+            return Group.create(meta).then((result: Group) => {
+                return roomService.create(meta.user_id, result.id).then((room: Room) => {
+                    return result;
                 });
             });
         });
     }
 
-    public getNotDuplicatedId(length: number = 6): Promise<string> {
-        const id: string = util.getRandomString(length);
-
-        return Group.findOne({
-            where: {
-                id,
-            }
-        }).then((group: Group | null) => {
-            if (group) {
-                return this.getNotDuplicatedId(length + 1);
-            }
-
-            return id;
-        });
-        
-    }
 
     public get(id: string): Promise<Group | null> {
         return Group.findOne({

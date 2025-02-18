@@ -32,7 +32,7 @@ export class SpaceService {
         version: number,
         meta: string | null = null,
         status: SpaceStatus = SpaceStatus.NORMAL,
-        topic_id: number | null = null,
+        topic_id: string | null = null,
         ): Promise<Space> {
             return Space.create({
                 key,
@@ -72,7 +72,7 @@ export class SpaceService {
 
     public getByCategory(
         roomId: number,
-        topicId: number,
+        topicId: string,
         category: string,
         ): Promise<Space | null> {
         return Space.findOne({
@@ -98,7 +98,7 @@ export class SpaceService {
         status: SpaceStatus = SpaceStatus.NORMAL,
         title: string = '',
         content: string | null = null,
-        topicId: number | null = null,
+        topicId: string | null = null,
         ): Promise<Space | null> {
         return this.create(
             v4().toString(),

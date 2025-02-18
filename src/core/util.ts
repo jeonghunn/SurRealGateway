@@ -14,6 +14,8 @@ import { AttendeeService } from "../service/AttendeeService";
 import { Attendee } from "../model/Attendee";
 import { GroupService } from "../service/GroupService";
 import { Group } from "../model/Group";
+import { v4 } from "uuid";
+import { Model } from "sequelize";
 
 export class Util {
 
@@ -92,6 +94,11 @@ export class Util {
         return request.headers['user-agent'];
     }
 
+    public getUUID(): string {
+        const tokens: string[] = v4().split('-');
+        return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
+    }
+
     public getRandomString(length: number): string {
         const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result: string = '';
@@ -100,6 +107,23 @@ export class Util {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;
+    }
+
+    public getNotDuplicatedId(model: any, length: number = 6): Promise<string> {
+        const id: string = this.getRandomString(length);
+
+        return model.findOne({
+            where: {
+                id,
+            }
+        }).then((result: any | null) => {
+            if (result) {
+                return this.getNotDuplicatedId(length + 1);
+            }
+
+            return id;
+        });
+        
     }
 
 

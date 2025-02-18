@@ -100,7 +100,7 @@ router.get(
     util.validate([
         param('id').isInt(),
         param('group_id').isString(),
-        query('topic_id').isInt().optional({ nullable: true }),
+        query('topic_id').isString().optional({ nullable: true }),
         query('offset').isInt(),
         query('limit').isInt(),
     ]),
@@ -110,7 +110,7 @@ router.get(
                 const chatService: ChatService = new ChatService();
 
         const id: number = parseInt(request.params.id);
-        const topicId: number | null = request.query.topic_id ? parseInt(request.query.topic_id) : null;
+        const topicId: string | null = request.query.topic_id || null;
         const offset: number = parseInt(request.query.offset);
         const limit: number = parseInt(request.query.limit);
         const future: boolean = parseInt(request.query.future) === 1;
@@ -149,7 +149,7 @@ router.get(
             const aiService: AiService = new AiService();
 
             const id: number = parseInt(request.params.id);
-            const topicId: number | null = request.query.topic_id ? parseInt(request.query.topic_id) : null;
+            const topicId: string | null = request.query.topic_id || null;
             const offset: number = parseInt(request.query.offset);
             const limit: number = parseInt(request.query.limit);
             const future: boolean = parseInt(request.query.future) === 1;

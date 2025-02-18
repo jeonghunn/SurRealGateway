@@ -3,6 +3,7 @@ import {
     CommunicationType,
     LiveMessage,
     Status,
+    TopicCategory,
 } from "../core/type";
 import { ChatService } from "./ChatService";
 import { Chat } from "../model/Chat";
@@ -11,6 +12,8 @@ import { Room } from "../model/Room";
 import { Topic } from "../model/Topic";
 import { v4 } from 'uuid';
 import { ClientService } from "./ClientService";
+import { TopicService } from "./TopicService";
+import { util } from "../core/util";
 
 const config = require('../config/config');
 
@@ -57,48 +60,25 @@ export class LiveRoomService {
         return this.getLiveListInstance(isSpace).set(id, []).get(id);
     }
 
-    public getUUID(): string {
-        const tokens: string[] = v4().split('-');
-        return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-    }
-
 
     public send(
         clientService: ClientService,
+        topicService: TopicService,
         id: number,
         message: LiveMessage,
         room: Room = null,
-        topicId: number | null = null,
+        topicId: string | null = null,
         ): void {
 
         switch (message.T) {
             case CommunicationType.CHAT:
-                const chatId: string = this.getUUID();
-                message.id = chatId;
-                message.category = message.category || ChatCategory.MESSAGE;
-
-                this.sendSocketMessageToRoom(id, JSON.stringify(message), false);
-
-                const chat: Chat = new Chat();
-
-                chat.id = chatId;
-                chat.category = message.category;
-                chat.user_id = message.user?.id!!;
-                chat.createdAt = message.createdAt!!;
-                chat.room_id = id;
-                chat.topic_id = topicId;
-                chat.content = message.content!!;
-                chat.status = Status.NORMAL;
-                chat.meta = message.meta;
-
-                this.chatService.save(chat);
-                this.sendNotification(
-                    room.group_id,
-                    room,
-                    message,
-                    [],
-                    chat.user_id,
+                this.sendChat(
                     clientService,
+                    topicService,
+                    id,
+                    message,
+                    room,
+                    topicId,
                 );
                 break;
             case CommunicationType.LIVE:
@@ -108,6 +88,75 @@ export class LiveRoomService {
         }
 
     }
+
+    public sendChat(
+        clientService: ClientService,
+        topicService: TopicService,
+        id: number,
+        message: LiveMessage,
+        room: Room,
+        topicId: string | null = null,
+    ) {
+        const chatId: string = util.getUUID();
+        message.id = chatId;
+        message.category = message.category || ChatCategory.MESSAGE;
+
+        const chat: Chat = new Chat();
+
+        chat.id = chatId;
+        chat.category = message.category;
+        chat.user_id = message.user?.id!!;
+        chat.createdAt = message.createdAt!!;
+        chat.room_id = id;
+        chat.topic_id = topicId;
+        chat.content = message.content!!;
+        chat.status = Status.NORMAL;
+        chat.meta = message.meta;
+
+
+        if (message?.meta?.reply_to) {
+             topicService.add(
+                this,
+                clientService,
+                null,
+                room,
+                topicId,
+                TopicCategory.REPLY,
+                message?.meta?.reply_to,
+                message.user?.id!!,
+             ).then((topic: Topic | null) => {
+                    if (topic) {
+                        message.topic_id = topic.id;
+                        chat.topic_id = topic.id;
+                        this.postChat(clientService, id, message, room, chat);
+                    }
+                });
+    
+            return;
+        }
+
+        this.postChat(clientService, id, message, room, chat);
+    }
+
+    public postChat(
+        clientService: ClientService,
+        id: number,
+        message: LiveMessage,
+        room: Room,
+        chat: Chat,
+    ): void {
+        this.sendSocketMessageToRoom(id, JSON.stringify(message), false);
+        this.chatService.save(chat);
+        this.sendNotification(
+            room.group_id,
+            room,
+            message,
+            [],
+            chat.user_id,
+            clientService,
+        );
+    }
+
 
     public sendNotification(
         groupId: string,
