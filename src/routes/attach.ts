@@ -3,7 +3,7 @@ import {
     Response
 } from "express";
 import { expressjwt } from "express-jwt";
-import { Util } from "../core/util";
+import { util } from "../core/util";
 import {AttachService} from "../service/AttachService";
 import {RoomService} from "../service/RoomService";
 import {upload} from "../app";
@@ -17,7 +17,6 @@ import { storage } from "googleapis/build/src/apis/storage";
 const config = require('../config/config');
 const express = require('express');
 const router = express.Router();
-const util: Util = new Util();
 
 router.post(
     '/',
