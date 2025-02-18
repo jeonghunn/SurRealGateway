@@ -178,7 +178,7 @@ router.post(
     router.get(
         '/:id',
         util.validate([
-            param('id').isInt(),
+            param('id').isString(),
             param('group_id').isString(),
             param('room_id').isInt(),
         ]),
