@@ -105,6 +105,79 @@ export class TopicService {
         ipAddress: string | null = null,
     ): Promise<Topic> {
 
+        if (chat) {
+            return this.getByChatId(chat?.id!!).then((topic: Topic | null) => {
+                if (topic) {
+
+                    this.sendTopicCardToChat(
+                        liveRoomService,
+                        clientService,
+                        topic?.id,
+                        name,
+                        room,
+                        parentId,
+                        chat,
+                        userId,
+                    );
+            
+                    return topic;
+                }
+
+                return this.generateIdAndCreate(
+                    liveRoomService,
+                    clientService,
+                    name,
+                    room,
+                    parentId,
+                    category,
+                    chat,
+                    userId,
+                    meta,
+                    spaceId,
+                    status,
+                    ipAddress,
+                );
+    
+            }).catch((error: any) => {
+                console.log('Error: add from TopicService', error);
+                return new Promise((resolve, reject) => {
+                    reject(error);
+                });
+            }
+            );    
+
+        }
+
+        return this.generateIdAndCreate(
+            liveRoomService,
+            clientService,
+            name,
+            room,
+            parentId,
+            category,
+            chat,
+            userId,
+            meta,
+            spaceId,
+            status,
+            ipAddress,
+        );
+    }
+
+    public generateIdAndCreate(
+        liveRoomService: LiveRoomService,
+        clientService: ClientService,
+        name: string,
+        room: Room,
+        parentId: string,
+        category: string | null,
+        chat: Chat | null,
+        userId: number,
+        meta: string | null = null,
+        spaceId: string | null = null,
+        status: Status = Status.NORMAL,
+        ipAddress: string | null = null,
+    ) {
         return util.getNotDuplicatedId(Topic).then((id: string) => {
             this.sendTopicCardToChat(
                 liveRoomService,
