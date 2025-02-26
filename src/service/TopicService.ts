@@ -70,7 +70,7 @@ export class TopicService {
         const user: User = new User();
 
         user.id = userId;
-        user.name = name;
+        //user.name = name;
         
         const liveMessage: LiveMessage = {
             id: chat?.id!!,
@@ -153,6 +153,20 @@ export class TopicService {
                     attributes: ['id', 'key'],
 
                 },
+                {
+                    model: Chat,
+                    as: 'chat',
+                    required: false,
+                    attributes: ['id', 'category', 'content', 'createdAt', 'meta'],
+                    include: [
+                        {
+                            model: User,
+                            as: 'user',
+                            required: false,
+                            attributes: ['id', 'name', 'color'],
+                        },
+                    ],
+                }
             ],
         }).catch((e) => {
             console.log('Error: get from TopicService', e);
