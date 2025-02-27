@@ -48,6 +48,9 @@ export class Topic extends Model {
     })
     chat_id!: string;
 
+    @BelongsTo(() => Chat, 'chat_id')
+    chat! : Chat;
+
     @Index
     @ForeignKey(() => Room)
     @Column({
