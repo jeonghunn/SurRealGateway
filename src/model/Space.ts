@@ -58,10 +58,10 @@ export class Space extends Model {
     room_id!: number;
 
     @Column({
-        type: DataType.BIGINT.UNSIGNED,
+        type: DataType.TEXT,
         allowNull: true,
     })
-    topic_id!: number;
+    topic_id!: string;
 
     @Column(DataType.INTEGER)
     status!: SpaceStatus;

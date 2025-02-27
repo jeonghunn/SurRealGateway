@@ -37,11 +37,14 @@ export class ClientService {
             where: {
                 status: Status.NORMAL,
             },
+            attributes: ['token'],
+            group: ['Client.id'],
             include: [
                 {
                     model: Attendee,
                     as: 'attendee',
                     required: true,
+                    attributes: [],
                     on: {
                         user_id: { [Op.eq]: col('Client.user_id') },
                     },

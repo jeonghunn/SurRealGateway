@@ -13,7 +13,7 @@ export class ChatService {
 
     public getList(
         roomId: number,
-        topicId: number | null,
+        topicId: string | null,
         date: Date,
         offset: number = 0,
         limit: number = 15,

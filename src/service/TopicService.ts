@@ -14,6 +14,7 @@ import { LiveRoomService } from "./LiveRoomService";
 import { Room } from "../model/Room";
 import { Space } from "../model/Space";
 import { ClientService } from "./ClientService";
+import { util } from "../core/util";
 
 export class TopicService {
 
@@ -22,9 +23,10 @@ export class TopicService {
     }
 
     public create(
+        id: string,
         name: string,
         roomId: number,
-        parentId: number,
+        parentId: string,
         category: string | null,
         chatId: string | null,
         userId: number,
@@ -36,6 +38,7 @@ export class TopicService {
 
 
         return Topic.create({
+            id,
             name,
             chat_id: chatId,
             room_id: roomId,
@@ -54,59 +57,162 @@ export class TopicService {
 
     }
 
+    public sendTopicCardToChat(
+        liveRoomService: LiveRoomService,
+        clientService: ClientService,
+        id: string,
+        name: string,
+        room: Room,
+        parentId: string,
+        chat: Chat,
+        userId: number,
+    ) {
+        const user: User = new User();
+
+        user.id = userId;
+        //user.name = name;
+        
+        const liveMessage: LiveMessage = {
+            id: chat?.id!!,
+            category: ChatCategory.TOPIC_PREVIEW,
+            T: CommunicationType.CHAT,
+            createdAt: new Date(),
+            user,
+            content: name,
+            topic_id: parentId,
+            meta: {
+                child_topic_id: id,
+                chat, 
+            }
+
+        };
+
+        liveRoomService.send(clientService, this ,room?.id!!, liveMessage, room, parentId);
+    }
+
     public add(
         liveRoomService: LiveRoomService,
         clientService: ClientService,
         name: string,
         room: Room,
-        parentId: number,
+        parentId: string,
         category: string | null,
-        chatId: string | null,
+        chat: Chat | null,
         userId: number,
         meta: string | null = null,
         spaceId: string | null = null,
         status: Status = Status.NORMAL,
         ipAddress: string | null = null,
     ): Promise<Topic> {
-        return this.create(
+
+        if (chat) {
+            return this.getByChatId(chat?.id!!).then((topic: Topic | null) => {
+                if (topic) {
+
+                    this.sendTopicCardToChat(
+                        liveRoomService,
+                        clientService,
+                        topic?.id,
+                        name,
+                        room,
+                        parentId,
+                        chat,
+                        userId,
+                    );
+            
+                    return topic;
+                }
+
+                return this.generateIdAndCreate(
+                    liveRoomService,
+                    clientService,
+                    name,
+                    room,
+                    parentId,
+                    category,
+                    chat,
+                    userId,
+                    meta,
+                    spaceId,
+                    status,
+                    ipAddress,
+                );
+    
+            }).catch((error: any) => {
+                console.log('Error: add from TopicService', error);
+                return new Promise((resolve, reject) => {
+                    reject(error);
+                });
+            }
+            );    
+
+        }
+
+        return this.generateIdAndCreate(
+            liveRoomService,
+            clientService,
             name,
-            room?.id!!,
+            room,
             parentId,
             category,
-            chatId,
+            chat,
             userId,
             meta,
             spaceId,
             status,
             ipAddress,
-        ).then((topic: Topic | null) => {
-            const user: User = new User();
+        );
+    }
 
-            user.id = userId;
-            user.name = name;
+    public generateIdAndCreate(
+        liveRoomService: LiveRoomService,
+        clientService: ClientService,
+        name: string,
+        room: Room,
+        parentId: string,
+        category: string | null,
+        chat: Chat | null,
+        userId: number,
+        meta: string | null = null,
+        spaceId: string | null = null,
+        status: Status = Status.NORMAL,
+        ipAddress: string | null = null,
+    ) {
+        return util.getNotDuplicatedId(Topic).then((id: string) => {
+            this.sendTopicCardToChat(
+                liveRoomService,
+                clientService,
+                id,
+                name,
+                room,
+                parentId,
+                chat,
+                userId,
+            );
             
-            const liveMessage: LiveMessage = {
-                id: topic?.chat_id!!,
-                category: ChatCategory.TOPIC_PREVIEW,
-                T: CommunicationType.CHAT,
-                user,
-                content: topic?.name!!,
-                topic_id: parentId,
-                meta: {
-                    child_topic_id: topic?.id!!,
-                }
+            return this.create(
+                id,
+                name,
+                room?.id!!,
+                parentId,
+                category,
+                chat?.id!!,
+                userId,
+                meta,
+                spaceId,
+                status,
+                ipAddress,
+            ).then((topic: Topic | null) => {
+                return topic;
+            });
 
-            };
-            liveRoomService.send(clientService, room?.id!!, liveMessage, room, parentId);
-
-            return topic;
         }).catch((error: any) => {
             console.log('Error: add from TopicService', error);
             return null;
         });
     }
 
-    public get(id: number): Promise<Topic | null> {
+    public get(id: string): Promise<Topic | null> {
         return Topic.findOne({
             where: {
                 status: Status.NORMAL,
@@ -120,6 +226,20 @@ export class TopicService {
                     attributes: ['id', 'key'],
 
                 },
+                {
+                    model: Chat,
+                    as: 'chat',
+                    required: false,
+                    attributes: ['id', 'category', 'content', 'createdAt', 'meta'],
+                    include: [
+                        {
+                            model: User,
+                            as: 'user',
+                            required: false,
+                            attributes: ['id', 'name', 'color'],
+                        },
+                    ],
+                }
             ],
         }).catch((e) => {
             console.log('Error: get from TopicService', e);

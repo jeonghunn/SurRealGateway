@@ -25,7 +25,7 @@ export class Client extends Model {
     @PrimaryKey
     @Default(DataType.UUIDV4)
     @Column(DataType.UUIDV4)
-    id!: number;
+    id!: string;
 
     @AllowNull
     @Length({ max: 100 })

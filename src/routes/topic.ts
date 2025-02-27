@@ -59,7 +59,7 @@ router.post(
 
     return chatService.get(chatId).then((chat: Chat) => {
         const roomId: number = chat ? parseInt(req.params.room_id, 10): 0;
-        console.log("chat", chat);
+
         if (!chat || chat.room_id !== roomId) {
             return res.status(404).json({errors: [{msg: 'Chat not found'}]});
         }
@@ -77,7 +77,7 @@ router.post(
                     room,
                     chat.topic_id,
                     req.body.category,
-                    chat.id,
+                    chat,
                     userId,
                     req.body.meta,
                     ).then((topic: Topic) => {
@@ -97,7 +97,7 @@ router.post(
         util.validate([
             param('group_id').isString(),
             param('room_id').isInt(),
-            body('topic_id').isInt().optional({ nullable: true }),
+            body('topic_id').isString().optional({ nullable: true }),
             body('space').isString(),
         ]),
         expressjwt({ secret: config.jwt.secret, algorithms: config.jwt.algorithms }),
@@ -114,7 +114,7 @@ router.post(
         }
         
         const userId: number = parseInt(req.auth.id);
-        const topicId: number | null = parseInt(req.body.topic_id, 10) || null;
+        const topicId: string | null = req.body.topic_id;
         const roomId: number = parseInt(req.params.room_id, 10);
         const groupId: string = req.params.group_id;
         const spaceAppName: string | null = req.body.space || null;
@@ -156,7 +156,6 @@ router.post(
                 topicPromises.push(topicCreationPromise);
     
                 return Promise.all(topicPromises).then((topics: Topic[]) => {
-                    console.log("topics", topics);
                     const parentTopic: Topic | null = topics[0];
                     const newTopic: Topic | null = topics[1];
     
@@ -179,7 +178,7 @@ router.post(
     router.get(
         '/:id',
         util.validate([
-            param('id').isInt(),
+            param('id').isString(),
             param('group_id').isString(),
             param('room_id').isInt(),
         ]),
@@ -188,7 +187,7 @@ router.post(
         (req: any, res: Response, next: NextFunction) => {
 
             const topicService: TopicService = new TopicService();
-            const id: number = parseInt(req.params.id, 10);
+            const id: string = req?.params?.id || null;
 
             return topicService.get(id).then((topic: Topic) => {
                 if (!topic) {

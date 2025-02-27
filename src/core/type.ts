@@ -54,6 +54,10 @@ export enum UserStatus {
     DEACTIVATED,
 }
 
+export enum TopicCategory {
+    REPLY = 'reply',
+  }
+
 export enum AttachStorage {
     LOCAL='LOCAL',
     S3='S3',
@@ -103,6 +107,7 @@ export enum CommunicationType {
 export class Communication {
     public T: CommunicationType | undefined;
     public createdAt?: Date;
+    public ticket_id?: string;
 }
 
 export class CommunicationResult extends Communication {
@@ -115,7 +120,7 @@ export class LiveMessage extends Communication {
     public category: number;
     public content: string | any | undefined;
     public user?: User;
-    public topic_id?: number | null;
+    public topic_id?: string | null;
     public meta?: any;
 }
 
