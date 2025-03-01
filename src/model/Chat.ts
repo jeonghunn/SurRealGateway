@@ -78,7 +78,7 @@ export class Chat extends Model {
       }
 
     set meta(value: any) {
-        this.setDataValue('meta', JSON.stringify(value));
+        this.setDataValue('meta', value);
     }   
     
 
