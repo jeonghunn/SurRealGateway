@@ -73,7 +73,14 @@ export class Chat extends Model {
     status!: Status;
 
     @Column(DataType.JSON)
-    meta?: any;
+    get meta(): any {
+        return JSON.parse(this.getDataValue('meta'));
+      }
+
+    set meta(value: any) {
+        this.setDataValue('meta', JSON.stringify(value));
+    }   
+    
 
     @CreatedAt
     createdAt!: Date;
