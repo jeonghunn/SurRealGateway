@@ -131,6 +131,7 @@ router.get('/verify',
                 email_name: user.email_name,
                 createdAt: user.createdAt,
                 relation: user.relation,
+                color: user.color,
             }
         });
     });
